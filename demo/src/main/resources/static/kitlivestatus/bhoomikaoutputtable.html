@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bhomika Status Overview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* General Reset and Base Styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background:  #35474d;
+        }
+        .container {
+            margin-left: 260px;
+            padding: 30px 20px 20px 20px;
+            transition: margin 0.3s;
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px;
+            height: 100vh;
+            background: #232946;
+            color: #fff;
+            padding: 30px 20px 30px 20px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            z-index: 100;
+            transition: left 0.3s, width 0.3s;
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #eebbc3 #232946;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #eebbc3;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #232946;
+        }
+        .sidebar h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+        .sidebar .card {
+            margin-bottom: 28px;
+        }
+        .sidebar .card:first-child {
+            margin-top: 32px;
+        }
+        .sidebar button {
+            width: 100%;
+            padding: 8px 0;
+            background: #eebbc3;
+            color: #232946;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sidebar button:hover {
+            background: #f6c7be;
+        }
+        /* Responsive Navbar for Small Screens */
+        .navbar-toggle {
+            display: none;
+            position: fixed;
+            left: 10px;
+            top: 15px;
+            z-index: 200;
+            background: #232946;
+            color: #fff;
+            border: none;
+            font-size: 1.7rem;
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+        #header {
+            margin-bottom: 16px;
+        }
+        .navbar-toggle {
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 900px) {
+            .container {
+                margin-left: 0;
+                padding: 10px;
+            }
+            .sidebar {
+                left: -260px;
+                width: 220px;
+                height: 100vh;
+                padding: 20px 10px;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .navbar-toggle {
+                display: block;
+                margin-top: 25px;
+                margin-bottom: 25px;
+                font-size: 1.2rem;
+                padding: 2px 6px;
+                height: 32px;
+                width: 38px;
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 5px;
+            }
+            .sidebar {
+                width: 120px;
+                padding: 10px 4px;
+            }
+            .navbar-toggle {
+                margin-top: 35px;
+                margin-bottom: 35px;
+                font-size: 1rem;
+                padding: 1px 4px;
+                height: 28px;
+                width: 32px;
+            }
+            .sidebar h3 {
+                font-size: 1rem;
+                margin-bottom: 30px;
+            }
+            .sidebar .card:first-child {
+                margin-top: 48px;
+            }
+        }
+        /* Table Styles */
+        .table-wrapper {
+            overflow: auto;
+            max-height: 500px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            margin-top: 30px;
+        }
+        table.clean-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            min-width: 900px;
+            background: #fff;
+        }
+        table.clean-table th, table.clean-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 15px;
+            background: #fff;
+        }
+        table.clean-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        table.clean-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+        table.clean-table tr:hover td {
+            background: #eebbc3;
+            color: #232946;
+        }
+        /* Modal Form Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .form-container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            padding: 30px 20px 20px 20px;
+            min-width: 320px;
+            max-width: 95vw;
+            width: 400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 400;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .form-container.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .form-container h2 {
+            margin-top: 0;
+            color: #232946;
+        }
+        .container h2#currentStatus {
+            text-align: center;
+            color: #fff;
+            margin-top: 32px;
+            margin-bottom: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: 2rem;
+        }
+        @media (max-width: 600px) {
+            .container h2#currentStatus {
+                font-size: 1.2rem;
+            }
+        }
+        .form-group label {
+            font-weight: 500;
+            color: #232946;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group input[type="datetime-local"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 7px 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+        .form-group button {
+            background: #232946;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .form-group button:hover {
+            background: #eebbc3;
+            color: #232946;
+        }
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.3rem;
+            color: #232946;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <button class="navbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="sidebar" id="sidebar">
+        <h3>Status</h3>
+        <div class="card">
+            <button id="showClose">Close Status</button>
+        </div>
+        <div class="card">
+            <button id="showLive">Live Status</button>
+        </div>
+    </div>
+    <div class="container">
+        <h2 id="currentStatus">Close Status</h2>
+        <div class="table-wrapper">
+            <table class="clean-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Reference</th>
+                        <th>BLC PO</th>
+                        <th>BLC PO Date</th>
+                        <th>Machine Name</th>
+                        <th>Assembly Code</th>
+                        <th>Description</th>
+                        <th>Kit Acknowledge By</th>
+                        <th>Kit Acknowledge Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableContainer">
+                    <!-- Table rows will be dynamically populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal-overlay" id="updateModal">
+        <div class="form-container">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <h2>Update Record</h2>
+            <form id="updateForm">
+                <div class="form-group">
+                    <label>GRN Number:</label>
+                    <input type="text" id="grnNumber" />
+                </div>
+                <div class="form-group">
+                    <label>GRN Date:</label>
+                    <input type="date" id="grnDate" />
+                </div>
+                <div class="form-group">
+                    <button type="submit">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="footer"></div>
+    <script>
+    // Load header and footer
+    fetch('/fragments/header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading header:', error));
+
+    let currentStatus = 'close';
+    let currentData = [];
+
+    document.getElementById('showClose').onclick = function() {
+        currentStatus = 'close';
+        fetchData();
+    };
+
+    document.getElementById('showLive').onclick = function() {
+        window.location.href = 'livestatustable.html';
+    };
+
+    function fetchData() {
+        const url = currentStatus === 'close' ? '/api/form/close' : '/api/form/live';
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                currentData = data;
+                renderTable();
+            });
+    }
+
+    function renderTable() {
+        const tableContainer = document.getElementById('tableContainer');
+        const tableHeader = document.getElementById('currentStatus');
+        tableContainer.innerHTML = '';
+        tableHeader.innerText = `${currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)} Status`;
+        if (currentData.length === 0) {
+            tableContainer.innerHTML = '<tr><td colspan="10" style="text-align:center;">No records found.</td></tr>';
+            return;
+        }
+        currentData.forEach(record => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${record.id}</td>
+                <td>${record.reference}</td>
+                <td>${record.blcPo || ''}</td>
+                <td>${record.blcPoDate || ''}</td>
+                <td>${record.machineName || ''}</td>
+                <td>${record.assemblyCode || ''}</td>
+                <td>${record.description || ''}</td>
+                <td>${record.kitAcknowledgeBy || ''}</td>
+                <td>${record.kitAcknowledgeDate || ''}</td>
+                <td><button onclick="openUpdateModal(${record.id})">Update</button></td>
+            `;
+            tableContainer.appendChild(row);
+        });
+    }
+
+    function openUpdateModal(id) {
+        const record = currentData.find(item => item.id === id);
+        document.getElementById('grnNumber').value = record.grnNumber || '';
+        document.getElementById('grnDate').value = record.grnDate || '';
+        document.getElementById('updateForm').onsubmit = function(event) {
+            event.preventDefault();
+            updateRecord(id);
+        };
+        document.getElementById('updateModal').classList.add('active');
+        document.querySelector('#updateModal .form-container').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('updateModal').classList.remove('active');
+        document.querySelector('#updateModal .form-container').classList.remove('active');
+    }
+
+    function updateRecord(id) {
+        const grnNumber = document.getElementById('grnNumber').value;
+        const grnDate = document.getElementById('grnDate').value;
+        fetch(`/api/form/update/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ grnNumber, grnDate }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to update record');
+            }
+            return response.json();
+        })
+        .then(() => {
+            closeModal();
+            fetchData();
+        })
+        .catch(error => {
+            alert(error.message);
+        });
+    }
+
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('open');
+    }
+
+    // Initial fetch for close status
+    fetchData();
+
+    // Footer script
+    fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

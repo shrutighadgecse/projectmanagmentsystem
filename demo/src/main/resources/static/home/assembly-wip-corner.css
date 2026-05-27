@@ -1,0 +1,175 @@
+/* Assembly WIP Corner - Compact Component Styling */
+
+.assembly-wip-corner {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.assembly-wip-header {
+    background-color: #00AEEF;
+    color: white;
+    padding: 18px 20px;
+    text-align: center;
+    border-bottom: 3px solid #0097d9;
+}
+
+.assembly-wip-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+.assembly-wip-header p {
+    font-size: 12px;
+    margin: 4px 0 0 0;
+    opacity: 0.9;
+}
+
+.assembly-wip-body {
+    padding: 15px;
+}
+
+/* WIP Table */
+.wip-table-compact {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.wip-table-compact thead {
+    background-color: #00AEEF;
+    color: white;
+}
+
+.wip-table-compact thead th {
+    padding: 12px 10px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid #0097d9;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+}
+
+.wip-table-compact tbody tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.wip-table-compact tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+.wip-table-compact tbody tr:nth-child(even) {
+    background-color: white;
+}
+
+.wip-table-compact tbody tr:hover {
+    background-color: #f0f7ff;
+}
+
+.wip-table-compact tbody td {
+    padding: 11px 10px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    vertical-align: middle;
+}
+
+.wip-table-compact tbody td:first-child {
+    text-align: left;
+    font-weight: 500;
+    color: #333;
+}
+
+/* Grand Total Row */
+.wip-table-compact tbody tr.grand-total {
+    background-color: #C0C0C0;
+    font-weight: bold;
+    color: #333;
+    border-top: 2px solid #999;
+    border-bottom: 2px solid #999;
+}
+
+.wip-table-compact tbody tr.grand-total td {
+    padding: 13px 10px;
+    border: 1px solid #999;
+}
+
+/* Numeric styling */
+.wip-numeric {
+    font-weight: 500;
+    color: #1976d2;
+}
+
+.wip-numeric.positive {
+    color: #388e3c;
+}
+
+.wip-numeric.negative {
+    color: #d32f2f;
+}
+
+/* Loading and empty states */
+.wip-loading-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+.wip-empty-state {
+    text-align: center;
+    padding: 30px 20px;
+    color: #999;
+    font-size: 14px;
+}
+
+.wip-error-state {
+    text-align: center;
+    padding: 15px;
+    background-color: #ffebee;
+    color: #c62828;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .assembly-wip-header h3 {
+        font-size: 16px;
+    }
+
+    .wip-table-compact thead th {
+        padding: 10px 6px;
+        font-size: 10px;
+    }
+
+    .wip-table-compact tbody td {
+        padding: 9px 6px;
+        font-size: 12px;
+    }
+
+    .wip-table-compact tbody tr.grand-total td {
+        padding: 11px 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .assembly-wip-header h3 {
+        font-size: 14px;
+    }
+
+    .wip-table-compact thead th {
+        padding: 8px 4px;
+        font-size: 9px;
+    }
+
+    .wip-table-compact tbody td {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+}

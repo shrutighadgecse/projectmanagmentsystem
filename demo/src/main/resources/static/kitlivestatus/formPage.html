@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="kitlivestatus.css" />
+    <title>Bhomika Kit Forwaded Status</title>
+  
+    <style>
+        .container, .form-container, main {
+    margin-bottom: 80px !important; /* Ensure gap above footer for all forms */
+}
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div style="height:60px;"></div> <!-- Gap below header for all screens -->
+
+    <main>
+    <section class="container">
+        <form id="multiStepForm" class="form">
+            <h1>Bhomika Update Live Status</h1>
+
+        
+                <div class="input-box">
+                    <label>Current Date and Time (IST)</label>
+                    <input type="datetime-local" id="currentDateTime" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>Kit Form Date</label>
+                    <input type="date" id="date" required />
+                </div>
+                <div class="input-box">
+                    <label>Reference</label>
+                    <input type="text" id="reference" placeholder="Enter Reference" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>BLC PO</label>
+                    <input type="text" id="blcPo" placeholder="Enter BLC PO" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>BLC PO Date</label>
+                    <input type="date" id="blcPoDate" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>CCN</label>
+                    <input type="text" id="ccn" placeholder="Enter CCN" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>Machine Name</label>
+                    <input type="text" id="machineName" placeholder="Enter Machine Name" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>Assembly Code</label>
+                    <input type="text" id="assemblyCode" placeholder="Enter Assembly Code" required disabled />
+                </div>
+                <div class="gender-box">
+                    <h3>Inward Status</h3>
+                    <div class="gender-option">
+                        <div class="gender">
+                            <input type="radio" id="In-Process" name="order type" checked disabled />
+                            <label for="check-In-Process">In-Process</label>
+                        </div>
+                        <div class="gender">
+                            <input type="radio" id="ShortFall" name="order type" checked disabled />
+                            <label for="check-ShortFall">ShortFall</label>
+                        </div>
+                        <div class="gender">
+                            <input type="radio" id="Completed" name="order type" checked disabled />
+                            <label for="check-Completed">Completed</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-box">
+                    <label>Inward QTY</label>
+                    <input type="number" id="inwardQty" placeholder="Enter Inward QTY" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>Inward By</label>
+                    <input type="text" id="inwardBy" placeholder="Enter Person Name" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>STAGE:</label>
+                    <input type="text" id="stage" required placeholder="Enter stage Name" required disabled />
+                </div>
+                <div class="input-box">
+                    <label>Kit Record Date</label>
+                    <input type="date" id="kitRecordDate" required disabled />
+                </div>
+                <div class="input-box">
+                    <label for="description">Description:</label>
+                    <input id="description" name="description" disabled></input>
+                </div>
+                <div class="input-box">
+                    <label>Kit Acknowledge By</label>
+                    <input type="text" id="kitAcknowledgeBy" placeholder="Kit Acknowledge By" required />
+                </div>
+                <div class="input-box">
+                    <label>Kit Acknowledge Date</label>
+                    <input type="date" id="kitAcknowledgeDate" required />
+                </div>
+                <input type="hidden" id="liveStatusDropdown" value="inhand" />
+                <button type="button" onclick="saveForm(1)">Save</button>
+            </div>
+        </form>
+    </section>
+</main>
+
+    <script src="kitlivestatus.js"></script>
+    <script>
+             // Load header and footer
+ fetch('/fragments/header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading header:', error));
+
+      
+        let currentStep = 1;
+
+        window.onload = function() {
+    // Set the current date and time in IST
+    const now = new Date();
+    const options = { timeZone: "Asia/Kolkata", year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false };
+    const formatter = new Intl.DateTimeFormat('en-IN', options);
+    const parts = formatter.formatToParts(now);
+    
+    // Extract the date and time parts
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
+    const hour = parts.find(part => part.type === 'hour').value;
+    const minute = parts.find(part => part.type === 'minute').value;
+
+    // Format the datetime-local value
+    const formattedDateTime = `${year}-${month}-${day}T${hour}:${minute}`;
+    document.getElementById('currentDateTime').value = formattedDateTime;
+
+
+            // Disable Live Status field by default
+            document.getElementById('liveStatusDropdown').disabled = true;
+
+            // Autofill fields with the data from the URL
+            const urlParams = new URLSearchParams(window.location.search);
+            document.getElementById('reference').value = urlParams.get('referenceId') || '';
+            document.getElementById('date').value = urlParams.get('dateTime') || '';
+            document.getElementById('blcPo').value = urlParams.get('blcPo') || '';
+            document.getElementById('blcPoDate').value = urlParams.get('blcPoDate') || '';
+            document.getElementById('ccn').value = urlParams.get('ccn') || '';
+            document.getElementById('assemblyCode').value = urlParams.get('assemblyCode') || '';
+            document.getElementById('machineName').value = urlParams.get('machineName') || '';
+            document.getElementById('stage').value = urlParams.get('stage') || '';
+            document.getElementById('inwardBy').value = urlParams.get('inwardBy') || '';
+            document.getElementById('inwardQty').value = urlParams.get('inwardQty') || '';
+            document.getElementById('description').value = urlParams.get('description') || '';
+            document.getElementById('kitRecordDate').value = urlParams.get('completionDate') || '';
+
+            // Enable Kit Acknowledge fields
+            document.getElementById('kitAcknowledgeBy').disabled = false; 
+            document.getElementById('kitAcknowledgeDate').disabled = false; 
+
+            // Set default Live Status to "Inhand"
+            const liveStatusDropdown = document.getElementById('liveStatusDropdown');
+            liveStatusDropdown.value = 'inhand'; 
+        };
+
+document.getElementById('kitAcknowledgeDate').onchange = function() {
+    const kitAcknowledgeDate = document.getElementById('kitAcknowledgeDate').value;
+    const today = new Date().toISOString().split('T')[0];
+
+    if (kitAcknowledgeDate > today) {
+        alert('Kit Acknowledge Date cannot be greater than today.');
+        document.getElementById('kitAcknowledgeDate').value = '';
+        return;
+    }
+};
+
+        function validateStep1() {
+            const requiredFields = [
+                'date', 'reference', 'blcPo', 'blcPoDate', 'ccn', 
+                'machineName', 'assemblyCode', 'inwardQty', 'inwardBy'
+            ];
+
+            return requiredFields.every(field => {
+                const element = document.getElementById(field);
+                // Skip validation for disabled fields
+                if (element.disabled) {
+                    return true;
+                }
+                return element.value.trim() !== '';
+            });
+        }
+
+        function saveForm(step) {
+    // Validate mandatory fields for Step 1
+    if (step === 1) {
+        const mandatoryFieldsStep1 = [
+            'date', 'reference', 'blcPo', 'blcPoDate', 'ccn', 
+            'machineName', 'assemblyCode', 'inwardQty', 'inwardBy'
+        ];
+
+        const allMandatoryFilled = mandatoryFieldsStep1.every(field => {
+            return document.getElementById(field).value.trim() !== '';
+        });
+
+        if (!allMandatoryFilled) {
+            alert('Please fill in all mandatory fields in Step 1.');
+            return; // Prevent saving if mandatory fields are not filled
+        }
+    }
+
+    const formData = {
+        kitFormDate: document.getElementById('date').value,
+        reference: document.getElementById('reference').value,
+        blcPo: document.getElementById('blcPo').value,
+        blcPoDate: document.getElementById('blcPoDate').value,
+        ccn: document.getElementById('ccn').value,
+        machineName: document.getElementById('machineName').value,
+        assemblyCode: document.getElementById('assemblyCode').value,
+        inwardStatus: document.querySelector('input[name="order type"]:checked').value,
+        inwardQty: document.getElementById('inwardQty').value,
+        inwardBy: document.getElementById('inwardBy').value,
+        stage: document.getElementById('stage').value,
+        kitRecordDate: document.getElementById('kitRecordDate').value,
+        description: document.getElementById('description').value,
+        kitAcknowledgeDate: document.getElementById('kitAcknowledgeDate').value,
+        kitAcknowledgeBy: document.getElementById('kitAcknowledgeBy').value,
+        liveStatus: document.getElementById('liveStatusDropdown').value,
+        currentDateTime: document.getElementById('currentDateTime').value // Add this line
+
+    };
+
+    fetch('/api/form/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(text);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Success:', data);
+        alert('Form saved successfully!');
+        window.location.href = 'kitlivestatus.html?refreshTable=true';
+
+        // Now delete the completed entry
+        const referenceId = formData.reference; // Assuming you have the reference ID in formData
+        console.log('Attempting to delete completed entry with reference ID:', referenceId); // Debugging log
+        return fetch(`/api/kitform/completed/${referenceId}`, {
+            method: 'DELETE',
+        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(text);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Completed entry deleted:', data);
+        fetchCompletedEntries(); // Refresh the completed entries table
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        // Do not display any error message to the user
+    });
+}
+    </script>
+    <div id="footer"></div>
+    <script>
+    fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

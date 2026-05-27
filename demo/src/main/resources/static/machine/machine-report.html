@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Machine KOM-style Report</title>
+  <style>
+    body{font-family:Calibri,Arial,sans-serif;background:#f4f4f4;padding:18px}
+    .root{max-width:850px;margin:auto;background:#fff;border:1px solid #000;padding:20px}
+    h2{text-align:center;text-decoration:underline;margin:6px 0 12px}
+    table{border-collapse:collapse;width:100%;margin-bottom:12px;font-size:12px}
+    th,td{border:1px solid #000;padding:5px 7px;vertical-align:top}
+    th{background:#e9e9e9;text-align:left}
+    .section-title{font-weight:500;margin-top:12px;margin-bottom:6px}
+    .box{padding:10px;border:1px solid #ccc;background:#fafafa;min-height:60px;white-space:pre-wrap}
+    .controls{text-align:right;margin-bottom:10px}
+    .btn{padding:6px 10px;margin-left:6px;border:1px solid #333;border-radius:4px;background:#fff;cursor:pointer}
+    /* added: logo styles */
+    #reportLogo {
+      float: left;
+      width: 140px; /* adjust size as needed */
+      height: auto;
+      margin-right: 16px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+    @media print {
+      #reportLogo { display: inline-block; }
+    }
+    @media print{.controls{display:none}.root{border:none;margin:0;padding:0;max-width:none}body{background:#fff;padding:0}}
+  </style>
+</head>
+<body>
+  <div class="root" id="reportRoot">
+    <!-- Added: logo (place your image file 'ima_logo.png' alongside this HTML or change src to your image path) -->
+    <img id="reportLogo" src="/images/IMA1.jpg" alt="IMA-PG Logo">
+
+    <div class="controls">
+      <button class="btn" id="closeBtn">Close</button>
+      <button class="btn" id="backBtn">Back</button>
+      <button class="btn" id="printBtn">Print</button>
+      <button class="btn" id="savePdfBtn">Save as PDF</button>
+    </div>
+
+    <h2>Machine KOM-style Report</h2>
+
+    <table class="small header-table">
+      <tr>
+        <td><strong>CCN:</strong> <span id="m_ccn"></span></td>
+        <td><strong>Machine Name:</strong> <span id="m_machineName"></span></td>
+      </tr>
+      <tr>
+        <td><strong>Model:</strong> <span id="m_model"></span></td>
+        <td><strong>Customer:</strong> <span id="m_customer"></span></td>
+      </tr>
+      <tr>
+        <td><strong>Invoice Date:</strong> <span id="m_invoiceDate"></span></td>
+        <td><strong>CCN Status / Live Status:</strong> <span id="m_ccnStatus"></span> / <span id="m_liveStatus"></span></td>
+      </tr>
+      <tr>
+        <td><strong>Timestamp:</strong> <span id="m_timestamp"></span></td>
+        <td><strong>Machine Family / Category:</strong> <span id="m_family_cat"></span></td>
+      </tr>
+    </table>
+
+    <div class="section-title">Purchase Order</div>
+    <table class="small">
+      <tbody>
+        <tr><th>PO Ref No</th><td id="po_ref"></td></tr>
+        <tr><th>PO Date</th><td id="po_date"></td></tr>
+        <tr><th>PO Delivery Date</th><td id="po_delivery"></td></tr>
+        <tr><th>PO Value (Lacs)</th><td id="po_value"></td></tr>
+        <tr><th>Sales Person</th><td id="po_sales"></td></tr>
+        <tr><th>Order Type</th><td id="po_orderType"></td></tr>
+        <tr><th>Address</th><td id="po_address"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Kickoff / Project Details</div>
+    <table class="small">
+      <tbody>
+        <tr><th>KOM No.</th><td id="k_komNo"></td></tr>
+        <tr><th>Venue</th><td id="k_venue"></td></tr>
+        <tr><th>Unit</th><td id="k_unit"></td></tr>
+        <tr><th>Members Present</th><td id="k_members"></td></tr>
+        <tr><th>Machine CP Qty / Optional</th><td id="k_cpQty"></td></tr>
+        <tr><th>Planned Dispatch (Kickoff)</th><td id="k_plannedDispatch"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Machine Basics</div>
+    <div id="m_basics" class="discussion box"></div>
+
+    <div class="section-title">Machine Features</div>
+    <table id="featuresTable" class="small">
+      <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="section-title">Additional Options</div>
+    <table id="optionsTable" class="small">
+      <thead><tr><th>Option</th><th>Value</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="section-title">Assembly Operations</div>
+    <table class="small">
+      <tbody>
+        <tr><th>Workmen</th><td id="a_workmen"></td></tr>
+        <tr><th>Std Task Of Machine</th><td id="a_stdTask"></td></tr>
+        <tr><th>Task Completed</th><td id="a_taskCompleted"></td></tr>
+        <tr><th>Machine Percentage</th><td id="a_machinePercentage"></td></tr>
+        <tr><th>Project Percentage</th><td id="a_projectPercentage"></td></tr>
+        <tr><th>Timer On Machine</th><td id="a_timer"></td></tr>
+        <tr><th>CP Trial On Machine</th><td id="a_cpTrial"></td></tr>
+        <tr><th>CP Interchanged</th><td id="a_cpInterchanged"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Assy Actuals</div>
+    <table class="small">
+      <tbody>
+        <tr><th>Actual Material Receipt Date</th><td id="aa_materialReceipt"></td></tr>
+        <tr><th>Actual / Dynamic Manf Plan</th><td id="aa_dynamicManf"></td></tr>
+        <tr><th>Actual / Dynamic Dispatch Plan</th><td id="aa_dynamicDispatch"></td></tr>
+        <tr><th>Actual Assy Start Date</th><td id="aa_assyStart"></td></tr>
+        <tr><th>Actual IFAT Date</th><td id="aa_ifat"></td></tr>
+        <tr><th>Actual CP Date</th><td id="aa_cp"></td></tr>
+        <tr><th>Actual CFAT Date</th><td id="aa_cfat"></td></tr>
+        <tr><th>Compliance Closure Date</th><td id="aa_compliance"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Dispatch Details</div>
+    <table class="small">
+      <tbody>
+        <tr><th>Dispatched Month</th><td id="d_month"></td></tr>
+        <tr><th>Invoice Date</th><td id="d_invoice"></td></tr>
+        <tr><th>Handed To Dispatch Dept</th><td id="d_handed"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Workflow Dates / Milestones</div>
+    <table id="workflowTable" class="small">
+      <thead><tr><th>Milestone</th><th>Date</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="section-title">Remarks / Delay Analysis / Short Details</div>
+    <div class="discussion box" id="m_remarks"></div>
+
+    <div style="margin-top:18px;text-align:center;color:#333;font-size:13px">
+      <div><strong>Prepared By:</strong> ______________________ &nbsp;&nbsp; <strong>Approved By:</strong> ______________________</div>
+    </div>
+  </div>
+
+  <!-- html2pdf for client-side PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <script>
+    (function(){
+      function qs(name){ return new URL(location.href).searchParams.get(name); }
+      function esc(s){ return String(s||''); }
+      function setText(id, val){ const el = document.getElementById(id); if(el) el.textContent = val || ''; }
+
+      // snake_case -> camelCase helper
+      function toCamel(s){ return s.replace(/_([a-z])/g, (m,g)=>g.toUpperCase()); }
+
+      async function load() {
+        const ccn = qs('ccn');
+        if (!ccn) {
+          document.getElementById('reportRoot').innerHTML = '<p style="color:red">Missing CCN. Open this page with ?ccn=...</p>';
+          return;
+        }
+        try {
+          const res = await fetch(`/api/machine/by-ccn?ccn=${encodeURIComponent(ccn)}`);
+          if (!res.ok) throw new Error('Fetch failed');
+          const data = await res.json();
+          const machine = data.machine || {};
+          const kickoff = data.kickoff || {};
+          const po = data.po || {};
+
+          // Header
+          setText('m_ccn', machine.ccn || kickoff.ccn || ccn);
+          setText('m_machineName', machine.machineName || kickoff.machineName || '');
+          setText('m_model', machine.model || kickoff.machineModel || po.modelName || '');
+          setText('m_customer', machine.customerName || kickoff.customerName || po.customerName || '');
+          setText('m_invoiceDate', machine.invoiceDate || '');
+          setText('m_ccnStatus', machine.ccnStatus || kickoff.ccnStatus || '');
+          setText('m_liveStatus', machine.liveStatus || '');
+          setText('m_timestamp', machine.timestamp || '');
+          setText('m_family_cat', (machine.machineFamily||kickoff.machineFamily||'') + ' / ' + (machine.machineCategory||kickoff.machineCategory||machine.orderType||''));
+
+          // PO
+          setText('po_ref', machine.poRefNo || po.poReferenceNumber || '');
+          setText('po_date', machine.poDate || po.poDate || '');
+          setText('po_delivery', machine.poDeliveryDate || po.poDeliveryDate || kickoff.poDeliveryDate || '');
+          setText('po_value', machine.poValueLacs || po.poValueLacs || '');
+          setText('po_sales', machine.salesPerson || po.salesPerson || '');
+          setText('po_orderType', machine.orderType || po.orderType || '');
+          setText('po_address', machine.address || data.poAddress || kickoff.address || '');
+
+          // Kickoff
+          setText('k_komNo', machine.komNo || kickoff.komNo || '');
+          setText('k_venue', machine.venue || kickoff.venue || '');
+          setText('k_unit', machine.unit || kickoff.unit || '');
+          setText('k_members', machine.membersPresent || kickoff.membersPresent || '');
+          setText('k_cpQty', (machine.machineCpQty||'') + (machine.machineOptionalCpQty?(' / '+machine.machineOptionalCpQty):''));
+          setText('k_plannedDispatch', machine.plannedDispatchDate || kickoff.planned_dispatch_date || '');
+
+          // Machine basics/features/options
+          const basics = machine.machineBasics || kickoff.machineBasics || '';
+          document.getElementById('m_basics').textContent = Array.isArray(basics) ? basics.join('\n') : basics;
+
+          // features
+          const featuresBody = document.querySelector('#featuresTable tbody');
+          featuresBody.innerHTML = '';
+          const features = machine.machineFeatures || kickoff.machineFeatures || [];
+          if (Array.isArray(features) && features.length) {
+            features.forEach(f => {
+              const tr = document.createElement('tr');
+              const fname = (typeof f === 'string') ? f : (f.feature || f.name || '');
+              const fdesc = (typeof f === 'string') ? '' : (f.description || f.desc || '');
+              tr.innerHTML = '<td>' + esc(fname) + '</td><td>' + esc(fdesc) + '</td>';
+              featuresBody.appendChild(tr);
+            });
+          } else {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td colspan="2" style="text-align:center">(No features recorded)</td>';
+            featuresBody.appendChild(tr);
+          }
+
+          // additionalOptions
+          const optsBody = document.querySelector('#optionsTable tbody');
+          optsBody.innerHTML = '';
+          const ao = machine.additionalOptions || kickoff.additionalOptions || {};
+          if (typeof ao === 'string' && ao.trim()) {
+            const tr = document.createElement('tr'); tr.innerHTML = '<td>Options</td><td>' + esc(ao) + '</td>'; optsBody.appendChild(tr);
+          } else if (typeof ao === 'object' && Object.keys(ao||{}).length) {
+            for (const k of Object.keys(ao)) {
+              const tr = document.createElement('tr'); tr.innerHTML = '<td>' + esc(k) + '</td><td>' + esc(ao[k]) + '</td>'; optsBody.appendChild(tr);
+            }
+          } else {
+            const tr = document.createElement('tr'); tr.innerHTML = '<td colspan="2" style="text-align:center">(No additional options)</td>'; optsBody.appendChild(tr);
+          }
+
+          // Assembly
+          setText('a_workmen', machine.workmen || '');
+          setText('a_stdTask', machine.stdTaskOfMachine || '');
+          setText('a_taskCompleted', machine.taskCompleted || '');
+          setText('a_machinePercentage', machine.machinePercentage || '');
+          setText('a_projectPercentage', machine.projectPercentage || '');
+          setText('a_timer', machine.timerOnMachine || '');
+          setText('a_cpTrial', machine.cpTrialOnMachine || '');
+          setText('a_cpInterchanged', machine.cpInterchanged || '');
+
+          // Assy actuals
+          setText('aa_materialReceipt', machine.actualMaterialReceiptDate || '');
+          setText('aa_dynamicManf', machine.actualDynamicManufacturingPlan || '');
+          setText('aa_dynamicDispatch', machine.actualDynamicDispatchPlan || '');
+          setText('aa_assyStart', machine.actualAssyStartDate || '');
+          setText('aa_ifat', machine.actualIfatDate || '');
+          setText('aa_cp', machine.actualCpDate || '');
+          setText('aa_cfat', machine.actualCfatDate || '');
+          setText('aa_compliance', machine.complianceClosureDate || '');
+
+          // Dispatch
+          setText('d_month', machine.dispatched_month || '');
+          setText('d_invoice', machine.invoiceDate || '');
+          setText('d_handed', machine.handedToDispatchDept || '');
+
+          // Workflow table
+          const wfLabels = {
+            po_receipt_date:'PO Receipt Date', oa_generation_date:'OA Generation Date', kom_date:'KOM Date',
+            advance_payment_receipt_date:'Advance Payment Receipt Date', balance_payment_receipt_date:'Balance Payment Receipt Date',
+            cp_layout_approvals:'CP Layout Approvals', machine_layout_approvals:'Machine Layout Approvals', room_layout_approvals:'Room Layout Approvals',
+            loa_basic:'LOA Basic',loa_optional:'LOA Optional', dq_release:'DQ Release', ppc_basic_date:'PPC Basic Date', ppc_optional_date:'PPC Optional Date',
+            cp_design_release_date:'CP Design Release Date', cp_manufacturing_date:'CP Manufacturing Date',
+            machine_manufacturing_basic:'Machine Manufacturing Basic', machine_manufacturing_customisation:'Machine Manufacturing Customisation',
+            pmr_genration_submission_date:'PMR Generation & Submission', products_receipt_date:'Product Receipt Date', packaging_receipt_date:'Packaging Receipt Date',
+            ifat_protocol_release:'IFAT Protocols Release', ifat_std_cp:'IFAT With Std CP', ifat_customer_cp:'IFAT With Customer CP',
+            cfat:'CFAT', compliance:'Compliance', dispatch_clearance:'Dispatch Clearance', planned_dispatch_date:'Planned Dispatch Date'
+          };
+          const wfTbody = document.querySelector('#workflowTable tbody');
+          wfTbody.innerHTML = '';
+          for (const key in wfLabels) {
+            const val = machine[toCamel(key)] || machine[key] || kickoff[toCamel(key)] || kickoff[key] || '';
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + esc(wfLabels[key]) + '</td><td>' + esc(val) + '</td>';
+            wfTbody.appendChild(tr);
+          }
+
+          // Remarks and short details
+          const remarks = (machine.remarks || '') + ((machine.delayAnalysis)?('\n\nDelay Analysis:\n'+machine.delayAnalysis):'') +
+            ((machine.shortDetailMech)?('\n\nShort Detail (MECH):\n'+machine.shortDetailMech):'') +
+            ((machine.shortDetailElectrical)?('\n\nShort Detail (ELECT):\n'+machine.shortDetailElectrical):'') +
+            ((machine.shortDetailCp)?('\n\nShort Detail (CP):\n'+machine.shortDetailCp):'');
+          document.getElementById('m_remarks').textContent = remarks;
+
+        } catch (err) {
+          document.getElementById('reportRoot').innerHTML = '<p style="color:red">Error loading data.</p>';
+          console.error(err);
+        }
+      }
+
+      document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+      
+      document.getElementById('backBtn').addEventListener('click', ()=>{
+        const ccn = new URL(location.href).searchParams.get('ccn');
+        window.location.href = '/machine-project.html' + (ccn ? '?ccn=' + encodeURIComponent(ccn) : '');
+      });
+      
+      document.getElementById('closeBtn').addEventListener('click', ()=>{
+        // Close current report window
+        window.close();
+        // If cannot close (same window), redirect to home
+        setTimeout(()=>{ window.location.href = '/'; }, 500);
+      });
+
+      // PDF generation
+      document.getElementById('savePdfBtn').addEventListener('click', async function(){
+        const root = document.getElementById('reportRoot');
+        const ccn = new URL(location.href).searchParams.get('ccn') || 'machine_report';
+        const filename = `machine_report_${ccn}.pdf`;
+        this.disabled = true; this.textContent = 'Generating...';
+        try {
+          const clone = root.cloneNode(true);
+          const ccontrols = clone.querySelector('.controls'); if (ccontrols) ccontrols.remove();
+          clone.style.boxShadow='none'; clone.style.background='#fff'; clone.style.position='fixed'; clone.style.left='-9999px';
+          document.body.appendChild(clone);
+          await html2pdf().set({margin:10,filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}}).from(clone).save();
+          document.body.removeChild(clone);
+        } catch(e){ alert('PDF generation failed'); console.error(e); }
+        this.disabled = false; this.textContent = 'Save as PDF';
+      });
+
+      load();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan vs Actual </title>
+    <style>
+    /* Header layout like PO page */
+    .page-header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 1rem 0.5rem;
+      gap: 1rem;
+    }
+    .page-header h1 {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    .page-header .filters {
+      margin-left: auto;
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+      align-self: stretch;
+      flex-wrap: wrap;
+    }
+    .page-header .filters label {
+      font-weight: 600;
+      margin-right: 0.35rem;
+      font-size: 0.85rem;
+      color: #2c3e50;
+      display: inline-flex;
+      align-items: center;
+    }
+    .page-header .filters select {
+      padding: 0.25rem 0.6rem;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      border: 1px solid #cfd8dc;
+      background: linear-gradient(180deg,#ffffff,#fbfdff);
+      box-shadow: inset 0 1px 2px rgba(16,24,32,0.03);
+      color: #133e47;
+      min-width: 7.5rem;
+      transition: border-color .12s ease, box-shadow .12s ease, transform .06s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .page-header .filters button {
+      padding: 0.35rem 0.7rem;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      border: none;
+      background: linear-gradient(180deg,#17879a,#0f5f6b);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(17,83,92,0.12);
+      transition: transform .08s ease, box-shadow .12s ease, opacity .08s ease;
+    }
+
+    /* Table and report styles (matching PO output table) */
+    body { font-family: 'Roboto Condensed', Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
+    .responstable,
+    .responstable th,
+    .responstable td { font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 12px; }
+    .responstable { border-collapse: collapse; width: 100%; }
+    .responstable thead th {
+      background: #167F92;
+      color: #fff;
+      padding: 8px 10px;
+      border: 1px solid #333;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .responstable tbody td {
+      padding: 8px 10px;
+      border-top: 1px solid #ddd;
+      border-left: none;
+      border-right: none;
+      border-bottom: none;
+      vertical-align: top;
+      white-space: normal;
+      color: #222;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      background: #fff;
+      border-radius: 6px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+
+    /* report modal */
+    #report-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.25);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    #report-content {
+      background: #fff;
+      padding: 1.2em;
+      border-radius: 8px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: auto;
+      position: relative;
+    }
+
+    /* Print-friendly rules similar to PO page */
+    @page { size: A4 landscape; margin: 10mm; }
+    @media print {
+      html,body{height:auto;margin:0;padding:0;overflow:visible !important;}
+      #report-modal, #report-content { position: static !important; max-height: none !important; overflow: visible !important; }
+      .table-wrapper { overflow: visible !important; width: auto !important; margin-left: 0 !important; background: transparent; box-shadow:none; padding:0; }
+      table.responstable { width: auto !important; max-width: 100% !important; min-width: 0 !important; font-size:10px !important; table-layout:auto; border-collapse: collapse; }
+      thead { display: table-header-group; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      .responstable thead th, .responstable tbody td { white-space: normal; word-break: break-word; }
+    }
+
+    /* small-screen tweaks */
+    @media (max-width:720px) {
+      .page-header { padding: 0.6rem 0.6rem; }
+      .page-header h1 { font-size: 1rem; }
+      .page-header .filters label { display: none; }
+      .page-header .filters select { min-width: 6rem; font-size: 0.8rem; }
+      .page-header .filters button { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
+    }
+
+    /* small utility classes kept from previous file */
+    .positive { color: #d32f2f; }  /* Red for delays */
+    .negative { color: #388e3c; }  /* Green for early completion */
+    .search-box { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+
+    /* Flash highlight for focused table */
+    .flash {
+      animation: pc-flash 1s ease;
+    }
+    @keyframes pc-flash {
+      0% { box-shadow: 0 0 0 rgba(23,135,154,0); }
+      40% { box-shadow: 0 0 18px rgba(23,135,154,0.28); }
+      100% { box-shadow: 0 0 0 rgba(23,135,154,0); }
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- page header -->
+        <div class="page-header">
+            <h1>Plan vs Actual Comparison</h1>
+            <div class="filters" aria-hidden="true">
+                <!-- optional global filters can be placed here -->
+            </div>
+        </div>
+
+        <!-- Manufacturing Plan Section -->
+        <!-- ADDED id to allow toggling from other pages -->
+        <div class="table-container" id="manufacturingSection">
+            <h2>Manufacturing Plan vs Actual</h2>
+            <!-- filters (unchanged controls) -->
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+                <input type="text" id="manufSearch" class="search-box" placeholder="Search CCN...">
+                <select id="manufMonthSelect" class="search-box" style="width:140px;">
+                    <option value="">All Months</option>
+                    <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                    <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+                    <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+                    <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                </select>
+                <select id="manufYearSelect" class="search-box" style="width:120px;">
+                    <option value="">All Years</option>
+                </select>
+            </div>
+
+            <!-- wrapped table using responstable -->
+            <div class="table-wrapper" id="manufacturingWrapper">
+                <table id="manufacturingTable" class="responstable">
+                    <thead>
+                        <tr>
+                            <th>CCN</th>
+                            <th>Plan Manufacturing Date</th>
+                            <th>Actual Manufacturing Date</th>
+                            <th>Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Dispatch Plan Section -->
+        <!-- ADDED id to allow toggling from other pages -->
+        <div class="table-container" id="dispatchSection">
+            <h2>Dispatch Plan vs Actual</h2>
+            <!-- filters (unchanged controls) -->
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+                <input type="text" id="dispatchSearch" class="search-box" placeholder="Search CCN...">
+                <select id="dispatchMonthSelect" class="search-box" style="width:140px;">
+                    <option value="">All Months</option>
+                    <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                    <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+                    <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+                    <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                </select>
+                <select id="dispatchYearSelect" class="search-box" style="width:120px;">
+                    <option value="">All Years</option>
+                </select>
+            </div>
+
+            <!-- wrapped table using responstable -->
+            <div class="table-wrapper" id="dispatchWrapper">
+                <table id="dispatchTable" class="responstable">
+                    <thead>
+                        <tr>
+                            <th>CCN</th>
+                            <th>Plan Dispatch Date</th>
+                            <th>Actual Dispatch Date</th>
+                            <th>Days</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to format date from YYYY-MM-DD to DD-MM-YYYY
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            try {
+                // assume yyyy-mm-dd or variants
+                const parts = dateStr.split(/[-\/]/);
+                if (parts.length >= 3 && parts[0].length === 4) {
+                    const [year, month, day] = parts;
+                    return `${day}-${month}-${year}`;
+                }
+                // fallback
+                return dateStr;
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        // Parse date to { year: YYYY, month: 1-12 } or null
+        function parseDateToYearMonth(dateStr) {
+            if (!dateStr) return null;
+            const s = String(dateStr).trim();
+            // try ISO yyyy-mm-dd or yyyy/mm/dd
+            let m = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+            if (m) return { year: parseInt(m[1],10), month: parseInt(m[2],10) };
+            // dd-mm-yyyy or dd/mm/yyyy
+            m = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+            if (m) return { year: parseInt(m[3],10), month: parseInt(m[2],10) };
+            // fallback: extract 3 numbers
+            const nums = s.match(/\d{1,4}/g);
+            if (nums && nums.length >= 2) {
+                // try detect year (4-digit)
+                const y = nums.find(n => n.length === 4);
+                if (y) {
+                    const yi = parseInt(y,10);
+                    const others = nums.filter(n => n !== y);
+                    const month = Math.min(12, Math.max(1, parseInt(others[0]||'0',10)));
+                    return { year: yi, month: month || null };
+                }
+            }
+            return null;
+        }
+
+        // Generic populate with month/year filtering on plan date
+        function populateTableWithFilters(data, tableId, searchInput, monthSelect, yearSelect, planFieldName) {
+            const tbody = document.querySelector(`#${tableId} tbody`);
+            const filterText = (searchInput && searchInput.value || '').toLowerCase();
+            const selMonth = monthSelect ? monthSelect.value : '';
+            const selYear = yearSelect ? yearSelect.value : '';
+
+            tbody.innerHTML = (data || [])
+                .filter(row => {
+                    const ccn = (row.ccn || '').toString().toLowerCase();
+                    if (!ccn.includes(filterText)) return false;
+                    const planDate = row[planFieldName] || row.planDate || row.plan_date || '';
+                    const pm = parseDateToYearMonth(planDate);
+                    if (selMonth) {
+                        if (!pm || String(pm.month) !== String(selMonth)) return false;
+                    }
+                    if (selYear) {
+                        if (!pm || String(pm.year) !== String(selYear)) return false;
+                    }
+                    return true;
+                })
+                .map(row => {
+                    const days = row.days == null ? '' : (row.days + ' days');
+                    const cls = (row.days > 0) ? 'positive' : (row.days < 0 ? 'negative' : '');
+                    return `
+                    <tr>
+                        <td>${escapeHtml(row.ccn)}</td>
+                        <td>${escapeHtml(formatDate(row.planDate || row.plan_date || row.plan))}</td>
+                        <td>${escapeHtml(formatDate(row.actualDate || row.actual_date || row.actual))}</td>
+                        <td class="${cls}">${escapeHtml(days)}</td>
+                    </tr>`;
+                }).join('');
+        }
+
+        function escapeHtml(s) {
+            if (s === null || s === undefined) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,"&#39;");
+        }
+
+        // Fetch and display data with month/year filters
+        async function loadData() {
+            try {
+                const response = await fetch('/api/machine/plan-comparison');
+                const data = await response.json();
+
+                const manufSearch = document.getElementById('manufSearch');
+                const dispatchSearch = document.getElementById('dispatchSearch');
+
+                const manufMonth = document.getElementById('manufMonthSelect');
+                const manufYear = document.getElementById('manufYearSelect');
+                const dispatchMonth = document.getElementById('dispatchMonthSelect');
+                const dispatchYear = document.getElementById('dispatchYearSelect');
+
+                // build year sets from both manufacturing and dispatch plan dates
+                const yearSet = new Set();
+                (data.manufacturing || []).forEach(r => {
+                    const pm = parseDateToYearMonth(r.planDate || r.plan_date || r.plan);
+                    if (pm && pm.year) yearSet.add(pm.year);
+                });
+                (data.dispatch || []).forEach(r => {
+                    const pm = parseDateToYearMonth(r.planDate || r.plan_date || r.plan);
+                    if (pm && pm.year) yearSet.add(pm.year);
+                });
+                const years = Array.from(yearSet).sort((a,b)=>b-a);
+                // populate both year selects
+                function fillYearSelect(sel) {
+                    // keep default "All Years" present
+                    sel.innerHTML = '<option value="">All Years</option>';
+                    years.forEach(y => {
+                        const opt = document.createElement('option');
+                        opt.value = y;
+                        opt.textContent = y;
+                        sel.appendChild(opt);
+                    });
+                }
+                fillYearSelect(manufYear);
+                fillYearSelect(dispatchYear);
+
+                // initial population
+                populateTableWithFilters(data.manufacturing || [], 'manufacturingTable', manufSearch, manufMonth, manufYear, 'planDate');
+                populateTableWithFilters(data.dispatch || [], 'dispatchTable', dispatchSearch, dispatchMonth, dispatchYear, 'planDate');
+
+                // listeners for manufacturing
+                [manufSearch, manufMonth, manufYear].forEach(el => {
+                    if (!el) return;
+                    el.addEventListener('input', () => populateTableWithFilters(data.manufacturing || [], 'manufacturingTable', manufSearch, manufMonth, manufYear, 'planDate'));
+                    el.addEventListener('change', () => populateTableWithFilters(data.manufacturing || [], 'manufacturingTable', manufSearch, manufMonth, manufYear, 'planDate'));
+                });
+
+                // listeners for dispatch
+                [dispatchSearch, dispatchMonth, dispatchYear].forEach(el => {
+                    if (!el) return;
+                    el.addEventListener('input', () => populateTableWithFilters(data.dispatch || [], 'dispatchTable', dispatchSearch, dispatchMonth, dispatchYear, 'planDate'));
+                    el.addEventListener('change', () => populateTableWithFilters(data.dispatch || [], 'dispatchTable', dispatchSearch, dispatchMonth, dispatchYear, 'planDate'));
+                });
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', loadData);
+
+        // NEW: read ?show=manufacturing|dispatch and toggle sections, scroll & flash
+        (function(){
+          function getQueryParam(name) {
+            return new URLSearchParams(window.location.search).get(name);
+          }
+
+          function flashAndScroll(container) {
+            if (!container) return;
+            try {
+              container.scrollIntoView({behavior:'smooth', block:'center'});
+            } catch(e){}
+            container.classList.add('flash');
+            setTimeout(() => container.classList.remove('flash'), 1200);
+          }
+
+          document.addEventListener('DOMContentLoaded', function(){
+            // existing loadData call populates both tables
+            // After data loads, check query param and toggle visibility
+            const show = getQueryParam('show');
+            const manufSec = document.getElementById('manufacturingSection');
+            const dispatchSec = document.getElementById('dispatchSection');
+
+            if (show === 'manufacturing') {
+              if (dispatchSec) dispatchSec.style.display = 'none';
+              if (manufSec) flashAndScroll(manufSec);
+            } else if (show === 'dispatch') {
+              if (manufSec) manufSec.style.display = 'none';
+              if (dispatchSec) flashAndScroll(dispatchSec);
+            } // else show both (default)
+
+            // Note: loadData() is already wired to DOMContentLoaded earlier in the file.
+          });
+        })();
+    </script>
+</body>
+</html>

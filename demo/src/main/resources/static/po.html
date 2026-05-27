@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Purchase Order Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f4ff;
+      --surface: #ffffff;
+      --surface2: #f8faff;
+      --border: rgba(37,99,235,0.13);
+      --border-light: rgba(37,99,235,0.25);
+      --accent: #2563eb;
+      --accent2: #0ea5e9;
+      --accent-soft: rgba(37,99,235,0.08);
+      --accent2-warm: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --shadow: 0 4px 24px rgba(37,99,235,0.08);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface2);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+      font-size: 14px;
+    }
+
+    /* Header */
+    .site-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #0369a1 100%);
+      padding: 0 2rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-header .brand {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .site-header nav {
+      margin-left: auto;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .site-header nav a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 13px;
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      transition: background 0.15s, color 0.15s;
+    }
+    .site-header nav a:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .site-header nav a.active { background: rgba(255,255,255,0.18); color: #fff; }
+
+    /* Page Layout */
+    .page-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #0369a1 100%);
+      padding: 14px 20px;
+      border-radius: 14px;
+      color: white;
+    }
+    .header-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(255,255,255,0.15);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .header-text h1 { font-size: 22px; font-weight: 700; color: white; }
+    .header-text p { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px; }
+
+    /* Section Card */
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .form-card .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .form-card .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Field Grid */
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 1.25rem;
+    }
+    .field-grid .full { grid-column: 1 / -1; }
+
+    /* Field */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+    }
+    .field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .field label .req {
+      color: var(--danger);
+      margin-left: 3px;
+    }
+
+    /* Inputs */
+    .field input[type="text"],
+    .field input[type="number"],
+    .field input[type="date"],
+    .field input[type="datetime-local"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 0 14px;
+      height: 42px;
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    .field input:hover:not([readonly]) {
+      border-color: var(--border-light);
+    }
+    .field input:focus:not([readonly]) {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+    .field input[readonly] {
+      background: rgba(245,248,255,0.8);
+      color: var(--text-dim);
+      cursor: default;
+    }
+    .field input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.5; }
+    .field input::placeholder { color: var(--text-dim); }
+
+    /* Error */
+    .field .error-msg {
+      font-size: 11px;
+      color: var(--danger);
+      min-height: 14px;
+    }
+
+    /* Custom Select Dropdown */
+    .custom-select-wrap { position: relative; }
+    .custom-select-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 0 40px 0 14px;
+      height: 42px;
+      border-radius: var(--radius);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    .custom-select-input:hover { border-color: var(--border-light); }
+    .custom-select-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+    .custom-select-input::placeholder { color: var(--text-dim); }
+    .custom-select-arrow {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--text-dim);
+      font-size: 16px;
+      transition: transform 0.2s;
+    }
+    .custom-select-wrap.open .custom-select-arrow {
+      transform: translateY(-50%) rotate(180deg);
+      color: var(--accent);
+    }
+
+    /* Dropdown List */
+    .dropdown-list {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 200;
+      display: none;
+      box-shadow: 0 8px 32px rgba(37,99,235,0.13);
+    }
+    .dropdown-list.visible { display: block; }
+    .dropdown-list::-webkit-scrollbar { width: 5px; }
+    .dropdown-list::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+    .dropdown-list .dl-item {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.1s;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dropdown-list .dl-item:last-child { border-bottom: none; }
+    .dropdown-list .dl-item:hover,
+    .dropdown-list .dl-item.focused {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .dropdown-list .dl-item.selected::before {
+      content: '✓';
+      color: var(--success);
+      font-size: 12px;
+      width: 14px;
+      flex-shrink: 0;
+    }
+    .dropdown-list .dl-item:not(.selected)::before {
+      content: '';
+      width: 14px;
+      flex-shrink: 0;
+    }
+    .dropdown-list .dl-empty {
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+    .dropdown-list .dl-search {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+    }
+    .dropdown-list .dl-search input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      outline: none;
+    }
+    .dropdown-list .dl-search input:focus { border-color: var(--accent); }
+
+    /* CCN suggestion box */
+    .ccn-suggestion-box {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 200;
+      display: none;
+      box-shadow: 0 8px 32px rgba(37,99,235,0.13);
+    }
+    .ccn-suggestion-box.visible { display: block; }
+    .ccn-suggestion-box .ccn-hint {
+      padding: 6px 14px;
+      font-size: 11px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.04em;
+    }
+    .ccn-suggestion-box .ccn-item {
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: default;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Radio Groups */
+    .radio-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .radio-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .radio-chip { position: relative; }
+    .radio-chip input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .radio-chip label {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 16px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .radio-chip input[type="radio"]:checked + label {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .radio-chip input[type="radio"]:disabled + label {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .radio-chip label:hover { border-color: var(--border-light); color: var(--text); }
+    .radio-chip input[type="radio"]:checked + label:hover { border-color: var(--accent); }
+
+    /* Address selects */
+    .addr-selects {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+    .addr-selects select {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 0 14px;
+      height: 42px;
+      border-radius: var(--radius);
+      outline: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .addr-selects select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+    }
+    .addr-selects select option { background: var(--surface); }
+
+    /* Submit Button */
+    .submit-wrap {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+    .btn-submit {
+      background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+      color: #fff;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 0 32px;
+      height: 46px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(37,99,235,0.28);
+    }
+    .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-reset {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1.5px solid var(--border-light);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 0 24px;
+      height: 46px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-reset:hover { border-color: var(--text-dim); color: var(--text); }
+
+    /* Draft notification */
+    #draft-notification {
+      position: fixed;
+      top: 70px;
+      right: 24px;
+      background: var(--surface);
+      border: 1px solid rgba(245,158,11,0.35);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      z-index: 9999;
+      font-size: 13px;
+      color: var(--text);
+      max-width: 320px;
+      box-shadow: var(--shadow);
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+    #draft-notification .dn-title { font-weight: 700; margin-bottom: 4px; color: var(--warning); font-size: 13px; }
+    #draft-notification .dn-time { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
+    #draft-notification .dn-btns { display: flex; gap: 8px; }
+    #draft-notification .dn-btns button {
+      flex: 1;
+      padding: 6px 0;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      border: 1.5px solid var(--border-light);
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.1s;
+    }
+    #draft-notification .dn-btns button:hover { background: var(--surface2); }
+    #draft-notification .dn-btns button.discard { border-color: var(--danger); color: var(--danger); }
+
+    /* PO Value display */
+    .value-suffix {
+      position: absolute;
+      right: 14px;
+      bottom: 0;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    /* Footer */
+    .site-footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 1rem 2rem;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    /* Responsive */
+    @media (max-width: 620px) {
+      .field-grid { grid-template-columns: 1fr; }
+      .addr-selects { grid-template-columns: 1fr; }
+      .page-wrap { padding: 1.5rem 1rem 5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="header-include"></div>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="header-icon">📋</div>
+    <div class="header-text">
+      <h1>Purchase Order Form</h1>
+      <p>Fill in all required fields to create a new purchase order record.</p>
+    </div>
+  </div>
+
+  <form id="poForm" autocomplete="off" novalidate>
+
+    <!-- Section: Meta -->
+    <div class="form-card">
+      <div class="section-label">Order Identity</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Timestamp</label>
+          <input type="datetime-local" id="timestamp" name="timestamp" readonly />
+        </div>
+        <div class="field">
+          <label>Record No</label>
+          <input type="text" id="recordNo" name="recordNo" readonly />
+        </div>
+        <div class="field">
+          <label>CCN <span class="req">*</span></label>
+          <div class="custom-select-wrap" id="ccnWrap">
+            <input type="text" class="custom-select-input" id="ccnInput" name="ccn" placeholder="Enter CCN" />
+            <div class="ccn-suggestion-box" id="ccnSuggestions">
+              <div class="ccn-hint">Existing CCNs (read-only reference)</div>
+            </div>
+          </div>
+          <div class="error-msg" id="ccnError"></div>
+        </div>
+        <div class="field">
+          <label>Sales Person <span class="req">*</span></label>
+          <div class="custom-select-wrap" id="salesWrap">
+            <input type="text" class="custom-select-input" id="salesPersonInput" name="salesPerson" placeholder="Search or type..." />
+            <span class="custom-select-arrow">&#8964;</span>
+            <div class="dropdown-list" id="salesPersonDropdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: PO Details -->
+    <div class="form-card">
+      <div class="section-label">PO Details</div>
+      <div class="field-grid">
+        <div class="field full">
+          <label>PO Reference Number <span class="req">*</span></label>
+          <input type="text" name="poReferenceNumber" placeholder="e.g. PO-2024-00123" />
+        </div>
+        <div class="field">
+          <label>PO Receipt Date <span class="req">*</span></label>
+          <input type="date" name="poReceiptDate" />
+        </div>
+        <div class="field">
+          <label>PO Date <span class="req">*</span></label>
+          <input type="date" name="poDate" />
+        </div>
+        <div class="field">
+          <label>PO Delivery Date <span class="req">*</span></label>
+          <input type="date" name="poDeliveryDate" />
+        </div>
+        <div class="field" style="position:relative;">
+          <label>PO Value (Lacs) <span class="req">*</span></label>
+          <input type="number" id="poValueLacs" name="poValueLacs" placeholder="0.00" step="0.01" min="0" style="padding-right:52px;" />
+          <span class="value-suffix">Lacs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Machine & Customer -->
+    <div class="form-card">
+      <div class="section-label">Machine &amp; Customer</div>
+      <div class="field-grid">
+        <div class="field full">
+          <label>Customer Name <span class="req">*</span></label>
+          <div class="custom-select-wrap" id="customerWrap">
+            <input type="text" class="custom-select-input" id="customerNameInput" name="customerName" placeholder="Search or type..." />
+            <span class="custom-select-arrow">&#8964;</span>
+            <div class="dropdown-list" id="customerNameDropdown"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Machine Name <span class="req">*</span></label>
+          <div class="custom-select-wrap" id="machineWrap">
+            <input type="text" class="custom-select-input" id="machineNameInput" name="machineName" placeholder="Search or type..." />
+            <span class="custom-select-arrow">&#8964;</span>
+            <div class="dropdown-list" id="machineNameDropdown"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Model <span class="req">*</span></label>
+          <div class="custom-select-wrap" id="modelWrap">
+            <input type="text" class="custom-select-input" id="modelNameInput" name="modelName" placeholder="Search or type..." />
+            <span class="custom-select-arrow">&#8964;</span>
+            <div class="dropdown-list" id="modelNameDropdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Classification -->
+    <div class="form-card">
+      <div class="section-label">Classification</div>
+      <div class="field-grid">
+        <div class="field full">
+          <div class="radio-group-label">Order Type</div>
+          <div class="radio-chips">
+            <div class="radio-chip">
+              <input type="radio" id="check-inhouse" name="orderType" value="Inhouse" checked />
+              <label for="check-inhouse">Inhouse</label>
+            </div>
+            <div class="radio-chip">
+              <input type="radio" id="check-export" name="orderType" value="Export" />
+              <label for="check-export">Export</label>
+            </div>
+            <div class="radio-chip">
+              <input type="radio" id="check-domestic" name="orderType" value="Domestic" />
+              <label for="check-domestic">Domestic</label>
+            </div>
+          </div>
+        </div>
+        <div class="field full">
+          <div class="radio-group-label">Machine Category</div>
+          <div class="radio-chips">
+            <div class="radio-chip">
+              <input type="radio" id="cat-customized" name="machineCategory" value="customized" checked />
+              <label for="cat-customized">Customized</label>
+            </div>
+            <div class="radio-chip">
+              <input type="radio" id="cat-stock" name="machineCategory" value="stock" />
+              <label for="cat-stock">Stock</label>
+            </div>
+            <div class="radio-chip">
+              <input type="radio" id="cat-rnd" name="machineCategory" value="rnd" />
+              <label for="cat-rnd">R&amp;D</label>
+            </div>
+            <div class="radio-chip">
+              <input type="radio" id="cat-retrofit" name="machineCategory" value="retrofit" />
+              <label for="cat-retrofit">Retrofit</label>
+            </div>
+            <div class="radio-chip">
+              <input type="radio" id="cat-expected" name="machineCategory" value="expected" />
+              <label for="cat-expected">Expected</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Address -->
+    <div class="form-card">
+      <div class="section-label">Delivery Address</div>
+      <div class="addr-selects">
+        <select id="country" name="country"><option value="">Select Country</option></select>
+        <select id="state" name="state"><option value="">Select State</option></select>
+        <select id="city" name="city"><option value="">Select City</option></select>
+      </div>
+      <div class="field-grid">
+        <div class="field full">
+          <label>Street Address <span class="req">*</span></label>
+          <input type="text" name="addressLine1" placeholder="Enter Street Address" />
+        </div>
+        <div class="field full">
+          <label>Address Line 2</label>
+          <input type="text" name="addressLine2" placeholder="Apartment, suite, building (optional)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-wrap">
+      <button type="button" class="btn-reset" id="resetBtn">Clear Form</button>
+      <button type="submit" class="btn-submit">Submit Order &#8594;</button>
+    </div>
+  </form>
+</div>
+
+<div id="footer-include"></div>
+
+<script type="module">
+  import { Country, State, City } from "https://jspm.dev/country-state-city";
+
+  function pad(n) { return n < 10 ? '0' + n : n; }
+  function getCurrentDateTimeLocal() {
+    const now = new Date();
+    return now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+  }
+
+  document.getElementById('timestamp').value = getCurrentDateTimeLocal();
+  (async () => {
+    try {
+      const res = await fetch('/api/po/next-record-no');
+      document.getElementById('recordNo').value = res.ok ? await res.text() : 'PO-00-' + new Date().getFullYear();
+    } catch { document.getElementById('recordNo').value = 'PO-00-' + new Date().getFullYear(); }
+  })();
+
+  const countrySelect = document.getElementById('country');
+  const stateSelect = document.getElementById('state');
+  const citySelect = document.getElementById('city');
+
+  Country.getAllCountries().forEach(c => {
+    countrySelect.innerHTML += `<option value="${c.isoCode}">${c.name}</option>`;
+  });
+  countrySelect.addEventListener('change', function() {
+    stateSelect.innerHTML = '<option value="">Select State</option>';
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    if (this.value) State.getStatesOfCountry(this.value).forEach(s => {
+      stateSelect.innerHTML += `<option value="${s.isoCode}">${s.name}</option>`;
+    });
+  });
+  stateSelect.addEventListener('change', function() {
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    if (this.value) City.getCitiesOfState(countrySelect.value, this.value).forEach(c => {
+      citySelect.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+    });
+  });
+
+  ['ccnInput','salesPersonInput','customerNameInput','machineNameInput','modelNameInput'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', function() { const c = this.selectionStart; this.value = this.value.toUpperCase(); this.setSelectionRange(c,c); });
+  });
+  document.querySelectorAll('.field input[type="text"]').forEach(inp => {
+    if (!['ccnInput','salesPersonInput','customerNameInput','machineNameInput','modelNameInput'].includes(inp.id))
+      inp.addEventListener('input', function() { const c = this.selectionStart; this.value = this.value.toUpperCase(); this.setSelectionRange(c,c); });
+  });
+
+  const ccnInput = document.getElementById('ccnInput');
+  const ccnSugg = document.getElementById('ccnSuggestions');
+  const ccnError = document.getElementById('ccnError');
+  let ccnValid = true;
+
+  async function updateCcnSuggestions(q) {
+    try {
+      const dbRes = await fetch(`/api/po/suggestions?field=ccn&q=${encodeURIComponent(q||'')}`);
+      const list = dbRes.ok ? await dbRes.json() : [];
+      if (list.length) {
+        ccnSugg.innerHTML = '<div class="ccn-hint">Existing CCNs (read-only)</div>' +
+          list.slice(0,20).map(s => `<div class="ccn-item">${s}</div>`).join('');
+        ccnSugg.classList.add('visible');
+      } else {
+        ccnSugg.classList.remove('visible');
+      }
+    } catch { ccnSugg.classList.remove('visible'); }
+  }
+
+  ccnInput.addEventListener('focus', () => updateCcnSuggestions(ccnInput.value));
+  ccnInput.addEventListener('blur', () => setTimeout(() => ccnSugg.classList.remove('visible'), 200));
+  ccnInput.addEventListener('input', async function() {
+    const ccn = this.value.trim();
+    ccnError.textContent = '';
+    if (!ccn) { ccnValid = true; ccnInput.setCustomValidity(''); ccnSugg.classList.remove('visible'); return; }
+    updateCcnSuggestions(ccn);
+    try {
+      const res = await fetch(`/api/po/ccn-exists?ccn=${encodeURIComponent(ccn)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.exists) {
+          ccnError.textContent = 'This CCN already exists. Use a unique CCN.';
+          ccnInput.setCustomValidity('Duplicate CCN');
+          ccnValid = false;
+        } else {
+          ccnInput.setCustomValidity('');
+          ccnValid = true;
+        }
+      }
+    } catch { ccnError.textContent = 'Error checking CCN.'; ccnValid = false; }
+  });
+
+  async function fetchSuggestions(field, q) {
+    const isMachine = ['machineName','machineModel','modelName'].includes(field);
+    const ep = isMachine ? '/api/machine-model/suggestions' : '/api/po/suggestions';
+    try {
+      const res = await fetch(`${ep}?field=${field}&q=${encodeURIComponent(q||'')}`);
+      return res.ok ? await res.json() : [];
+    } catch { return []; }
+  }
+
+  function setupCustomDropdown(inputId, dropdownId, field) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(dropdownId);
+    const wrap = input.closest('.custom-select-wrap');
+    let options = [], focusedIdx = -1;
+
+    function renderList(opts) {
+      options = opts; focusedIdx = -1;
+      if (!opts.length) {
+        list.innerHTML = '<div class="dl-empty">No matches found</div>';
+      } else {
+        list.innerHTML = '<div class="dl-search"><input type="text" placeholder="Search…" id="dl-search-' + inputId + '" /></div>' +
+          opts.map((o,i) => `<div class="dl-item${input.value===o?' selected':''}" data-idx="${i}" data-val="${o}">${o}</div>`).join('');
+        const srch = list.querySelector('#dl-search-' + inputId);
+        if (srch) {
+          srch.value = input.value;
+          srch.addEventListener('input', function(e) {
+            e.stopPropagation();
+            const q = this.value.toLowerCase();
+            const filtered = options.filter(o => o.toLowerCase().includes(q));
+            list.querySelectorAll('.dl-item').forEach(item => {
+              item.style.display = filtered.includes(item.dataset.val) ? '' : 'none';
+            });
+          });
+          srch.addEventListener('mousedown', e => e.stopPropagation());
+        }
+      }
+      list.classList.add('visible');
+      wrap.classList.add('open');
+    }
+
+    function closeList() { list.classList.remove('visible'); wrap.classList.remove('open'); }
+
+    async function refresh(q) {
+      const opts = await fetchSuggestions(field, q||'');
+      const q2 = (input.value||'').toLowerCase();
+      const sorted = q2
+        ? [...opts.filter(o => o.toLowerCase().startsWith(q2)), ...opts.filter(o => !o.toLowerCase().startsWith(q2) && o.toLowerCase().includes(q2)), ...opts.filter(o => !o.toLowerCase().includes(q2))]
+        : opts;
+      renderList(sorted);
+    }
+
+    input.addEventListener('focus', () => refresh(input.value));
+    input.addEventListener('input', () => refresh(input.value));
+    input.addEventListener('blur', () => setTimeout(closeList, 200));
+
+    list.addEventListener('mousedown', function(e) {
+      const item = e.target.closest('.dl-item');
+      if (!item) return;
+      e.preventDefault();
+      input.value = item.dataset.val;
+      closeList();
+      input.focus();
+      input.dispatchEvent(new Event('change'));
+    });
+
+    input.addEventListener('keydown', function(e) {
+      const items = [...list.querySelectorAll('.dl-item:not([style*="display: none"])')];
+      if (!list.classList.contains('visible')) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); focusedIdx = Math.min(focusedIdx+1, items.length-1); items.forEach((it,i) => it.classList.toggle('focused', i===focusedIdx)); items[focusedIdx]?.scrollIntoView({block:'nearest'}); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); focusedIdx = Math.max(focusedIdx-1, 0); items.forEach((it,i) => it.classList.toggle('focused', i===focusedIdx)); items[focusedIdx]?.scrollIntoView({block:'nearest'}); }
+      else if (e.key === 'Enter' && focusedIdx >= 0) { e.preventDefault(); input.value = items[focusedIdx].dataset.val; closeList(); }
+      else if (e.key === 'Escape') closeList();
+    });
+
+    return { refreshOptions: () => refresh('') };
+  }
+
+  setupCustomDropdown('salesPersonInput', 'salesPersonDropdown', 'salesPerson');
+  setupCustomDropdown('customerNameInput', 'customerNameDropdown', 'customerName');
+  setupCustomDropdown('machineNameInput', 'machineNameDropdown', 'machineName');
+  setupCustomDropdown('modelNameInput', 'modelNameDropdown', 'machineModel');
+
+  const machineInput = document.getElementById('machineNameInput');
+  machineInput.addEventListener('change', async function() {
+    const m = machineInput.value.trim();
+    if (!m) return;
+    try {
+      const res = await fetch(`/api/machine-model/models-by-machine?machineName=${encodeURIComponent(m)}`);
+      if (res.ok) document.getElementById('modelNameInput').value = '';
+    } catch {}
+  });
+
+  function updateMachineCategoryByOrderType() {
+    const orderType = document.querySelector('input[name="orderType"]:checked')?.value;
+    const catCustomized = document.getElementById('cat-customized');
+    const catStock = document.getElementById('cat-stock');
+    const catRnd = document.getElementById('cat-rnd');
+    const catRetrofit = document.getElementById('cat-retrofit');
+    if (orderType === 'Inhouse') {
+      catStock.checked = true;
+      catCustomized.disabled = catRnd.disabled = catRetrofit.disabled = true;
+      catStock.disabled = false;
+    } else if (orderType === 'Domestic' || orderType === 'Export') {
+      catCustomized.checked = true;
+      catStock.disabled = catRnd.disabled = catRetrofit.disabled = true;
+      catCustomized.disabled = false;
+    } else {
+      catCustomized.disabled = catStock.disabled = catRnd.disabled = catRetrofit.disabled = false;
+    }
+    toggleFieldRequirements();
+  }
+  document.querySelectorAll('input[name="orderType"]').forEach(r => r.addEventListener('change', updateMachineCategoryByOrderType));
+
+  function toggleFieldRequirements() {
+    const cat = document.querySelector('input[name="machineCategory"]:checked')?.value;
+    const allFields = ['ccnInput','salesPersonInput','customerNameInput','machineNameInput','modelNameInput','poValueLacs'];
+    allFields.forEach(id => { const el = document.getElementById(id); if (el) el.required = false; });
+    document.querySelectorAll('input[name="poReferenceNumber"],input[name="poReceiptDate"],input[name="poDate"],input[name="poDeliveryDate"],input[name="addressLine1"],#country').forEach(el => el.required = false);
+    if (cat === 'stock') {
+      document.getElementById('ccnInput').required = true;
+      document.getElementById('machineNameInput').required = true;
+      document.getElementById('modelNameInput').required = true;
+    } else if (cat === 'expected' || cat === 'customized') {
+      allFields.forEach(id => { const el = document.getElementById(id); if (el) el.required = true; });
+      document.querySelectorAll('input[name="poReferenceNumber"],input[name="poReceiptDate"],input[name="poDate"],input[name="poDeliveryDate"],input[name="addressLine1"],#country').forEach(el => el.required = true);
+    }
+  }
+  document.querySelectorAll('input[name="machineCategory"]').forEach(r => r.addEventListener('change', toggleFieldRequirements));
+  updateMachineCategoryByOrderType();
+
+  const DRAFT_KEY = 'po_form_draft', DRAFT_TS_KEY = 'po_form_draft_ts';
+  let autoSaveTimer;
+  const form = document.getElementById('poForm');
+  function saveDraft() {
+    const fd = new FormData(form);
+    const data = {};
+    fd.forEach((v,k) => data[k] = v);
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    localStorage.setItem(DRAFT_TS_KEY, new Date().toISOString());
+  }
+  form.addEventListener('input', () => { clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(saveDraft, 1000); });
+  form.addEventListener('change', () => { clearTimeout(autoSaveTimer); autoSaveTimer = setTimeout(saveDraft, 1000); });
+
+  function clearDraft() { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_TS_KEY); }
+
+  function restoreDraft() {
+    const saved = localStorage.getItem(DRAFT_KEY);
+    if (!saved) return;
+    try {
+      const data = JSON.parse(saved);
+      Object.entries(data).forEach(([k,v]) => {
+        const el = form.elements[k];
+        if (!el) return;
+        if (el.type === 'radio' || el.type === 'checkbox') el.checked = v === 'on' || v === el.value;
+        else el.value = v;
+      });
+      showDraftNotification();
+    } catch {}
+  }
+
+  function showDraftNotification() {
+    const ts = localStorage.getItem(DRAFT_TS_KEY);
+    if (!ts) return;
+    const notif = document.createElement('div');
+    notif.id = 'draft-notification';
+    notif.innerHTML = `
+      <div class="dn-title">&#9681; Draft Restored</div>
+      <div class="dn-time">Last saved: ${new Date(ts).toLocaleString()}</div>
+      <div class="dn-btns">
+        <button class="discard" onclick="discardDraft()">Discard</button>
+        <button onclick="closeDraftNotif()">Keep Draft</button>
+      </div>
+    `;
+    document.body.appendChild(notif);
+    setTimeout(() => notif?.remove(), 8000);
+  }
+  window.closeDraftNotif = () => document.getElementById('draft-notification')?.remove();
+  window.discardDraft = () => { clearDraft(); form.reset(); document.getElementById('draft-notification')?.remove(); };
+
+  window.addEventListener('DOMContentLoaded', restoreDraft);
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    if (confirm('Clear all form fields?')) { form.reset(); clearDraft(); document.getElementById('timestamp').value = getCurrentDateTimeLocal(); }
+  });
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (!ccnValid) { ccnInput.focus(); return; }
+    const data = {
+      recordNo: document.getElementById('recordNo').value,
+      timestamp: document.getElementById('timestamp').value,
+      ccn: ccnInput.value,
+      salesPerson: document.getElementById('salesPersonInput').value,
+      poReferenceNumber: form.elements['poReferenceNumber']?.value || '',
+      poReceiptDate: form.elements['poReceiptDate']?.value || '',
+      poDate: form.elements['poDate']?.value || '',
+      poDeliveryDate: form.elements['poDeliveryDate']?.value || '',
+      poValueLacs: parseFloat(document.getElementById('poValueLacs').value) || 0,
+      customerName: document.getElementById('customerNameInput').value,
+      machineName: document.getElementById('machineNameInput').value,
+      modelName: document.getElementById('modelNameInput').value,
+      machineCategory: document.querySelector('input[name="machineCategory"]:checked')?.value || '',
+      orderType: document.querySelector('input[name="orderType"]:checked')?.value || '',
+      country: countrySelect.value,
+      state: stateSelect.value,
+      city: citySelect.value,
+      addressLine1: form.elements['addressLine1']?.value || '',
+      addressLine2: form.elements['addressLine2']?.value || ''
+    };
+    try {
+      const res = await fetch('/api/po', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+      if (!res.ok) { const err = await res.json(); alert('Submission failed: ' + (err.error||'Unknown error')); return; }
+      alert('Purchase Order saved successfully!');
+      form.reset();
+      clearDraft();
+      document.getElementById('timestamp').value = getCurrentDateTimeLocal();
+      try { const r = await fetch('/api/po/next-record-no'); document.getElementById('recordNo').value = r.ok ? await r.text() : 'PO-00-'+new Date().getFullYear(); } catch {}
+    } catch(err) { alert('Error: ' + err.message); }
+  });
+
+  fetch('/fragments/header.html').then(r=>r.text()).then(h=>{ document.getElementById('header-include').innerHTML = h; }).catch(()=>{});
+  fetch('/fragments/footer.html').then(r=>r.text()).then(h=>{ document.getElementById('footer-include').innerHTML = h; }).catch(()=>{});
+</script>
+</body>
+</html>

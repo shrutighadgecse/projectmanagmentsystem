@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Plan vs Actual</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:16px;background:#f8fafc;color:#111}
+    .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+    select,button{padding:6px 8px;border:1px solid #ccc;border-radius:4px;background:#fff}
+    table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+    th,td{padding:8px 10px;border-bottom:1px solid #eef; font-size:0.9rem;text-align:left}
+    th{background:#e3f2fd;color:#0b3a57}
+    .small-muted{font-size:0.85rem;color:#666}
+    .no-data{padding:20px;text-align:center;color:#666}
+    .link-ccn{color:#1976d2;text-decoration:underline;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h2>Plan vs Actual</h2>
+  <div class="controls">
+    <label class="small-muted">Type:</label>
+    <select id="typeSelect">
+      <option value="manufacturing">Manufacturing (Plan vs Assy Actual)</option>
+      <option value="dispatch">Dispatch (Planned Dispatch vs Invoice)</option>
+    </select>
+
+    <label class="small-muted">Year:</label>
+    <select id="yearSelect"><option value="">All Years</option></select>
+
+    <label class="small-muted">Month:</label>
+    <select id="monthSelect">
+      <option value="">All Months</option>
+      <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+      <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+      <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+      <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+    </select>
+
+    <button id="applyBtn">Apply</button>
+    <div style="flex:1"></div>
+    <button id="exportCsv">Export CSV</button>
+  </div>
+
+  <div id="resultCount" class="small-muted"></div>
+
+  <div id="tableWrap"></div>
+
+<script>
+  // Utility: parse query params
+  function getParams() {
+    const p = new URLSearchParams(window.location.search);
+    return {
+      type: p.get('type') || 'manufacturing',
+      year: p.get('year') || '',
+      month: p.get('month') || ''
+    };
+  }
+
+  // Parse dates robustly into JS Date or null
+  function parseDate(val) {
+    if (!val) return null;
+    val = String(val).trim();
+    // try ISO
+    const iso = Date.parse(val);
+    if (!isNaN(iso)) return new Date(iso);
+    // dd-mm-yyyy or dd/mm/yyyy
+    let m = val.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (m) return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    // yyyy-mm-dd or yyyy/mm/dd
+    m = val.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    // last attempt: extract first 3 numeric tokens
+    const nums = val.match(/\d{1,4}/g);
+    if (nums && nums.length >= 3) {
+      // try to find a 4-digit year
+      let yearIdx = nums.findIndex(x => x.length === 4);
+      if (yearIdx === -1) yearIdx = 0;
+      const year = Number(nums[yearIdx]);
+      const month = Number(nums[(yearIdx + 1) % nums.length]) || 1;
+      const day = Number(nums[(yearIdx + 2) % nums.length]) || 1;
+      return new Date(year, month -1, day);
+    }
+    return null;
+  }
+
+  function daysBetween(d1, d2) {
+    if (!d1 || !d2) return null;
+    const ms = d2.getTime() - d1.getTime();
+    return Math.round(ms / (24*3600*1000));
+  }
+
+  // Choose planned/actual fields depending on type
+  function getPlannedValue(m, type) {
+    if (type === 'manufacturing') {
+      return m.machineManufacturingBasic || m.machineManufacturing || m.machine_manufacturing_basic || m.machineManufacturingBasic;
+    }
+    return m.plannedDispatchDate || m.planned_dispatch_date || m.plannedDispatch || m.plannedDispatchDate;
+  }
+  function getActualValue(m, type) {
+    if (type === 'manufacturing') {
+      return m.actualAssyStartDate || m.actual_assy_start_date || m.actualAssyStartDate;
+    }
+    return m.invoiceDate || m.invoice_date || m.invoiceDate;
+  }
+
+  // Render table
+  function renderTable(records, type) {
+    const wrap = document.getElementById('tableWrap');
+    if (!records || !records.length) {
+      wrap.innerHTML = '<div class="no-data">No records found for the selected filters.</div>';
+      document.getElementById('resultCount').textContent = 'Records: 0';
+      return;
+    }
+    let html = '<table><thead><tr><th>CCN</th><th>Planned Date</th><th>Actual Date</th><th>Gap (days)</th><th>Month</th><th>Year</th></tr></thead><tbody>';
+    for (const r of records) {
+      html += `<tr>
+        <td><span class="link-ccn" onclick="window.location.href='/machine/machine-list.html?ccn=${encodeURIComponent(r.ccn||'')}'">${escapeHtml(r.ccn||'')}</span></td>
+        <td>${escapeHtml(r.plannedStr||'')}</td>
+        <td>${escapeHtml(r.actualStr||'')}</td>
+        <td>${r.gap === null ? '' : r.gap}</td>
+        <td>${r.monthName || ''}</td>
+        <td>${r.year || ''}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+    document.getElementById('resultCount').textContent = 'Records: ' + records.length;
+  }
+
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,"&#39;");
+  }
+
+  // Export CSV
+  function exportCsv(records) {
+    if (!records || !records.length) return;
+    const rows = [['CCN','Planned Date','Actual Date','Gap Days','Month','Year']];
+    for (const r of records) {
+      rows.push([r.ccn||'', r.plannedStr||'', r.actualStr||'', r.gap===null?'':r.gap, r.monthName||'', r.year||'']);
+    }
+    const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plan-vs-actual.csv';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // Populate year select (scan machines for years)
+  async function populateAndRender(initialParams) {
+    try {
+      const res = await fetch('/api/machine/all');
+      if (!res.ok) { document.getElementById('tableWrap').innerHTML = '<div class="no-data">Failed to fetch data</div>'; return; }
+      const machines = await res.json();
+
+      // build year set from planned dates
+      const years = new Set();
+      machines.forEach(m => {
+        const planned = getPlannedValue(m, initialParams.type);
+        const dt = parseDate(planned);
+        if (dt) years.add(dt.getFullYear());
+      });
+      const yearsArr = Array.from(years).sort((a,b)=>b-a);
+      const ysel = document.getElementById('yearSelect');
+      ysel.innerHTML = '<option value="">All Years</option>';
+      yearsArr.forEach(y => { const o = document.createElement('option'); o.value = y; o.textContent = y; ysel.appendChild(o); });
+
+      // set selects from URL params
+      const typeSel = document.getElementById('typeSelect');
+      const monthSel = document.getElementById('monthSelect');
+      typeSel.value = initialParams.type || 'manufacturing';
+      if (initialParams.year) ysel.value = initialParams.year;
+      if (initialParams.month) monthSel.value = initialParams.month;
+
+      // apply button handler
+      async function applyFilters() {
+        const type = document.getElementById('typeSelect').value;
+        const year = document.getElementById('yearSelect').value;
+        const month = document.getElementById('monthSelect').value;
+        // build result list
+        const out = [];
+        for (const m of machines) {
+          const plannedStr = getPlannedValue(m, type);
+          const actualStr = getActualValue(m, type);
+          const plannedDate = parseDate(plannedStr);
+          // filter by year (year is matched from plannedDate)
+          if (year && (!plannedDate || plannedDate.getFullYear() !== Number(year))) continue;
+          // filter by month (1..12)
+          if (month && (!plannedDate || (plannedDate.getMonth() + 1) !== Number(month))) continue;
+          const actualDate = parseDate(actualStr);
+          const gap = (plannedDate && actualDate) ? daysBetween(plannedDate, actualDate) : null;
+          const monthName = plannedDate ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][plannedDate.getMonth()] : '';
+          out.push({
+            ccn: m.ccn || '',
+            plannedStr: plannedStr || '',
+            actualStr: actualStr || '',
+            gap: gap,
+            monthName: monthName,
+            year: plannedDate ? plannedDate.getFullYear() : ''
+          });
+        }
+        // optional: sort by planned date ascending (nulls last)
+        out.sort((a,b) => {
+          if (!a.year && !b.year) return 0;
+          if (!a.year) return 1;
+          if (!b.year) return -1;
+          if (a.year !== b.year) return a.year - b.year;
+          const ma = a.monthName ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(a.monthName) : -1;
+          const mb = b.monthName ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(b.monthName) : -1;
+          return ma - mb;
+        });
+        renderTable(out, type);
+        // update URL so user can share link
+        const params = new URLSearchParams();
+        params.set('type', type);
+        if (year) params.set('year', year);
+        if (month) params.set('month', month);
+        history.replaceState(null,'', window.location.pathname + '?' + params.toString());
+      }
+
+      document.getElementById('applyBtn').addEventListener('click', applyFilters);
+      document.getElementById('typeSelect').addEventListener('change', function(){
+        // when type changes, re-populate year select because source field changed
+        populateAndRender({ type: this.value, year: '', month: '' });
+      });
+      document.getElementById('exportCsv').addEventListener('click', function(){
+        // export currently rendered table rows
+        const rows = [];
+        const tb = document.querySelector('#tableWrap table tbody');
+        if (!tb) return;
+        tb.querySelectorAll('tr').forEach(tr => {
+          const cols = Array.from(tr.children).map(td => td.textContent.trim());
+          rows.push({ccn: cols[0], planned: cols[1], actual: cols[2], gap: cols[3], month: cols[4], year: cols[5]});
+        });
+        // convert to CSV and download
+        if (!rows.length) return;
+        const csvRows = [['CCN','Planned Date','Actual Date','Gap Days','Month','Year']];
+        rows.forEach(r => csvRows.push([r.ccn,r.planned,r.actual,r.gap,r.month,r.year]));
+        const csv = csvRows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+        const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'plan-vs-actual.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      });
+
+      // initial apply
+      applyFilters();
+
+    } catch (e) {
+      document.getElementById('tableWrap').innerHTML = '<div class="no-data">Error loading data</div>';
+    }
+  }
+
+  // initialize from URL params
+  const params = getParams();
+  // set initial type select before populating years
+  document.getElementById('typeSelect').value = params.type || 'manufacturing';
+  populateAndRender(params);
+</script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Dropdown Form</title>
+    <style>
+        .suggestions-list {
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            background-color: #fff;
+            position: absolute;
+            width: 100%;
+            z-index: 1;
+        }
+        .suggestions-list div {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .suggestions-list div:hover {
+            background-color: #f0f0f0;
+        }
+        .container, .form-container, main {
+            margin-bottom: 80px !important; /* Ensure gap above footer for all forms */
+        }
+    </style>
+</head>
+<body>
+
+<div id="header"></div>
+<div style="height:60px;"></div> <!-- Gap below header for all screens -->
+
+<form id="dynamicForm">
+    <p>Current Date and Time: <span id="dateTime"></span></p>
+    <div class="form-group">
+        <label for="referenceId">Reference ID:</label>
+        <input type="text" id="referenceId" class="form-control" readonly>
+    </div>
+    <label>Assembly Code:</label>
+    <select id="assemblyCodeDropdown"></select>
+    <input type="text" id="newAssemblyCodeOption" placeholder="Add new Assembly Code">
+    <button type="button" onclick="addAssemblyCodeOption()">Add</button>
+
+    <!-- Machine Name Dropdown -->
+    <label>Machine Name:</label>
+    <select id="machineDropdown"></select>
+    <input type="text" id="newMachineOption" placeholder="Add new machine name">
+    <button type="button" onclick="addMachineOption()">Add</button>
+
+    <!-- Assy Location Dropdown -->
+    <label>Assy Location:</label>
+    <select id="assyLocationDropdown"></select>
+    <input type="text" id="newAssyLocationOption" placeholder="Add new assy location">
+    <button type="button" onclick="addAssyLocationOption()">Add</button>
+
+   
+    <!-- Inward Location Dropdown -->
+    <label>Inward Location:</label>
+    <select id="inwardLocationDropdown">
+        <option value="Bhoomika">Bhoomika</option>
+        <option value="Limboda Gari">Limboda Gari</option>
+        <option value="Others">Others</option>
+    </select>
+
+    <!-- Stage Radio Buttons -->
+    <label>Stage:</label>
+    <div>
+        <input type="radio" id="stage1" name="stage" value="STAGE-I">
+        <label for="stage1">STAGE-I</label>
+        <input type="radio" id="stage2" name="stage" value="STAGE-II">
+        <label for="stage2">STAGE-II</label>
+        <input type="radio" id="stage3" name="stage" value="STAGE-III">
+        <label for="stage3">STAGE-III</label>
+        <input type="radio" id="optional" name="stage" value="OPTIONAL">
+        <label for="optional">OPTIONAL</label>
+    </div>
+
+    <!-- Numeric Input Fields -->
+    <label for="stockQty">Stock Quantity:</label>
+    <input type="number" id="stockQty" class="form-control">
+
+    <!-- Description Text Area -->
+    <label for="description">Description:</label>
+    <textarea id="description" class="form-control" rows="4"></textarea>
+<!-- Remark Text Area -->
+<label for="remark">Remark:</label>
+<textarea id="remark" class="form-control" rows="4"></textarea>
+    <button type="submit">Submit Form</button>
+</form>
+
+<script>
+// Generate reference ID when the page loads
+async function generateReferenceId() {
+    try {
+        const response = await fetch('/api/generateReferenceId');
+        const data = await response.json();
+        document.getElementById('referenceId').value = data.referenceId;
+    } catch (error) {
+        console.error('Error generating reference ID:', error);
+    }
+}
+
+    // Fetch dropdown options from the backend
+    async function fetchMachineOptions() {
+        const response = await fetch('/api/dropdown/machine/options');
+        const options = await response.json();
+        const dropdown = document.getElementById('machineDropdown');
+        dropdown.innerHTML = ''; // Clear existing options
+        options.forEach(option => {
+            let opt = document.createElement('option');
+            opt.value = option;
+            opt.text = option;
+            dropdown.appendChild(opt);
+        });
+    }
+
+    async function fetchAssyLocationOptions() {
+        const response = await fetch('/api/dropdown/assy-location/options');
+        const options = await response.json();
+        const dropdown = document.getElementById('assyLocationDropdown');
+        dropdown.innerHTML = ''; // Clear existing options
+        options.forEach(option => {
+            let opt = document.createElement('option');
+            opt.value = option;
+            opt.text = option;
+            dropdown.appendChild(opt);
+        });
+    }
+
+    async function fetchCupboardOptions() {
+        const response = await fetch('/api/dropdown/cupboard/options');
+        const options = await response.json();
+        const dropdown = document.getElementById('cupboardDropdown');
+        dropdown.innerHTML = ''; // Clear existing options
+        options.forEach(option => {
+            let opt = document.createElement('option');
+            opt.value = option;
+            opt.text = option;
+            dropdown.appendChild(opt);
+        });
+    }
+
+    async function fetchAssemblyCodeOption() {
+        const response = await fetch('/api/dropdown/assembly-code/options');
+        const options = await response.json();
+        const dropdown = document.getElementById('assemblyCodeDropdown');
+        dropdown.innerHTML = ''; // Clear existing options
+        options.forEach(option => {
+            let opt = document.createElement('option');
+            opt.value = option;
+            opt.text = option;
+            dropdown.appendChild(opt);
+        });
+    }
+
+    // Add new option to Machine Name
+    async function addMachineOption() {
+        const newOption = document.getElementById('newMachineOption').value.trim().toUpperCase();
+        if (newOption) {
+            const existingOptions = Array.from(document.getElementById('machineDropdown').options)
+                .map(option => option.value.toUpperCase());
+            
+            if (!existingOptions.includes(newOption)) {
+                // Send request to add the new option
+                await fetch('/api/dropdown/machine/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newOption),
+                });
+                fetchMachineOptions(); // Refresh options
+            }
+        }
+        document.getElementById('newMachineOption').value = newOption; // Keep input value
+    }
+
+    // Add new option to Assy Location
+    async function addAssyLocationOption() {
+        const newOption = document.getElementById('newAssyLocationOption').value.trim().toUpperCase();
+        if (newOption) {
+            const existingOptions = Array.from(document.getElementById('assyLocationDropdown').options)
+                .map(option => option.value.toUpperCase());
+            
+            if (!existingOptions.includes(newOption)) {
+                // Send request to add the new option
+                await fetch('/api/dropdown/assy-location/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newOption),
+                });
+                fetchAssyLocationOptions(); // Refresh options
+            }
+        }
+        document.getElementById('newAssyLocationOption').value = newOption; // Keep input value
+    }
+
+    // Add new option to Cupboard
+    async function addCupboardOption() {
+        const newOption = document.getElementById('newCupboardOption').value.trim().toUpperCase();
+        if (newOption) {
+            const existingOptions = Array.from(document.getElementById('cupboardDropdown').options)
+                .map(option => option.value.toUpperCase());
+            
+            if (!existingOptions.includes(newOption)) {
+                // Send request to add the new option
+                await fetch('/api/dropdown/cupboard/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newOption),
+                });
+                fetchCupboardOptions(); // Refresh options
+            }
+        }
+        document.getElementById('newCupboardOption').value = newOption; // Keep input value
+    }
+  // Add new option to Assy Location
+  async function addAssemblyCodeOption() {
+        const newOption = document.getElementById('newAssemblyCodeOption').value.trim().toUpperCase();
+        if (newOption) {
+            const existingOptions = Array.from(document.getElementById('assemblyCodeDropdown').options)
+                .map(option => option.value.toUpperCase());
+            
+            if (!existingOptions.includes(newOption)) {
+                // Send request to add the new option
+                await fetch('/api/dropdown/assembly-code/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newOption),
+                });
+                fetchAssemblyCodeOption(); // Refresh options
+            }
+        }
+        document.getElementById('newAssemblyCodeOption').value = newOption; // Keep input value
+    }
+    // Fetch options when page loads
+    window.onload = function() {
+        fetchMachineOptions();
+        fetchAssyLocationOptions();
+        fetchCupboardOptions();
+        fetchAssemblyCodeOption();
+    }
+ 
+
+    function updateDateTime() {
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        const formattedDateTime = now.toLocaleString('en-US', options);
+        document.getElementById('dateTime').innerText = formattedDateTime;
+    }
+
+    // Handle form submission
+    document.getElementById('dynamicForm').addEventListener('submit', async (e) => {
+        e.preventDefault(); // Prevent default form submission
+        const formData = {
+            reference_id: document.getElementById('referenceId').value,
+            assembly_code: document.getElementById('assemblyCodeDropdown').value,
+            machine_name: document.getElementById('machineDropdown').value,
+            assy_location: document.getElementById('assyLocationDropdown').value,
+            cupboard: document.getElementById('cupboardDropdown').value,
+            inward_location: document.getElementById('inwardLocationDropdown').value,
+            stage: document.querySelector('input[name="stage"]:checked')?.value,
+            opening_stock: document.getElementById('openingStock').value,
+            reorder_level: document.getElementById('reorderLevel').value,
+            reorder_qty: document.getElementById('reorderQty').value,
+            description: document.getElementById('description').value,
+        };
+
+        try {
+        const response = await fetch('/api/submitForm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        if (response.ok) {
+            alert('Form submitted successfully');
+            await generateReferenceId(); // Generate a new reference ID
+            document.getElementById('dynamicForm').reset(); // Clear the form
+        } else {
+            alert('Form submission failed. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error during form submission:', error);
+        alert('An error occurred. Please check the console for more details.');
+    }
+});
+
+// Fetch options when the page loads
+window.onload = async function() {
+    await generateReferenceId();
+    fetchMachineOptions();
+    fetchAssyLocationOptions();
+    fetchCupboardOptions();
+    fetchAssemblyCodeOption();
+    updateDateTime();
+};
+</script>
+
+    <div id="footer"></div>
+    <script>
+    fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

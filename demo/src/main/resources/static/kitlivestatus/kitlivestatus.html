@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kit Live Status Table</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* General Reset and Base Styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background:  #35474d;
+        }
+        .container {
+            margin-left: 260px;
+            padding: 30px 20px 20px 20px;
+            transition: margin 0.3s;
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px; /* Reduced width for large screens */
+            height: 100vh;
+            background: #232946;
+            color: #fff;
+            padding: 30px 20px 30px 20px; /* Reduced top padding for better card visibility */
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            z-index: 100;
+            transition: left 0.3s, width 0.3s;
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #eebbc3 #232946;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #eebbc3;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #232946;
+        }
+        .sidebar h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+        .sidebar .card {
+            margin-bottom: 28px;
+        }
+        .sidebar .card:first-child {
+            margin-top: 32px; /* Increased top margin for first card */
+        }
+        .sidebar button {
+            width: 100%;
+            padding: 8px 0;
+            background: #eebbc3;
+            color: #232946;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sidebar button:hover {
+            background: #f6c7be;
+        }
+        /* Responsive Navbar for Small Screens */
+        .navbar-toggle {
+            display: none;
+            position: fixed;
+            left: 10px;
+            top: 15px;
+            z-index: 200;
+            background: #232946;
+            color: #fff;
+            border: none;
+            font-size: 1.7rem;
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+        #header {
+            margin-bottom: 16px;
+        }
+        .navbar-toggle {
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 900px) {
+            .container {
+                margin-left: 0;
+                padding: 10px;
+            }
+            .sidebar {
+                left: -260px;
+                width: 220px;
+                height: 100vh;
+                padding: 20px 10px;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .navbar-toggle {
+                display: block;
+                margin-top: 25px;
+                margin-bottom: 25px;
+                font-size: 1.2rem;
+                padding: 2px 6px;
+                height: 32px;
+                width: 38px;
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 5px;
+            }
+            .sidebar {
+                width: 120px;
+                padding: 10px 4px;
+            }
+            .navbar-toggle {
+                margin-top: 35px;
+                margin-bottom: 35px;
+                font-size: 1rem;
+                padding: 1px 4px;
+                height: 28px;
+                width: 32px;
+            }
+            .sidebar h3 {
+                font-size: 1rem;
+                margin-bottom: 30px;
+            }
+            .sidebar .card:first-child {
+                margin-top: 48px; /* Increased top margin for first card on small screens */
+            }
+        }
+        /* Table Styles */
+        .table-wrapper {
+            overflow: auto;
+            max-height: 500px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            margin-top: 30px;
+        }
+        table.clean-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            min-width: 900px;
+            background: #fff;
+        }
+        table.clean-table th, table.clean-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 15px;
+            background: #fff;
+        }
+        table.clean-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        table.clean-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+        table.clean-table tr:hover td {
+            background: #eebbc3;
+            color: #232946;
+        }
+        .container h2 {
+            text-align: center;
+            color: #fff;
+            margin-top: 32px;
+            margin-bottom: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: 2rem;
+        }
+        @media (max-width: 600px) {
+            .container h2 {
+                font-size: 1.2rem;
+            }
+            table.clean-table th, table.clean-table td {
+                font-size: 12px;
+                padding: 6px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <button class="navbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="sidebar" id="sidebar">
+        <h3>Inward Status</h3>
+        <div class="card">
+            <button>Kit Forwarded Data: <span id="totalCount">0</span></button>
+        </div>
+    </div>
+    <div class="container">
+        <h2>Kit Forwarded Details</h2>
+        <div class="table-wrapper">
+            <table class="clean-table">
+                <thead>
+                    <tr>
+                        <th>Reference ID</th>
+                        <th>BLC_PO</th>
+                        <th>BLCPO_DATE</th>
+                        <th>CCN</th>
+                        <th>ASSEMBLY CODE</th>
+                        <th>MACHINE NAME</th>
+                        <th>STAGE</th>
+                        <th>STATUS</th>
+                        <th>INWARD BY</th>
+                        <th>INWARD-QTY</th>
+                        <th>DESCRIPTION</th>
+                        <th>DATE TIME</th>
+                        <th>COMPLETION DATE</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="completedEntriesBody">
+                    <!-- Completed entries will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="footer"></div>
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+        // Load header and footer
+ fetch('/fragments/header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading header:', error));
+
+
+        async function fetchCompletedEntries() {
+            const response = await fetch('/api/kitform/completed'); // Endpoint to fetch completed entries
+            const entries = await response.json();
+
+            // Sort entries in descending order based on completionDate
+            entries.sort((a, b) => new Date(b.completionDate) - new Date(a.completionDate));
+
+            const completedEntriesBody = document.getElementById("completedEntriesBody");
+            const totalCount = document.getElementById("totalCount");
+            completedEntriesBody.innerHTML = ""; // Clear previous entries
+            totalCount.innerText = entries.length; // Update total count
+
+            entries.forEach(entry => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${entry.referenceId}</td>
+                    <td>${entry.blcPo}</td>
+                    <td>${entry.blcPoDate}</td>
+                    <td>${entry.ccn}</td>
+                    <td>${entry.assemblyCode}</td>
+                    <td>${entry.machineName}</td>
+                    <td>${entry.stage}</td>
+                    <td>${entry.status}</td>
+                    <td>${entry.inwardBy}</td>
+                    <td>${entry.inwardQty}</td>
+                    <td>${entry.description}</td>
+                    <td>${new Date(entry.dateTime).toLocaleString()}</td>
+                    <td>${new Date(entry.completionDate).toLocaleString()}</td>
+                    <td><button onclick="editEntry('${entry.referenceId}')">Edit</button></td>
+                `;
+                completedEntriesBody.appendChild(row);
+            });
+        }
+
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refreshTable = urlParams.get('refreshTable');
+
+            if (refreshTable === 'true') {
+                fetchCompletedEntries(); // Refresh the table if redirected after form submission
+            } else {
+                fetchCompletedEntries(); // Fetch completed entries on page load
+            }
+        };
+
+        async function editEntry(referenceId) {
+            console.log("Editing entry with Reference ID:", referenceId); // Log the Reference ID being edited
+            const response = await fetch(`/api/kitform/completed/${referenceId}`); // Change the endpoint to use referenceId
+            if (!response.ok) {
+                console.error("Failed to fetch data for Reference ID:", referenceId);
+                return; // Exit if the fetch fails
+            }
+            const kitForm = await response.json();
+            console.log("Fetched kit form data:", kitForm); // Log the fetched data
+
+            // Redirect to the form page with query parameters
+            const queryParams = new URLSearchParams({
+                referenceId: kitForm.referenceId,
+                dateTime: new Date(kitForm.dateTime).toISOString().split('T')[0],
+                blcPo: kitForm.blcPo,
+                blcPoDate: kitForm.blcPoDate,
+                ccn: kitForm.ccn,
+                assemblyCode: kitForm.assemblyCode,
+                machineName: kitForm.machineName,
+                stage: kitForm.stage,
+                inwardBy: kitForm.inwardBy,
+                inwardQty: kitForm.inwardQty,
+                description: kitForm.description,
+                completionDate: kitForm.completionDate ? new Date(kitForm.completionDate).toISOString().split('T')[0] : '',
+                status: kitForm.status
+            }).toString();
+
+            window.location.href = `formPage.html?${queryParams}`; // Replace with your form page URL
+        }
+
+        fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assembly Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #d9e6ff, #dff0e0);
+    }
+
+    .dashboard {
+      padding: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h2 {
+      margin: 0;
+      font: 1.5em sans-serif;
+    }
+
+    .stats {
+      font-size: 10px;
+    }
+
+    .cards {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      /* Remove grid-template-columns and overflow-x */
+    }
+
+    .card {
+      border-radius: 10px;
+      padding: 8px 8px 6px 8px;
+      color: #fff;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.15);
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      height: 120px;
+      /* Optional: Make cards take full width */
+      min-width: 0;
+      width: 22%;
+    }
+
+    .card-content-row {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 2px;
+    }
+
+    .card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0; /* no gap */
+      flex: 1 1 60%;
+      font-size: 12px;
+    }
+
+    .card-chart {
+      flex: 1 1 40%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      min-width: 200px;  /* increased width */
+      max-width: 240px;  /* increased width */
+      height: 140px;     /* increased height */
+    }
+
+    .card h4 {
+      margin: 2px 0 0 0;
+      font-size:15px;
+      letter-spacing: 0.5px;
+    }
+
+    .card-values {
+      display: flex;
+      flex-direction: column;
+      gap: 0px; /* reduced gap */
+    }
+
+    .green  { background: oklch(74.694% 0.1784 144.184); }   /* Excel Smart */
+    .blue   { background: #03A9F4; }   /* Express N */
+    .orange { background: #FF9800; }   /* Carnator */
+    .yellow { background: #FFC107; }   /* TCL */
+
+    .card h3 {
+      margin: 2px 0 0 0;
+      font-size: 16px;
+    }
+
+   
+
+    canvas {
+      margin: 0;
+      width: 230px !important;  /* increased width */
+      height: 130px !important; /* increased height */
+      background: transparent;
+      border-radius: 0;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Header -->
+    <div class="header">
+      <h2>Assembly Dash Board (Year - <span id="selectedYearDisplay"></span>)</h2>
+      <!-- Year selector -->
+      <div style="display:flex;align-items:center;gap:8px;">
+        <label style="font-size:12px;">Year:</label>
+        <select id="yearSelect"></select>
+      </div>
+    </div>
+
+    <!-- Cards container (now empty; will be populated dynamically) -->
+    <div id="cards" class="cards"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Months for X-axis
+    const months = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+
+    function createMultiLineChart(id, manufacturingData, dispatchedData) {
+      new Chart(document.getElementById(id), {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [
+            {
+              label: 'Manufacturing',
+              data: manufacturingData,
+              borderColor: "#fff",
+              borderWidth: 2,
+              backgroundColor: "rgba(255,255,255,0)",
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointBackgroundColor: "#fff",
+              yAxisID: 'y'
+            },
+            {
+              label: 'Dispatched',
+              data: dispatchedData,
+              borderColor: "#274E13",
+              borderWidth: 2,
+              backgroundColor: "rgba(255,255,0,0)",
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointBackgroundColor: "#274E13",
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          layout: {
+            padding: {
+              left: 20, right: 20, top: 10, bottom: 10
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: "#fff", font: { size: 8 }, padding: 8, autoSkip: false, maxRotation: 0, minRotation: 0 },
+              grid: { color: "" }
+            },
+            y: {
+              min: 0,
+              ticks: { stepSize: 2, color: "#fff", font: { size: 8 }, padding: 6 },
+              grid: { color: "" }
+            }
+          }
+        }
+      });
+    }
+
+    // sanitize string to use in element ids
+    function sanitizeId(s) {
+      return s.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-_]/g, '').toLowerCase();
+    }
+
+    // Colors to cycle through (backgrounds)
+    const bgColors = ['#4caf50','#03A9F4','#FF9800','#FFC107','#9C27B0','#607D8B','#E91E63'];
+
+    // populate year selector (last 5 years)
+    function populateYearSelect() {
+      const sel = document.getElementById('yearSelect');
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      for (let y = currentYear; y >= currentYear - 5; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        sel.appendChild(opt);
+      }
+      sel.value = currentYear;
+      document.getElementById('selectedYearDisplay').textContent = sel.value;
+      sel.addEventListener('change', () => {
+        document.getElementById('selectedYearDisplay').textContent = sel.value;
+        updateCardCountsAndCharts();
+      });
+    }
+
+    async function updateCardCountsAndCharts() {
+      try {
+        const year = document.getElementById('yearSelect') ? document.getElementById('yearSelect').value : new Date().getFullYear();
+        const res = await fetch('/api/machine/card-summary?year=' + encodeURIComponent(year));
+        if (!res.ok) return;
+        const data = await res.json();
+        const container = document.getElementById('cards');
+        container.innerHTML = ''; // clear previous
+
+        let idx = 0;
+        for (const [family, card] of Object.entries(data)) {
+          const f = family || 'Unknown';
+          const idSafe = sanitizeId(f) + '-' + idx;
+          const bg = bgColors[idx % bgColors.length];
+
+          // create card element
+          const cardEl = document.createElement('div');
+          cardEl.className = 'card';
+          cardEl.style.background = bg;
+          cardEl.style.color = '#fff';
+          cardEl.style.width = '24%';
+
+          // Build clickable links for operations: manufacturing, dispatched, shopfloor, customized, stock
+          const manufacturingLink = `/machine/records.html?family=${encodeURIComponent(f)}&year=${encodeURIComponent(year)}&op=manufacturing`;
+          const dispatchedLink = `/machine/records.html?family=${encodeURIComponent(f)}&year=${encodeURIComponent(year)}&op=dispatched`;
+          const shopfloorLink = `/machine/records.html?family=${encodeURIComponent(f)}&year=${encodeURIComponent(year)}&op=shopfloor`;
+          const customizedLink = `/machine/records.html?family=${encodeURIComponent(f)}&year=${encodeURIComponent(year)}&op=customized`;
+          const stockLink = `/machine/records.html?family=${encodeURIComponent(f)}&year=${encodeURIComponent(year)}&op=stock`;
+
+          cardEl.innerHTML = `
+            <div class="card-content-row">
+              <div class="card-info">
+                <h4>${f}</h4>
+                <p>Manufacturing - <a href="${manufacturingLink}" style="color:#fff;text-decoration:underline;"><span class="value" id="${idSafe}-manufacturing"></span></a></p>
+                <p style="margin-top:-4px; color:#274E13;">Dispatched - <a href="${dispatchedLink}" style="color:#274E13;text-decoration:underline;"><span class="value" id="${idSafe}-dispatched"></span></a></p>
+                <p style="margin-top:6px;">Shopfloor - <a href="${shopfloorLink}" style="color:#fff;text-decoration:underline;"><span class="value" id="${idSafe}-shopfloor"></span></a></p>
+                <div style="display:flex;flex-direction:row;gap:12px;margin-top:2px;">
+                  <span style="font-size:10px;margin-top:-12px;">Customized: <a href="${customizedLink}" style="color:#fff;text-decoration:underline;"><span id="${idSafe}-customized"></span></a></span>
+                  <span style="font-size:10px;margin-left:12px;margin-top:-12px;">Stock: <a href="${stockLink}" style="color:#fff;text-decoration:underline;"><span id="${idSafe}-stock"></span></a></span>
+                </div>
+              </div>
+              <div class="card-chart">
+                <canvas id="${idSafe}-chart"></canvas>
+              </div>
+            </div>
+          `;
+          container.appendChild(cardEl);
+
+          // set values (card fields are numbers or arrays)
+          document.getElementById(`${idSafe}-manufacturing`).textContent = card.manufacturing ?? 0;
+          document.getElementById(`${idSafe}-dispatched`).textContent = card.dispatched ?? 0;
+          document.getElementById(`${idSafe}-shopfloor`).textContent = card.shopfloor ?? 0;
+          document.getElementById(`${idSafe}-customized`).textContent = card.customized ?? 0;
+          document.getElementById(`${idSafe}-stock`).textContent = card.stock ?? 0;
+
+          // create chart using monthly arrays (ensure arrays of numbers)
+          const mfgArr = Array.isArray(card.monthlyManufacturing) ? card.monthlyManufacturing : [];
+          const dispArr = Array.isArray(card.monthlyDispatched) ? card.monthlyDispatched : [];
+          createMultiLineChart(`${idSafe}-chart`, mfgArr.map(Number), dispArr.map(Number));
+
+          idx++;
+        }
+      } catch (e) {
+        // silently ignore in UI
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      populateYearSelect();
+      updateCardCountsAndCharts();
+    });
+  </script>
+</body>
+</html>

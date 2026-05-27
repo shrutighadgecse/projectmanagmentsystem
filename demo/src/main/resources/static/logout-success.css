@@ -1,0 +1,47 @@
+/* styles.css */
+
+*html {
+  font-size: 62.5%;
+}
+
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 1rem;
+    position: relative; /* Add this line */
+  }
+  body::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url("/images/login.jpg") center / cover no-repeat, #000;
+    z-index: -1; /* Add this line */
+    backdrop-filter: blur(0.4rem);
+  }
+  
+.container {
+  width: 20rem; /* Reduced width from 40rem to 30rem */
+  max-height: 40rem; /* Optional: Set max height if needed */
+  border-radius: 0.8rem;
+  padding: 2rem; /* Reduced padding for a more compact design */
+  text-align: center;
+  border: 1px solid rgba(12, 12, 11, 0.795);
+  backdrop-filter: blur(0.8rem);
+}
+
+h1 {
+    color: hwb(120 95% 2%);
+}
+
+a {
+    text-decoration: none;
+    color: rgb(236, 236, 241);
+}
+
+
+

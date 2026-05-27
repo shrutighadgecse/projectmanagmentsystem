@@ -1,0 +1,251 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #3E8DA8;
+}
+
+.container {
+  position: relative;
+  max-width: 700px;
+  width: 100%;
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.container header {
+  font-size: 1.5rem;
+  color: #333;
+  font-weight: 500;
+  text-align: center;
+}
+
+.container .form {
+  margin-top: 30px;
+}
+
+.form .input-box {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.input-box label {
+  color: #333;
+}
+
+.form input,
+.form select,
+textarea {
+  height: 50px;
+  width: 100%;
+  outline: none;
+  font-size: 1rem;
+  color: #707070;
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0 15px;
+}
+
+textarea {
+  height: 120px;
+}
+
+.form .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px; /* Add spacing between inputs */
+}
+
+.small-input {
+  width: 5%; /* Reduce the width for smaller inputs */
+  margin-right: 20px; /* Add space between multiple small inputs */
+}
+
+.input-box input:focus {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.form button {
+  height: 40px;
+  width: 150px;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-top: 30px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  background: #3E8DA8;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.form button:hover {
+  background: #27637f;
+}
+
+.form .column {
+  display: flex;
+  column-gap: 15px;
+}
+
+
+.form .stage-box {
+  margin-top: 20px;
+}
+
+.stage-box h3 {
+  color: #333;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.form .stage-option,
+.form .stage {
+  display: flex;
+  align-items: center;
+  column-gap: 50px;
+  flex-wrap: wrap;
+}
+
+.form .stage {
+  column-gap: 5px;
+}
+
+.stage input {
+  accent-color: #27637f;
+}
+
+.form .stage input,
+.stage label {
+  cursor: pointer;
+}
+
+.stage label {
+  color: #707070;
+}
+
+.stage input[type="radio"] {
+  width: 16px;
+  height: 16px;
+}
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
+  .container {
+    max-width: 600px;
+  }
+
+  .form button {
+    width: 120px;
+  }
+
+  .form input,
+  .form select,
+  textarea {
+    font-size: 0.9rem;
+    height: 45px;
+  }
+
+  header {
+    font-size: 1.3rem;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .container {
+    max-width: 500px;
+  }
+
+  .form button {
+    width: 100px;
+  }
+
+  .form input,
+  .form select,
+  textarea {
+    font-size: 0.85rem;
+    height: 40px;
+  }
+
+  header {
+    font-size: 1.2rem;
+  }
+
+  .small-input {
+    width: 10%; /* Adjust width for smaller screens */
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .container {
+    padding: 15px;
+  }
+
+  .form .row {
+    flex-wrap: wrap;
+    gap: 5px; /* Reduce gap on smaller screens */
+  }
+
+  .form .column {
+    flex-direction: column;
+    gap: 10px; /* Ensure columns stack on smaller screens */
+  }
+
+  .small-input {
+    width: 20%; /* Adjust for smaller screens */
+    min-width: 50px; /* Set minimum width */
+    margin-right: 5px; /* Adjust margin for smaller screens */
+  }
+
+  .form input,
+  .form select,
+  textarea {
+    font-size: 0.8rem;
+    height: 38px;
+  }
+
+  header {
+    font-size: 1rem;
+  }
+
+  .form button {
+    width: 100%;
+    font-size: 0.9rem;
+  }
+
+  .stage-option {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  .stage {
+    width: 30%;
+    margin-right: 3px;
+  }
+
+  textarea {
+    height: 80px; /* Adjust height of textarea for smaller screens */
+  }
+}
+
+@media screen and (max-width: 400px) {
+  body {
+    font-size: 0.75rem; /* Prevent fonts from becoming too small */
+  }
+}

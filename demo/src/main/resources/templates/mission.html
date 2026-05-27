@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Mission - IMAPG</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; background:#f6f8fb }
+        .site-header { width:100%; background:rgba(255,255,255,0.96); position:fixed; top:0; left:0; border-bottom:1px solid #e6e9ef; z-index:1000 }
+        .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px}
+        .nav-links{list-style:none;display:flex;gap:18px;margin:0;padding:0}
+        .nav-links a{color:#333;text-decoration:none;font-weight:600;padding:8px 12px;border-radius:6px}
+        .nav-links a:hover{background:#eef2ff;color:#2a3aeb}
+        .logo-wrap img{height:44px}
+        .page { max-width:900px; margin:120px auto 60px; background:#fff; border-radius:10px; padding:32px; box-shadow:0 8px 30px rgba(20,30,60,0.06) }
+        h1{font-size:28px;margin-bottom:12px;color:#222}
+        p{color:#444;line-height:1.6;margin-bottom:12px}
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/mission">Our Mission</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="logo-wrap">
+                <a href="/"><img src="/images/ima.jpg" alt="IMAPG"></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <h1>Our Mission</h1>
+        <p>"We stand committed to develop and deliver innovative, cost effective products & solutions with the help of a professional team that proactively and consistently meets our customer needs and creates a mutually beneficial engagement. Operational excellence, customer delight & building a great place to work are our goals."</p>
+    </main>
+</body>
+</html>

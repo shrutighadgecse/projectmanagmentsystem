@@ -1,0 +1,72 @@
+<!-- Responsive Header Fragment -->
+<style>
+.header-bar {
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+    max-height: 60px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    padding: 0 24px;
+}
+.header-logo {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+    margin-left: 0;
+    margin-right: 0;
+}
+.header-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #ee1919;
+    color: #fff;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-right: 0;
+    margin-left: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+@media (max-width: 600px) {
+    .header-bar {
+        height: 48px;
+        min-height: 48px;
+        max-height: 48px;
+        padding: 0 10px;
+    }
+    .header-logo {
+        height: 32px;
+    }
+    .header-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+}
+</style>
+<div class="header-bar">
+    <div class="header-avatar" id="header-avatar">--</div>
+    <img src="/images/IMA1.jpg" alt="Logo" class="header-logo" id="header-logo" />
+</div>
+<script>
+// Fetch user details and set avatar initials
+fetch('/api/userDetails')
+  .then(r => r.json())
+  .then(user => {
+    if(user && user.firstName && user.lastName) {
+      document.getElementById('header-avatar').textContent =
+        user.firstName.charAt(0).toUpperCase() + user.lastName.charAt(0).toUpperCase();
+    }
+  });
+</script>

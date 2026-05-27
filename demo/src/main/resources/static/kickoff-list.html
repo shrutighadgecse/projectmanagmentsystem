@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kickoff List</title>
+  <link rel="stylesheet" href="po.css" />
+  <style>
+    /* Body spacing for fixed navbar and footer */
+    body {
+      margin: 0;
+      padding-top: 70px;
+      padding-bottom: 80px;
+      min-height: 100vh;
+      background-color: #e3f2fd;
+    }
+
+    /* Responsive styles for Kickoff List (matching PO List) */
+    .container.kickoff-form-container {
+      max-width: 1600px;
+      width: calc(100% - 32px);
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 32px;
+      align-items: start;
+      min-height: 60vh;
+      box-sizing: border-box;
+      padding: 8px;
+    }
+
+    .kickoff-sidebar {
+      background: #f4f7fa;
+      border-radius: 8px;
+      border: 1.5px solid #d0d7de;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      font-size: 1.02em;
+      height: 100%;
+    }
+
+    .kickoff-card-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+      align-items: start;
+      width: 100%;
+      margin-top: 24px;
+    }
+
+    .kickoff-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 12px 14px;
+      min-width: 0;
+      box-sizing: border-box;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, color 0.16s ease;
+      border: 1.25px solid rgba(53,71,77,0.12);
+      color: #eff1f1; /* default text color for cards */
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      height: auto;
+    }
+
+    .kickoff-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      background: #f7f9fa;
+      color: #0a2233 !important;
+    }
+
+    /* Adjust font sizes */
+    .kickoff-card-header { font-size: 0.88rem; font-weight: 500; text-transform: uppercase; line-height:1.1; }
+    .kickoff-card-row, .kickoff-card-info-row { display:flex; gap:12px; align-items:center; width:100%; flex-wrap:wrap; }
+    .kickoff-card-customerName { font-size:0.68rem; font-weight:500; text-transform:uppercase; color: inherit; }
+    .kickoff-card-model { font-size:0.68rem; font-weight:500; color: inherit; }
+    .kickoff-card-date { font-size:0.68rem; color: rgba(0,0,0,0.55); font-style: italic; margin-left:8px; }
+
+    .kickoff-filters {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .kickoff-filters label {
+      font-weight: 500;
+      color: #1a3a4a;
+      font-size: 0.95rem;
+    }
+
+    /* Responsive breakpoints */
+    @media (max-width: 1100px) {
+      .container.kickoff-form-container { grid-template-columns: 180px 1fr; }
+      .kickoff-sidebar { max-width: 180px; }
+    }
+    @media (max-width: 900px) {
+      .container.kickoff-form-container { grid-template-columns: 1fr; }
+      .kickoff-sidebar { max-width: 100%; }
+      .kickoff-card-list { grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); }
+    }
+    @media (max-width: 600px) {
+      .kickoff-card { padding: 10px 12px; }
+      .kickoff-card-header { font-size: 0.85rem; }
+      .kickoff-card-kom { font-size: 0.9rem; }
+      .kickoff-card-ccn { font-size: 0.85rem; }
+      .kickoff-card-model { font-size: 0.85rem; }
+      .kickoff-card-date { font-size: 0.75rem; }
+    }
+    @media (max-width: 400px) {
+      .kickoff-card { padding: 8px 10px; }
+      .kickoff-card-header { font-size: 0.82rem; }
+      .kickoff-card-kom { font-size: 0.85rem; }
+      .kickoff-card-ccn { font-size: 0.8rem; }
+      .kickoff-card-model { font-size: 0.8rem; }
+      .kickoff-card-date { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-include"></div>
+  <section class="container kickoff-form-container">
+    <div class="kickoff-sidebar">
+      <h3>KOM Date</h3>
+      <ul id="kickoffDateList" class="kickoff-date-list"></ul>
+    </div>
+    <div class="kickoff-main-content">
+      <header>All Kickoff Forms</header>
+      <div class="kickoff-filters">
+        <label for="orderTypeFilter">Order Type</label>
+        <select id="orderTypeFilter">
+          <option value="ALL">All</option>
+        </select>
+        <label for="machineModelFilter">Machine Model</label>
+        <select id="machineModelFilter">
+          <option value="ALL">All</option>
+        </select>
+        <label for="machineCategoryFilter">Machine Category</label>
+        <select id="machineCategoryFilter">
+          <option value="ALL">All</option>
+        </select>
+      </div>
+      <div id="kickoffCardList" class="kickoff-card-list"></div>
+    </div>
+  </section>
+  <div id="footer-include"></div>
+  <script>
+    // Header/footer includes
+    fetch('/fragments/header.html').then(r=>r.text()).then(html=>{
+      document.getElementById('header-include').innerHTML = html;
+    });
+    fetch('/fragments/footer.html').then(r=>r.text()).then(html=>{
+      document.getElementById('footer-include').innerHTML = html;
+    });
+    let allKickoffs = [];
+    let currentDateFilter = 'ALL';
+    let currentOrderType = 'ALL';
+    let currentMachineModel = 'ALL';
+    let currentMachineCategory = 'ALL';
+    async function loadKickoffCards() {
+      try {
+        const res = await fetch('/api/kickoff');
+        if (!res.ok) {
+          const text = await res.text();
+          document.getElementById('kickoffCardList').innerHTML = `<div style='color:#e00;font-size:1.1em;'>Error loading kickoff records.<br>Status: ${res.status}<br>${text}</div>`;
+          document.getElementById('kickoffDateList').innerHTML = '';
+          return;
+        }
+        let data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          document.getElementById('kickoffCardList').innerHTML = '<div style="color:#888;font-size:1.1em;">No kickoff records found.</div>';
+          document.getElementById('kickoffDateList').innerHTML = '';
+          return;
+        }
+
+        // --- NEW: fetch saved machines and filter out kickoff records whose CCN already exists in machines ---
+        let machinesCcns = new Set();
+        try {
+          const mres = await fetch('/api/machine/all');
+          if (mres.ok) {
+            const machines = await mres.json();
+            if (Array.isArray(machines)) {
+              machines.forEach(m => {
+                if (m && m.ccn) machinesCcns.add((m.ccn || '').toString().trim());
+              });
+            }
+          }
+        } catch (e) {
+          // if machine fetch fails, do not block kickoff rendering; just proceed without filtering
+        }
+        // Only keep kickoff entries that have both komNo and timestamp (existing filter) AND whose CCN is NOT present in machines
+        data = data.filter(k => k.komNo && k.timestamp && !machinesCcns.has(((k.ccn||'') + '').trim()));
+        // --- END NEW ---
+
+        data = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        allKickoffs = data;
+        populateDropdowns();
+        renderDateSidebar();
+        renderKickoffCards();
+      } catch (err) {
+        document.getElementById('kickoffCardList').innerHTML = `<div style='color:#e00;font-size:1.1em;'>Error loading kickoff records.<br>${err}</div>`;
+        document.getElementById('kickoffDateList').innerHTML = '';
+      }
+    }
+    function populateDropdowns() {
+      // Order Type
+      const orderTypeSet = new Set();
+      allKickoffs.forEach(k => { if (k.orderType) orderTypeSet.add(k.orderType); });
+      const orderTypeSel = document.getElementById('orderTypeFilter');
+      let orderTypeHtml = '<option value="ALL">All</option>';
+      Array.from(orderTypeSet).sort().forEach(type => { orderTypeHtml += `<option value="${type}">${type}</option>`; });
+      orderTypeSel.innerHTML = orderTypeHtml;
+      // Machine Model
+      const modelSet = new Set();
+      allKickoffs.forEach(k => { if (k.machineModel) modelSet.add(k.machineModel); });
+      const modelSel = document.getElementById('machineModelFilter');
+      let modelHtml = '<option value="ALL">All</option>';
+      Array.from(modelSet).sort().forEach(model => { modelHtml += `<option value="${model}">${model}</option>`; });
+      modelSel.innerHTML = modelHtml;
+      // Machine Category
+      const catSet = new Set();
+      allKickoffs.forEach(k => { if (k.machineCategory) catSet.add(k.machineCategory); });
+      const catSel = document.getElementById('machineCategoryFilter');
+      let catHtml = '<option value="ALL">All</option>';
+      Array.from(catSet).sort().forEach(cat => { catHtml += `<option value="${cat}">${cat}</option>`; });
+      catSel.innerHTML = catHtml;
+    }
+    function renderDateSidebar() {
+      const dateSet = new Set();
+      allKickoffs.forEach(k => {
+        if (k.timestamp) dateSet.add(k.timestamp.split('T')[0]);
+      });
+      const dates = Array.from(dateSet).sort((a, b) => new Date(b) - new Date(a));
+      let html = `<li class="${currentDateFilter==='ALL'?'active':''}" onclick="filterByDate('ALL', this)">All</li>`;
+      dates.forEach(date => {
+        html += `<li class="${currentDateFilter===date?'active':''}" onclick="filterByDate('${date}', this)">${date}</li>`;
+      });
+      document.getElementById('kickoffDateList').innerHTML = html;
+    }
+    function getModelColor(model) {
+      // Assign a color per order type (add more as needed)
+      const colors = [
+        '#008B8B', // teal
+        '#D2691E', // chocolate
+        '#778899', // slate gray
+        '#4682B4', // steel blue
+        '#B22222', // firebrick
+        '#6A5ACD', // slate blue
+        '#228B22', // forest green
+        '#FF8C00', // dark orange
+        '#8B008B', // dark magenta
+        '#2E8B57', // sea green
+      ];
+      const orderTypes = Array.from(new Set(allKickoffs.map(k => k.orderType).filter(Boolean))).sort();
+      const idx = orderTypes.indexOf(model);
+      return colors[idx % colors.length] || '#35474d';
+    }
+    function renderKickoffCards() {
+      let data = allKickoffs;
+      if (currentDateFilter !== 'ALL') {
+        data = data.filter(k => k.timestamp && k.timestamp.split('T')[0] === currentDateFilter);
+      }
+      if (currentOrderType !== 'ALL') {
+        data = data.filter(k => (k.orderType||'') === currentOrderType);
+      }
+      if (currentMachineModel !== 'ALL') {
+        data = data.filter(k => (k.machineModel||'') === currentMachineModel);
+      }
+      if (currentMachineCategory !== 'ALL') {
+        data = data.filter(k => (k.machineCategory||'') === currentMachineCategory);
+      }
+      data = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const list = document.getElementById('kickoffCardList');
+      if (!data.length) {
+        list.innerHTML = '<div style="color:#888;font-size:1.1em;">No kickoff records found for this filter.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      data.forEach(k => {
+        const card = document.createElement('div');
+        card.className = 'kickoff-card';
+        card.style.background = getModelColor(k.orderType);
+        card.innerHTML = `
+          <div class='kickoff-card-header'>${k.ccn || '-'}</div>
+          <div class='kickoff-card-row'>
+            <span class='kickoff-card-customerName'>${k.customerName || '-'}</span>
+          </div>
+          <div class='kickoff-card-info-row'>
+            <span class='kickoff-card-model'>${k.machineModel || '-'}</span>
+            <span class='kickoff-card-date'>${k.timestamp ? k.timestamp.split('T')[0] : '-'}</span>
+          </div>
+        `;
+        // On click, open machine-project.html with ccn as query param
+        card.onclick = () => {
+          if (k.ccn) {
+            window.location.href = `/machine-project.html?ccn=${encodeURIComponent(k.ccn)}`;
+          }
+        };
+        list.appendChild(card);
+      });
+    }
+    window.filterByDate = function(date, el) {
+      currentDateFilter = date;
+      renderDateSidebar();
+      renderKickoffCards();
+    }
+    document.getElementById('orderTypeFilter').addEventListener('change', function() {
+      currentOrderType = this.value;
+      renderKickoffCards();
+    });
+    document.getElementById('machineModelFilter').addEventListener('change', function() {
+      currentMachineModel = this.value;
+      renderKickoffCards();
+    });
+    document.getElementById('machineCategoryFilter').addEventListener('change', function() {
+      currentMachineCategory = this.value;
+      renderKickoffCards();
+    });
+    loadKickoffCards();
+
+    // --- NEW: refresh kickoff list whenever user returns to the tab (so saved CCNs disappear promptly) ---
+    window.addEventListener('focus', function() {
+      loadKickoffCards();
+    });
+    // Optional: periodic refresh (every 20 seconds) to keep list in sync across users
+    setInterval(function() { loadKickoffCards(); }, 20000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kick Off Report</title>
+<style>
+    body {
+  font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .report-container {
+        width: 850px;
+        margin: 0 auto;
+        background: #fff;
+        border: 1px solid #000;
+        padding: 20px;
+    }
+
+    .header-buttons {
+        text-align: right;
+        margin-bottom: 10px;
+    }
+
+    .header-buttons button {
+        background: #ddd;
+        border: 1px solid #000;
+        padding: 4px 10px;
+        margin-left: 5px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+
+    .report-title {
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        margin: 10px 0;
+        text-transform: uppercase;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+    }
+
+    th, td {
+        border: 1px solid #000;
+        padding: 6px 8px;
+        font-size: 10px;
+        vertical-align: top;
+    }
+
+    th {
+        background-color: #f0f0f0;
+        text-align: left;
+        width: 30%;
+    }
+
+    .section-title {
+        font-weight: bold;
+        text-transform: uppercase;
+        text-align: left;
+        margin-top: 20px;
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 13px;
+    }
+
+    .mono { font-family: monospace; font-size: 13px; }
+
+    @media print {
+        body {
+            background: #fff;
+        }
+        .header-buttons {
+            display: none;
+        }
+        .report-container {
+            border: none;
+            width: 100%;
+            padding: 0;
+        }
+  
+    }
+            #reportLogo {
+      float: left;
+      width: 140px; /* adjust size as needed */
+      height: auto;
+      margin-right: 16px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+</style>
+</head>
+<body>
+
+<div class="report-container">
+
+    <div class="header-buttons">
+        <button id="btn-close">Close</button>
+        <button id="btn-back">Back</button>
+        <button id="btn-print">Print</button>
+        <button id="btn-pdf">Save as PDF</button>
+    </div>
+
+    <div class="report-title">Kick Off Report</div>
+    <img id="reportLogo" src="/images/IMA1.jpg" alt="IMA-PG Logo">
+
+    <!-- Customer & Project Info -->
+    <table>
+        <tr>
+            <th>Customer Name</th><td id="r-customer"></td>
+            <th>Location</th><td id="r-location"></td>
+        </tr>
+        <tr>
+            <th>Machine Model</th><td id="r-machine-model"></td>
+            <th>CCN</th><td id="r-ccn"></td>
+        </tr>
+        <tr>
+            <th>Committed Delivery Date</th><td id="r-delivery"></td>
+            <th>Date</th><td id="r-date"></td>
+        </tr>
+        <tr>
+            <th>Machine Family</th><td id="r-machine-family"></td>
+            <th>Machine Category / Order Type</th><td id="r-machine-cat-order"></td>
+        </tr>
+        <tr>
+            <th>Unit</th><td id="r-unit"></td>
+            <th>CCN Status</th><td id="r-ccn-status"></td>
+        </tr>
+        <tr>
+            <th>Inter Unit Change</th><td id="r-inter-unit"></td>
+            <th>Machine CP Qty / Optional CP Qty</th><td id="r-cp-qtys"></td>
+        </tr>
+        <tr>
+            <th>KOM No</th><td id="r-komno"></td>
+            <th>Venue</th><td id="r-venue"></td>
+        </tr>
+    </table>
+
+    <!-- Members Present -->
+    <div class="section-title">Members Present</div>
+    <table id="members-table">
+        <thead>
+            <tr>
+                <th>Member</th>
+                <th>Department</th>
+                <th>Signature</th>
+            </tr>
+        </thead>
+        <tbody><!-- rows inserted dynamically --></tbody>
+    </table>
+
+    <!-- Machine Basics -->
+    <div class="section-title">Machine Basics</div>
+    <table id="machine-basics-table">
+        <thead><tr><th>Item</th><th>Value</th></tr></thead>
+        <tbody><!-- rows inserted dynamically --></tbody>
+    </table>
+
+    <!-- Machine Features -->
+    <div class="section-title">Machine Features</div>
+    <table id="machine-features-table">
+        <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+        <tbody><!-- rows inserted dynamically --></tbody>
+    </table>
+
+    <!-- Additional / Other Options -->
+    <div class="section-title">Additional / Other Options</div>
+    <table id="additional-options-table">
+        <thead><tr><th>Option</th><th>Value</th></tr></thead>
+        <tbody><!-- rows inserted dynamically --></tbody>
+    </table>
+
+    <!-- Project Kickoff Details -->
+    <div class="section-title">Project Kickoff Details</div>
+    <table>
+      <tr>
+        <td id="r-project-details" style="padding:10px;" colspan="2"></td>
+      </tr>
+    </table>
+
+    <!-- Workflow Dates -->
+    <div class="section-title">Workflow Dates</div>
+    <table id="workflow-table">
+        <thead><tr><th>Milestone</th><th>Date</th></tr></thead>
+        <tbody><!-- rows inserted dynamically --></tbody>
+    </table>
+
+    <div class="footer">
+        Prepared By: ____________________ &nbsp;&nbsp;&nbsp;&nbsp;
+        Verified By: ____________________
+    </div>
+
+</div>
+
+<script>
+(async function(){
+  function q(id){ return document.getElementById(id); }
+  function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, m=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function getQueryParam(name){ return new URLSearchParams(location.search).get(name); }
+
+  const id = getQueryParam('id');
+  const ccn = getQueryParam('ccn');
+  if (!id && !ccn) {
+    document.getElementById('r-customer').innerText = '';
+    document.getElementById('r-location').innerText = '';
+    document.getElementById('r-ccn').innerText = '';
+    document.getElementById('r-komno').innerText = '';
+    document.getElementById('r-date').innerText = 'Missing id or ccn in URL';
+    return;
+  }
+
+  try {
+    let res;
+    if (id) res = await fetch('/api/kickoff/' + encodeURIComponent(id));
+    else res = await fetch('/api/kickoff/by-ccn?ccn=' + encodeURIComponent(ccn));
+
+    if (!res.ok) {
+      document.getElementById('r-date').innerText = 'Record not found';
+      return;
+    }
+    const full = await res.json();
+
+    // helper to parse JSON fields that may be stored as strings
+    function parseMaybeJson(v, fallback) {
+      if (v == null) return fallback;
+      if (typeof v === 'object') return v;
+      try { return JSON.parse(v); } catch(e){ return fallback; }
+    }
+
+    // Map fields (no field left out)
+    q('r-customer').innerText = escapeHtml(full.customerName || full.customer || '');
+    q('r-location').innerText = escapeHtml(full.address || full.location || '');
+    q('r-machine-model').innerText = escapeHtml(full.machineModel || full.machine || full.machineName || '');
+    q('r-ccn').innerText = escapeHtml(full.ccn || '');
+    q('r-delivery').innerText = escapeHtml(full.poDeliveryDate || full.delivery || '');
+    q('r-date').innerText = escapeHtml(full.timestamp ? (new Date(full.timestamp)).toLocaleDateString() : '');
+    q('r-machine-family').innerText = escapeHtml(full.machineFamily || '');
+    q('r-machine-cat-order').innerText = escapeHtml(((full.machineCategory || '') + (full.orderType ? ' / ' + full.orderType : '')) || '');
+    q('r-unit').innerText = escapeHtml(full.unit || '');
+    q('r-ccn-status').innerText = escapeHtml(full.ccnStatus || '');
+    q('r-inter-unit').innerText = escapeHtml(full.interUnitChange || '');
+    q('r-cp-qtys').innerText = escapeHtml((full.machineCpQty || '') + (full.machineOptionalCpQty ? ' / ' + full.machineOptionalCpQty : ''));
+    q('r-komno').innerText = escapeHtml(full.komNo || '');
+    q('r-venue').innerText = escapeHtml(full.venue || '');
+    q('r-project-details').innerText = escapeHtml(full.projectKickoffDetails || '');
+
+    // Members Present - support both comma string and array of objects
+    const membersTbody = document.querySelector('#members-table tbody');
+    membersTbody.innerHTML = '';
+    let members = [];
+    if (Array.isArray(full.membersPresent)) {
+      members = full.membersPresent;
+    } else if (typeof full.membersPresent === 'string' && full.membersPresent.trim() !== '') {
+      members = full.membersPresent.split(',').map(s=>s.trim()).filter(Boolean);
+    } else if (Array.isArray(full.members) && full.members.length) {
+      members = full.members;
+    }
+    // if there's a structured membersDetails array available, use it
+    let membersDetails = parseMaybeJson(full.membersDetails, null) || null;
+    if (!membersDetails && Array.isArray(full.membersPresentDetails)) membersDetails = full.membersPresentDetails;
+
+    if (members.length === 0 && membersDetails && Array.isArray(membersDetails)) {
+      // membersDetails may contain objects {name, department}
+      membersDetails.forEach(md => {
+        const tr = document.createElement('tr');
+        const name = escapeHtml(md.name || md.member || '');
+        const dept = escapeHtml(md.department || md.dept || '');
+        tr.innerHTML = `<td>${name}</td><td>${dept}</td><td></td>`;
+        membersTbody.appendChild(tr);
+      });
+    } else {
+      members.forEach(m => {
+        // if membersDetails provides department by name, try to fetch
+        let dept = '';
+        if (membersDetails && Array.isArray(membersDetails)) {
+          const match = membersDetails.find(x => (x.name || x.member || '').toString().trim().toLowerCase() === m.toString().trim().toLowerCase());
+          if (match) dept = match.department || match.dept || '';
+        }
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escapeHtml(m)}</td><td>${escapeHtml(dept)}</td><td></td>`;
+        membersTbody.appendChild(tr);
+      });
+    }
+    // ensure at least 3 rows display (visual)
+    while (membersTbody.children.length < 3) {
+      const tr = document.createElement('tr'); tr.innerHTML = '<td></td><td></td><td></td>'; membersTbody.appendChild(tr);
+    }
+
+    // Machine Basics - expected order (11 items)
+    const basicsLabels = [
+      'PLC','HMI / IPC','Language','CE Certification','Voltage (Power Connection)',
+      'Compressed Air Requirement','Alarms & Messages Language','Operation Manual Language','URS','Product Samples','Machine Link-Up'
+    ];
+    const basicsArr = parseMaybeJson(full.machineBasics, []);
+    const basicsTbody = document.querySelector('#machine-basics-table tbody');
+    basicsTbody.innerHTML = '';
+    basicsLabels.forEach((label, idx) => {
+      const val = basicsArr && basicsArr[idx] != null ? basicsArr[idx] : '';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${escapeHtml(label)}</td><td>${escapeHtml(val)}</td>`;
+      basicsTbody.appendChild(tr);
+    });
+
+    // Machine Features - array of {feature, description} or array of strings
+    const features = parseMaybeJson(full.machineFeatures, []);
+    const featuresTbody = document.querySelector('#machine-features-table tbody');
+    featuresTbody.innerHTML = '';
+    if (Array.isArray(features) && features.length) {
+      features.forEach(f => {
+        if (typeof f === 'object') {
+          const feat = escapeHtml(f.feature || '');
+          const desc = escapeHtml(f.description || f.desc || '');
+          const tr = document.createElement('tr'); tr.innerHTML = `<td>${feat}</td><td>${desc}</td>`; featuresTbody.appendChild(tr);
+        } else {
+          const tr = document.createElement('tr'); tr.innerHTML = `<td>${escapeHtml(f)}</td><td></td>`; featuresTbody.appendChild(tr);
+        }
+      });
+    } else {
+      // render a couple empty rows if none
+      featuresTbody.innerHTML = '<tr><td></td><td></td></tr><tr><td></td><td></td></tr>';
+    }
+
+    // Additional Options - treat as object
+    const addOpts = parseMaybeJson(full.additionalOptions, {});
+    const addTbody = document.querySelector('#additional-options-table tbody');
+    addTbody.innerHTML = '';
+    const addOrder = [
+      {k:'installation_commissioning', label:'Installation & Commissioning'},
+      {k:'transportation', label:'Transportation'},
+      {k:'iq_oq_pq_dq', label:'IQ/OQ/PQ/DQ'},
+      {k:'operation_manual', label:'Operation Manual'},
+      {k:'product_packaging_material', label:'Product & Packaging Material Form'}
+    ];
+    if (Object.keys(addOpts || {}).length) {
+      // if keys are present render all keys
+      const keys = Object.keys(addOpts);
+      keys.forEach(k => {
+        const lblObj = addOrder.find(x => x.k === k);
+        const label = lblObj ? lblObj.label : k;
+        const val = addOpts[k] || '';
+        const tr = document.createElement('tr'); tr.innerHTML = `<td>${escapeHtml(label)}</td><td>${escapeHtml(val)}</td>`; addTbody.appendChild(tr);
+      });
+    } else {
+      // render known labels with empty values
+      addOrder.forEach(it => {
+        const tr = document.createElement('tr'); tr.innerHTML = `<td>${escapeHtml(it.label)}</td><td></td>`; addTbody.appendChild(tr);
+      });
+    }
+
+    // Workflow Dates - show all known keys (keep same order as form)
+    const wfKeys = [
+      'po_receipt_date','oa_generation_date','kom_date','advance_payment_receipt_date','balance_payment_receipt_date',
+      'cp_layout_approvals','machine_layout_approvals','room_layout_approvals','dispatch_clearance',
+      'loa_optional','loa_basic','dq_release','ppc_basic_date','ppc_optional_date',
+      'cp_design_release_date','cp_manufacturing_date','machine_manufacturing_basic','machine_manufacturing_customisation',
+      'ifat_std_cp','ifat_customer_cp','pmr_genration_submission_date','products_receipt_date','packaging_receipt_date',
+      'ifat_protocol_release','cfat','compliance','planned_dispatch_date'
+    ];
+    const wfTbody = document.querySelector('#workflow-table tbody');
+    wfTbody.innerHTML = '';
+    wfKeys.forEach(k => {
+      const val = full[k] || '';
+      // format label: replace underscores with spaces and convert to uppercase
+      const label = String(k).replace(/_/g, ' ').toUpperCase();
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td style="font-weight:600;">${escapeHtml(label)}</td><td>${escapeHtml(val)}</td>`;
+      wfTbody.appendChild(tr);
+    });
+
+  } catch (err) {
+    document.querySelector('.report-container').innerHTML = '<div style="color:#a00;">Error loading report.</div>';
+    console.error(err);
+  }
+
+  // button handlers
+  // redirect to home page on Close
+  document.getElementById('btn-close').addEventListener('click', ()=> { window.location.href = '/kickoff-output-table.html'; });
+  document.getElementById('btn-back').addEventListener('click', ()=> { history.back(); });
+  document.getElementById('btn-print').addEventListener('click', ()=> { window.print(); });
+  document.getElementById('btn-pdf').addEventListener('click', ()=> { window.print(); });
+
+})();
+</script>
+
+</body>
+</html>

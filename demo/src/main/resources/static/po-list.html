@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PO List</title>
+  <link rel="stylesheet" href="po.css" />
+  <style>
+    /* Body spacing for fixed navbar and footer */
+    body {
+      margin: 0;
+      padding-top: 70px;
+      padding-bottom: 80px;
+      min-height: 100vh;
+      background-color: #e3f2fd;
+    }
+
+    /* Reworked responsive styles for PO List (grid-based cards, adaptive breakpoints) */
+    .container.po-form-container {
+      max-width: 1600px;
+      width: calc(100% - 32px);
+      margin: 20px auto;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 32px;
+      align-items: start;
+      min-height: 60vh;
+      box-sizing: border-box;
+      padding: 8px;
+    }
+
+    .po-sidebar {
+      background: #f4f7fa;
+      border-radius: 8px;
+      border: 1.5px solid #d0d7de;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      font-size: 1.02em;
+      height: 100%;
+    }
+
+    .po-sidebar h3 {
+      font-size: 15px;
+      margin: 0 0 12px 0;
+      color: #1a3a4a;
+      font-weight: bold;
+    }
+
+    .po-date-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .po-date-list li {
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #2a4a5a;
+      transition: background 0.15s;
+      font-size: 13px;
+    }
+
+    .po-date-list li.active, .po-date-list li:hover {
+      background: #e0e7ef;
+      color: #0a2233;
+      font-weight: bold;
+    }
+
+    .po-card-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 18px;
+      align-items: start;
+      width: 100%;
+      margin-top: 24px;
+    }
+
+    .po-card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      padding: 12px 14px;
+      min-width: 0;
+      box-sizing: border-box;
+      cursor: pointer;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, color 0.16s ease;
+      border: 1.25px solid rgba(53,71,77,0.12);
+      color: #1a3a4a; /* default text color for cards */
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-start;
+      justify-content: flex-start;
+      height: auto;
+    }
+
+    .po-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      background: #f7f9fa;
+      color: #0a2233 !important;
+    }
+
+    /* When we mark a card as dark-bg (set via JS) keep text white normally */
+    .po-card.dark-bg {
+      color: #fff;
+      border-color: rgba(0,0,0,0.08);
+    }
+
+    /* But on hover always switch to dark text for readability when background becomes light */
+    .po-card.dark-bg:hover {
+      color: #0a2233 !important;
+    }
+
+    .po-card-customer { font-size: 0.88rem; font-weight: 700; text-transform: uppercase; line-height:1.1; }
+    .po-card-row, .po-card-info-row { display:flex; gap:12px; align-items:center; width:100%; flex-wrap:wrap; }
+    .po-card-ccn { font-weight:600; font-size:0.9rem; text-transform:uppercase; color: inherit; }
+    .po-card-machine { font-size:0.88rem; font-weight:500; color: inherit; }
+    .po-card-order { font-size:0.82rem; color: inherit; text-transform:uppercase; }
+    .po-card-date { font-size:0.78rem; color: rgba(0,0,0,0.55); font-style: italic; margin-left:8px; }
+
+    .po-filters {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .po-filters label {
+      font-weight: 500;
+      color: #1a3a4a;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .po-filters select {
+      padding: 4px 8px;
+      border-radius: 3px;
+      border: 1px solid #b0b8be;
+      background: #fff;
+      color: #1a3a4a;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .po-main-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .po-main-content header {
+      font-size: 15px;
+      font-weight: bold;
+      color: #1a3a4a;
+      margin-bottom: 12px;
+    }
+
+    /* Responsive breakpoints */
+    @media (max-width: 1100px) {
+      .container.po-form-container { grid-template-columns: 200px 1fr; gap: 20px; width: calc(100% - 24px); }
+      .po-sidebar { padding: 14px; }
+      .po-sidebar h3 { font-size: 1rem; }
+      .po-date-list li { padding: 6px 8px; font-size: 0.9rem; }
+      .po-card-list { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+      .po-main-content header { font-size: 1.15rem; }
+      .po-filters { gap: 12px; }
+      .po-filters label { font-size: 0.9rem; }
+      .po-filters select { padding: 6px 10px; font-size: 0.85rem; }
+    }
+
+    @media (max-width: 900px) {
+      .container.po-form-container { grid-template-columns: 1fr; gap: 12px; padding: 12px; }
+      .po-sidebar { width: 100%; max-width: 100%; margin-bottom: 6px; padding: 12px; }
+      .po-sidebar h3 { font-size: 0.95rem; }
+      .po-date-list li { padding: 6px 8px; font-size: 0.85rem; }
+      .po-card-list { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); max-width: 100%; }
+      .po-card { padding: 10px; }
+      .po-main-content header { font-size: 1.1rem; margin-bottom: 10px; }
+      .po-filters { gap: 10px; }
+      .po-filters label { font-size: 0.85rem; }
+      .po-filters select { padding: 6px 8px; font-size: 0.8rem; }
+    }
+
+    @media (max-width: 600px) {
+      body { padding-top: 65px; padding-bottom: 75px; }
+      .container.po-form-container { margin: 12px auto; width: calc(100% - 16px); grid-template-columns: 1fr; gap: 10px; }
+      .po-sidebar { width: 100%; padding: 10px; margin-bottom: 10px; }
+      .po-sidebar h3 { font-size: 0.9rem; margin-bottom: 8px; }
+      .po-date-list { max-height: 200px; overflow-y: auto; }
+      .po-date-list li { padding: 5px 6px; margin-bottom: 4px; font-size: 0.8rem; }
+      .po-card-list { grid-template-columns: 1fr; gap: 10px; margin-top: 16px; }
+      .po-card { padding: 10px 12px; border-radius: 6px; }
+      .po-card-customer { font-size: 0.9rem; }
+      .po-card-row, .po-card-info-row { gap: 8px; }
+      .po-main-content header { font-size: 1rem; margin-bottom: 8px; }
+      .po-filters { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .po-filters label { font-size: 0.8rem; }
+      .po-filters select { width: 100%; padding: 6px 8px; font-size: 0.75rem; }
+    }
+
+    @media (max-width: 400px) {
+      .container.po-form-container { margin: 8px auto; width: calc(100% - 8px); }
+      .po-sidebar h3 { font-size: 0.85rem; }
+      .po-date-list li { font-size: 0.75rem; padding: 4px 5px; }
+      .po-main-content header { font-size: 0.95rem; }
+      .po-filters label { font-size: 0.75rem; }
+      .po-filters select { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-include"></div>
+  <section class="container po-form-container">
+    <div class="po-sidebar">
+      <h3>PO Date</h3>
+      <ul id="poDateList" class="po-date-list"></ul>
+    </div>
+    <div class="po-main-content">
+      <header>All Purchase Orders</header>
+      <div class="po-filters">
+        <label for="orderTypeFilter">Order Type</label>
+        <select id="orderTypeFilter">
+          <option value="ALL">All</option>
+          <option value="Inhouse">Inhouse</option>
+          <option value="Domestic">Domestic</option>
+          <option value="Export">Export</option>
+        </select>
+        <label for="machineCategoryFilter">Machine Category</label>
+        <select id="machineCategoryFilter">
+          <option value="ALL">All</option>
+        </select>
+        <label for="machineNameFilter">Machine Name</label>
+        <select id="machineNameFilter">
+          <option value="ALL">All</option>
+        </select>
+      </div>
+      <div id="poCardList" class="po-card-list"></div>
+    </div>
+  </section>
+  <div id="footer-include"></div>
+  <script>
+    // Header/footer includes
+    fetch('/fragments/header.html').then(r=>r.text()).then(html=>{
+      document.getElementById('header-include').innerHTML = html;
+    });
+    fetch('/fragments/footer.html').then(r=>r.text()).then(html=>{
+      document.getElementById('footer-include').innerHTML = html;
+    });
+    // Fetch and display PO cards with sidebar filter
+    let allPOs = [];
+    let currentDateFilter = 'ALL';
+    let currentOrderType = 'ALL';
+    let currentMachineCategory = 'ALL';
+    let currentMachineName = 'ALL';
+    async function loadPOCards() {
+      try {
+        const res = await fetch('/api/po');
+        if (!res.ok) {
+          const text = await res.text();
+          document.getElementById('poCardList').innerHTML = `<div style='color:#e00;font-size:1.1em;'>Error loading PO records.<br>Status: ${res.status}<br>${text}</div>`;
+          return;
+        }
+        let data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          document.getElementById('poCardList').innerHTML = '<div style="color:#888;font-size:1.1em;">No PO records found.</div>';
+          document.getElementById('poDateList').innerHTML = '';
+          return;
+        }
+        // Defensive: filter out records with no CCN or timestamp
+        data = data.filter(po => po.ccn && po.timestamp);
+        // backend already excludes POs present in Kickoff/Machine; no client-side removal needed
+        // Sort by timestamp descending
+        data = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        allPOs = data;
+        populateDropdowns();
+        renderDateSidebar();
+        renderPOCards();
+      } catch (err) {
+        document.getElementById('poCardList').innerHTML = `<div style='color:#e00;font-size:1.1em;'>Error loading PO records.<br>${err}</div>`;
+        document.getElementById('poDateList').innerHTML = '';
+      }
+    }
+    // Listen for swap/update notifications from other tabs/pages and reload cards
+    window.addEventListener('storage', function(e){
+      if (e.key === 'poSwapTimestamp') {
+        loadPOCards();
+      }
+    });
+    function populateDropdowns() {
+      // Machine Category
+      const catSet = new Set();
+      allPOs.forEach(po => { if (po.machineCategory) catSet.add(po.machineCategory); });
+      const catSel = document.getElementById('machineCategoryFilter');
+      let catHtml = '<option value="ALL">All</option>';
+      Array.from(catSet).sort().forEach(cat => { catHtml += `<option value="${cat}">${cat}</option>`; });
+      catSel.innerHTML = catHtml;
+      // Machine Name
+      const nameSet = new Set();
+      allPOs.forEach(po => { if (po.machineName) nameSet.add(po.machineName); });
+      const nameSel = document.getElementById('machineNameFilter');
+      let nameHtml = '<option value="ALL">All</option>';
+      Array.from(nameSet).sort().forEach(name => { nameHtml += `<option value="${name}">${name}</option>`; });
+      nameSel.innerHTML = nameHtml;
+    }
+    function renderDateSidebar() {
+      const dateSet = new Set();
+      allPOs.forEach(po => {
+        if (po.timestamp) dateSet.add(po.timestamp.split('T')[0]);
+      });
+      const dates = Array.from(dateSet).sort((a, b) => new Date(b) - new Date(a));
+      let html = `<li class="${currentDateFilter==='ALL'?'active':''}" onclick="filterByDate('ALL', this)">All</li>`;
+      dates.forEach(date => {
+        html += `<li class="${currentDateFilter===date?'active':''}" onclick="filterByDate('${date}', this)">${date}</li>`;
+      });
+      document.getElementById('poDateList').innerHTML = html;
+    }
+    function renderPOCards() {
+      let data = allPOs;
+      if (currentDateFilter !== 'ALL') {
+        data = data.filter(po => po.timestamp && po.timestamp.split('T')[0] === currentDateFilter);
+      }
+      if (currentOrderType !== 'ALL') {
+        data = data.filter(po => (po.orderType||'').toLowerCase() === currentOrderType.toLowerCase());
+      }
+      if (currentMachineCategory !== 'ALL') {
+        data = data.filter(po => (po.machineCategory||'') === currentMachineCategory);
+      }
+      if (currentMachineName !== 'ALL') {
+        data = data.filter(po => (po.machineName||'') === currentMachineName);
+      }
+      data = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      const list = document.getElementById('poCardList');
+      if (!data.length) {
+        list.innerHTML = '<div style="color:#888;font-size:1.1em;">No PO records found for this filter.</div>';
+        return;
+      }
+      list.innerHTML = '';
+      data.forEach(po => {
+        const card = document.createElement('div');
+        card.className = 'po-card';
+        // Determine card background & mark dark backgrounds with class (avoid forcing text color inline)
+        let orderType = (po.orderType || '').toLowerCase();
+        let bg = '';
+        let isDarkBg = false;
+        if (orderType === 'export') { bg = '#008B8B'; isDarkBg = true; }
+        else if (orderType === 'domestic') { bg = '#D2691E'; isDarkBg = true; }
+        else if (orderType === 'inhouse') { bg = '#37474f'; isDarkBg = true; } // darker neutral
+        if (bg) {
+          card.style.background = bg;
+          if (isDarkBg) card.classList.add('dark-bg');
+        }
+
+        card.innerHTML = `
+          <div class='po-card-customer'>${po.customerName || '-'}</div>
+          <div class='po-card-row'>
+            <span class='po-card-ccn'>${po.ccn || '-'}</span>
+            <span class='po-card-machine'>${po.machineCategory || '-'}</span>
+          </div>
+          <div class='po-card-info-row'>
+            <span class='po-card-order'>${po.orderType || '-'}</span>
+            <span class='po-card-date'>${po.timestamp ? po.timestamp.split('T')[0] : '-'}</span>
+          </div>
+        `;
+        card.onclick = () => {
+          window.location.href = `/kickoff form/kickoff.html?ccn=${encodeURIComponent(po.ccn)}`;
+        };
+        list.appendChild(card);
+      });
+    }
+    window.filterByDate = function(date, el) {
+      currentDateFilter = date;
+      renderDateSidebar();
+      renderPOCards();
+    }
+    document.getElementById('orderTypeFilter').addEventListener('change', function() {
+      currentOrderType = this.value;
+      renderPOCards();
+    });
+    document.getElementById('machineCategoryFilter').addEventListener('change', function() {
+      currentMachineCategory = this.value;
+      renderPOCards();
+    });
+    document.getElementById('machineNameFilter').addEventListener('change', function() {
+      currentMachineName = this.value;
+      renderPOCards();
+    });
+    loadPOCards();
+  </script>
+</body>
+</html>

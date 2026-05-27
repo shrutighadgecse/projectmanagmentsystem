@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine CCN Project</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --accent: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg: #f0f4ff;
+            --surface: #ffffff;
+            --surface2: #f8faff;
+            --border: rgba(37,99,235,0.13);
+            --border-strong: rgba(37,99,235,0.25);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --disabled-bg: #eef2ff;
+            --disabled-text: #6b7280;
+            --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md: 0 4px 16px rgba(37,99,235,0.08), 0 1px 4px rgba(15,23,42,0.06);
+            --shadow-lg: 0 8px 32px rgba(37,99,235,0.12), 0 2px 8px rgba(15,23,42,0.06);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --radius-lg: 20px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; line-height: 1.5; }
+
+        .top-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: fixed; top: 0; left: 0; right: 0; z-index: 300; box-shadow: var(--shadow-sm); }
+        .top-bar-brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1rem; color: var(--primary); letter-spacing: -0.01em; }
+        .top-bar-brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.3); } }
+
+        .ccn-header { background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #0369a1 100%); color: white; padding: 12px 24px; position: fixed; top: 60px; left: 0; right: 0; z-index: 290; box-shadow: 0 4px 20px rgba(29,78,216,0.25); }
+        .ccn-header-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .ccn-meta-chips { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+        .meta-chip { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.78rem; display: flex; align-items: center; gap: 5px; }
+        .meta-chip strong { color: rgba(255,255,255,0.7); font-weight: 500; }
+        .meta-chip span { color: white; font-weight: 600; font-family: 'DM Mono', monospace; font-size: 0.75rem; }
+        .meta-chip-empty span { color: rgba(255,255,255,0.45); font-style: italic; font-family: 'DM Sans', sans-serif; }
+        .status-pill { background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #a7f3d0; border-radius: 20px; padding: 4px 12px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+        .status-pill.idle { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }
+        .status-pill.error { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
+
+        .global-progress { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; position: fixed; left: 0; right: 0; z-index: 280; }
+        .global-progress-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+        .progress-track { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%); border-radius: 4px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+        .progress-text { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); white-space: nowrap; font-family: 'DM Mono', monospace; }
+
+        .stepper-wrap { background: var(--surface); border-bottom: 1px solid var(--border); position: fixed; left: 0; right: 0; z-index: 270; box-shadow: var(--shadow-sm); }
+        .stepper { max-width: 1280px; margin: 0 auto; padding: 0 16px; display: flex; align-items: stretch; overflow-x: auto; scrollbar-width: none; }
+        .stepper::-webkit-scrollbar { display: none; }
+        .step-btn { display: flex; flex-direction: column; align-items: center; padding: 12px 10px 10px; gap: 4px; cursor: pointer; border: none; background: none; font-family: 'DM Sans', sans-serif; min-width: 90px; flex: 1; position: relative; transition: all 0.2s; border-bottom: 3px solid transparent; }
+        .step-btn.active { border-bottom-color: var(--primary); }
+        .step-btn.active .step-num { background: var(--primary); color: white; }
+        .step-btn.active .step-label { color: var(--primary); font-weight: 700; }
+        .step-btn.completed .step-num { background: var(--success); color: white; }
+        .step-btn.completed .step-label { color: var(--success); }
+        .step-btn:hover:not(.active) .step-num { background: var(--disabled-bg); }
+        .step-num { width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0; color: var(--text-secondary); font-weight: 700; font-size: 0.78rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s; font-family: 'DM Mono', monospace; }
+        .step-label { font-size: 0.68rem; font-weight: 500; color: var(--text-muted); text-align: center; white-space: nowrap; transition: color 0.2s; letter-spacing: 0.01em; }
+        .step-fill { height: 3px; width: 100%; background: #e2e8f0; border-radius: 2px; overflow: hidden; }
+        .step-fill-inner { height: 100%; background: var(--success); width: 0%; transition: width 0.4s ease; }
+        .step-badge { position: absolute; top: 4px; right: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--success); border: 2px solid white; display: none; }
+        .step-btn.completed .step-badge { display: block; }
+
+        .page-shell { max-width: 1280px; margin: 0 auto; padding: 24px 24px 80px; padding-top: calc(var(--header-h, 190px) + 24px); }
+
+        .step-panel { display: none; animation: fadeSlideIn 0.3s ease; }
+        .step-panel.active { display: block; }
+        @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .step-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+        .step-icon { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(37,99,235,0.25); }
+        .step-header-text h2 { font-size: 1.2rem; font-weight: 700; color: var(--text-primary); }
+        .step-header-text p { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 24px; margin-bottom: 20px; }
+        .card-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        .card-title::before { content: ''; width: 3px; height: 14px; background: var(--primary); border-radius: 2px; }
+        .card-title.dup::before { background: var(--accent); }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+        .span-2 { grid-column: span 2; }
+        .span-3 { grid-column: span 3; }
+        @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } .span-2, .span-3 { grid-column: span 1; } }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); letter-spacing: 0.01em; }
+        .form-group input[type="text"], .form-group input[type="number"], .form-group input[type="date"], .form-group textarea, .form-group select { border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 0.88rem; color: var(--text-primary); background: var(--surface2); font-family: 'DM Sans', sans-serif; transition: all 0.2s; width: 100%; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(37,99,235,0.08); }
+        .form-group textarea { resize: vertical; min-height: 70px; }
+        .form-group input[readonly], .form-group textarea[readonly], .form-group input.disabled, .form-group input:disabled, .form-group select:disabled, .form-group textarea:disabled { background: var(--disabled-bg); color: var(--disabled-text); cursor: not-allowed; border-color: var(--border); }
+
+        .dropdown-container { position: relative; width: 100%; }
+        .dropdown-container .dropdown { position: absolute; left: 0; top: 100%; width: 100%; min-width: 180px; max-width: 100%; z-index: 20; background: #fff; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); font-size: 0.88rem; box-shadow: 0 4px 16px rgba(37,99,235,0.13); outline: none; padding: 0.2em 0; margin-top: 2px; color: var(--text-primary); transition: border 0.2s; }
+        .dropdown-container .dropdown:focus { border: 1.5px solid var(--primary); }
+        .dropdown-container .dropdown option { padding: 8px 12px; background: #fff; color: var(--text-primary); border-bottom: 1px solid #f3f3f3; cursor: pointer; }
+        .dropdown-container .dropdown option:hover, .dropdown-container .dropdown option:checked { background: var(--primary); color: #fff; }
+
+        .dup-field { background: #f0f9ff !important; border-color: rgba(14,165,233,0.3) !important; color: #0369a1 !important; font-style: italic; }
+        .plan-date { font-size: 0.72rem; font-weight: 600; color: var(--primary-light); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+        .step-top-nav { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 20px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+        .step-top-nav-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; }
+
+        .date-input-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .date-input-row input[type="date"] { flex: 1; min-width: 140px; }
+        .final-checkbox-container { display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; white-space: nowrap; }
+        .final-checkbox-container input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--success); }
+
+        .final-pending-badge { display: none; font-size: 0.65rem; font-weight: 700; background: #fef3c7; color: #92400e; border: 1px solid #fde68a; border-radius: 10px; padding: 1px 7px; margin-left: 4px; vertical-align: middle; letter-spacing: 0.03em; }
+        .final-pending-badge.visible { display: inline-block; }
+
+        .ccn-closed-indicator { display: none; font-size: 0.7rem; font-weight: 700; background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; border-radius: 10px; padding: 2px 10px; margin-left: 8px; }
+        .ccn-closed-indicator.visible { display: inline-block; }
+
+        .checkbox-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface2); border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); }
+        .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); }
+        .checkbox-row label { font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; font-weight: 500; margin-bottom: 0; }
+
+        .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+        #cpTrialTable, #cpTrialTableQaqc { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+        #cpTrialTable thead tr, #cpTrialTableQaqc thead tr { background: linear-gradient(135deg, rgba(37,99,235,0.07) 0%, rgba(14,165,233,0.07) 100%); }
+        #cpTrialTable th, #cpTrialTableQaqc th { padding: 10px 10px; text-align: left; font-weight: 700; color: var(--text-primary); border-bottom: 2px solid var(--border-strong); white-space: nowrap; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; }
+        #cpTrialTable td, #cpTrialTableQaqc td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        #cpTrialTable tr:last-child td, #cpTrialTableQaqc tr:last-child td { border-bottom: none; }
+        #cpTrialTable tbody tr:hover, #cpTrialTableQaqc tbody tr:hover { background: rgba(37,99,235,0.03); }
+        #cpTrialTable input, #cpTrialTableQaqc input { width: 100%; border: 1px solid var(--border-strong); border-radius: 6px; padding: 6px 8px; font-size: 0.82rem; background: var(--surface2); color: var(--text-primary); font-family: 'DM Sans', sans-serif; }
+        #cpTrialTable input:focus, #cpTrialTableQaqc input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        #cpTrialTable input:disabled, #cpTrialTableQaqc input:disabled { background: var(--disabled-bg); color: var(--disabled-text); cursor: not-allowed; border-color: var(--border); }
+
+        .step-nav { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .step-nav-left, .step-nav-right { display: flex; align-items: center; gap: 10px; }
+
+        .btn-nav { display: flex; align-items: center; gap: 7px; padding: 11px 20px; border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
+        .btn-prev { background: var(--surface2); color: var(--text-secondary); border: 1.5px solid var(--border-strong); }
+        .btn-prev:hover { background: var(--disabled-bg); color: var(--primary); border-color: var(--primary); }
+        .btn-next { background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); color: white; box-shadow: 0 4px 16px rgba(37,99,235,0.28); }
+        .btn-next:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.35); }
+        .btn-save { background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.28); }
+        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.35); }
+        .btn-save-step { background: var(--surface2); color: var(--primary); border: 1.5px solid var(--primary); }
+        .btn-save-step:hover { background: var(--disabled-bg); }
+
+        .message-box { padding: 12px 16px; border-radius: var(--radius-sm); margin-top: 14px; font-weight: 600; font-size: 0.85rem; display: none; }
+        .message-box.success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #065f46; }
+        .message-box.error { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #7f1d1d; }
+
+        .section-divider { height: 1px; background: linear-gradient(90deg, var(--border) 0%, transparent 100%); margin: 22px 0; }
+
+        .file-input-wrap input[type="file"] { font-size: 0.82rem; padding: 8px 12px; border: 1.5px dashed var(--border-strong); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text-secondary); cursor: pointer; width: 100%; }
+        .file-input-wrap input[type="file"]:hover { border-color: var(--primary); background: var(--disabled-bg); }
+        .hint { font-size: 0.72rem; color: var(--text-muted); margin-top: 3px; }
+
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .workmen-container { border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface2); padding: 10px 12px; max-height: 180px; overflow-y: auto; }
+        .checkbox-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .checkbox-item { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid var(--border-strong); border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; cursor: pointer; transition: all 0.15s; }
+        .checkbox-item:hover { border-color: var(--primary); background: var(--disabled-bg); }
+        .checkbox-item input[type="checkbox"]:checked + label { color: var(--primary); font-weight: 600; }
+        .checkbox-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--primary); cursor: pointer; }
+        .checkbox-item label { cursor: pointer; margin-bottom: 0; font-size: 0.82rem; color: var(--text-secondary); }
+        .workmen-add-row { display: flex; gap: 8px; margin-top: 8px; }
+        .workmen-add-row input { flex: 1; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; background: var(--surface2); color: var(--text-primary); }
+        .workmen-add-row input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+        .workmen-add-row button { background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); padding: 8px 18px; font-weight: 700; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.2s; }
+        .workmen-add-row button:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+        @media (max-width: 640px) {
+            .ccn-header-inner { gap: 10px; }
+            .step-label { display: none; }
+            .step-btn { min-width: 44px; padding: 10px 6px; }
+            .page-shell { padding: 16px 12px 60px; padding-top: calc(var(--header-h, 190px) + 16px); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="top-bar-brand"><span class="dot"></span>Machine CCN Project</div>
+    <div style="font-size:0.78rem;color:var(--text-muted);font-family:'DM Mono',monospace;">v2.1 · Multi-Step</div>
+</div>
+
+<div class="ccn-header" id="ccnHeader">
+    <div class="ccn-header-inner">
+        <div class="ccn-meta-chips">
+            <div class="meta-chip meta-chip-empty" id="chipCcn"><strong>CCN</strong><span id="chipCcnVal">—</span></div>
+            <div class="meta-chip meta-chip-empty" id="chipMachine"><strong>Machine Name</strong><span id="chipMachineVal">—</span></div>
+            <div class="meta-chip meta-chip-empty" id="chipModel"><strong>Machine Model</strong><span id="chipModelVal">—</span></div>
+            <div class="meta-chip meta-chip-empty" id="chipFamily"><strong>Machine Family</strong><span id="chipFamilyVal">—</span></div>
+            <div class="meta-chip meta-chip-empty" id="chipUnit"><strong>Unit</strong><span id="chipUnitVal">—</span></div>
+            <div class="meta-chip meta-chip-empty" id="chipSales"><strong>Sales Person</strong><span id="chipSalesVal">—</span></div>
+            <div class="meta-chip meta-chip-empty" id="chipCustomer"><strong>Customer Name</strong><span id="chipCustomerVal">—</span></div>
+        </div>
+        <div id="statusPill" class="status-pill idle">Awaiting CCN</div>
+    </div>
+</div>
+
+<div class="global-progress" id="globalProgress">
+    <div class="global-progress-inner">
+        <div class="progress-track"><div class="progress-fill" id="globalProgressFill" style="width:0%"></div></div>
+        <div class="progress-text" id="globalProgressText">0 / 9 steps</div>
+    </div>
+</div>
+
+<div class="stepper-wrap" id="stepperWrap">
+    <div class="stepper" id="stepper">
+        <button class="step-btn active" data-step="0" type="button"><div class="step-num">1</div><div class="step-label">PO Details</div><div class="step-fill"><div class="step-fill-inner" id="fill-0"></div></div><span class="step-badge"></span></button>
+        <button class="step-btn" data-step="1" type="button"><div class="step-num">2</div><div class="step-label">Sales</div><div class="step-fill"><div class="step-fill-inner" id="fill-1"></div></div><span class="step-badge"></span></button>
+        <button class="step-btn" data-step="2" type="button"><div class="step-num">3</div><div class="step-label">Design</div><div class="step-fill"><div class="step-fill-inner" id="fill-2"></div></div><span class="step-badge"></span></button>
+        <button class="step-btn" data-step="3" type="button"><div class="step-num">4</div><div class="step-label">QA / QC</div><div class="step-fill"><div class="step-fill-inner" id="fill-3"></div></div><span class="step-badge"></span></button>
+        <button class="step-btn" data-step="4" type="button"><div class="step-num">5</div><div class="step-label">PPC</div><div class="step-fill"><div class="step-fill-inner" id="fill-4"></div></div><span class="step-badge"></span></button>
+        <button class="step-btn" data-step="5" type="button"><div class="step-num">6</div><div class="step-label">CP Cell</div><div class="step-fill"><div class="step-fill-inner" id="fill-5"></div></div><span class="step-badge"></span></button>
+        <button class="step-btn" data-step="6" type="button"><div class="step-num">7</div><div class="step-label">Stores</div><div class="step-fill"><div class="step-fill-inner" id="fill-6"></div></div><span class="step-badge"></span></button>
+        <button class="step-btn" data-step="7" type="button"><div class="step-num">8</div><div class="step-label">Assembly</div><div class="step-fill"><div class="step-fill-inner" id="fill-7"></div></div><span class="step-badge"></span></button>
+        <button class="step-btn" data-step="8" type="button"><div class="step-num">9</div><div class="step-label">Invoice / Dispatch</div><div class="step-fill"><div class="step-fill-inner" id="fill-8"></div></div><span class="step-badge"></span></button>
+    </div>
+</div>
+
+<input type="hidden" id="machineCcnProjectCcn" name="ccn">
+<input type="hidden" id="machineName" name="machineName">
+
+<div class="page-shell">
+    <div id="messageBox" class="message-box"></div>
+
+    <!-- STEP 1: PURCHASE ORDER -->
+    <div class="step-panel active" id="step-0">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">📄 Step 1 — Purchase Order Details</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-next" data-goto="1" type="button">Next: Sales →</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">📄</div><div class="step-header-text"><h2>Purchase Order Details</h2><p>Auto-populated from the loaded CCN — all fields are read-only</p></div></div>
+        <div class="card">
+            <div class="card-title">PO Information</div>
+            <div class="grid-2">
+                <div class="form-group"><label>CCN</label><input type="text" id="ccnDisplay" readonly class="disabled"></div>
+                <div class="form-group"><label>Record No</label><input type="text" id="poRecordNo" readonly class="disabled"></div>
+                <div class="form-group"><label>PO Reference Number</label><input type="text" id="poReferenceNumber" readonly class="disabled"></div>
+                <div class="form-group"><label>Sales Person</label><input type="text" id="poSalesPerson" readonly class="disabled"></div>
+                <div class="form-group"><label>Customer Name</label><input type="text" id="poCustomerName" readonly class="disabled"></div>
+                <div class="form-group"><label>Machine Name</label><input type="text" id="poMachineName" readonly class="disabled"></div>
+                <div class="form-group"><label>Model Name</label><input type="text" id="poModelName" readonly class="disabled"></div>
+                <div class="form-group"><label>Order Type</label><input type="text" id="poOrderType" readonly class="disabled"></div>
+                <div class="form-group"><label>PO Date</label><input type="date" id="poDate" readonly class="disabled"></div>
+                <div class="form-group"><label>PO Delivery Date</label><input type="date" id="poDeliveryDate" readonly class="disabled"></div>
+                <div class="form-group"><label>PO Receipt Date</label><input type="date" id="poReceiptDate" readonly class="disabled"></div>
+                <div class="form-group"><label>PO Value (Lacs)</label><input type="number" id="poValueLacs" readonly class="disabled"></div>
+                <div class="form-group span-2"><label>Address</label><textarea id="poAddress" readonly class="disabled" rows="2"></textarea></div>
+            </div>
+        </div>
+        <div style="display:none">
+            <input type="text" id="kickoffMachineFamily"><input type="text" id="kickoffUnit"><input type="text" id="kickoffMachineCategory"><input type="text" id="kickoffOrderType"><select id="kickoffCcnStatus"><option value=""></option></select><input type="text" id="kickoffInterUnitChange"><input type="number" id="kickoffMachineCpQty"><input type="number" id="kickoffMachineOptionalCpQty"><textarea id="kickoffMembersPresent"></textarea><textarea id="kickoffMachineBasics"></textarea><textarea id="kickoffMachineFeatures"></textarea><textarea id="kickoffAdditionalOptions"></textarea><textarea id="kickoffProjectKickoffDetails"></textarea>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"></div>
+            <div class="step-nav-right"><button class="btn-nav btn-next" data-goto="1" type="button">Next: Sales →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 2: SALES -->
+    <div class="step-panel" id="step-1">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">💼 Step 2 — Sales</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-prev" data-goto="0" type="button">← PO Details</button><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="2" type="button">Next: Design →</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">💼</div><div class="step-header-text"><h2>Sales</h2><p>Layout approvals, OA dates, payment dates and sales info</p></div></div>
+        <div class="card">
+            <div class="card-title">Date Fields</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual Machine Layout Approval Date</label><input type="date" id="actualMachineLayoutApprovalDate" name="actualMachineLayoutApprovalDate"><div class="plan-date" id="planMachineLayoutApprovalDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Room Layout Approval Date</label><input type="date" id="actualRoomLayoutApprovalDate" name="actualRoomLayoutApprovalDate"><div class="plan-date" id="planRoomLayoutApprovalDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Change Part Layout Approval Date</label><input type="date" id="actualCpLayoutApprovalDate" name="actualCpLayoutApprovalDate"><div class="plan-date" id="planCpLayoutApprovalDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual OA Generation Date</label><input type="date" id="actualOaGenerationDate" name="actualOaGenerationDate"><div class="plan-date" id="planOaGenerationDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Adv Payment Receipt Date</label><input type="date" id="actualAdvPaymentRecdDate" name="actualAdvPaymentRecdDate"><div class="plan-date" id="planAdvPaymentRecdDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Bal Payment Receipt Date</label><input type="date" id="actualBalPaymentRecdDate" name="actualBalPaymentRecdDate"><div class="plan-date" id="planBalPaymentRecdDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Change Part OA Generation Date</label><input type="date" id="actualCpOaGenerationDate" name="actualCpOaGenerationDate"><div class="plan-date" id="planCpOaGenerationDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Dispatch Clearance Recd Date</label><input type="date" id="actualDispatchClearanceRecdDate" name="actualDispatchClearanceRecdDate"><div class="plan-date" id="planDispatchClearanceRecdDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Optional CP Layout Approval Date</label><input type="date" id="actualOptionalCpLayoutApprovalDate" name="actualOptionalCpLayoutApprovalDate"><div class="plan-date" id="planOptionalCpLayoutApprovalDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Commercial Clearance Date</label><input type="date" id="actualCommercialClearanceDate" name="actualCommercialClearanceDate"><div class="plan-date" id="planCommercialClearanceDate">Kom Plan: —</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Sales Info</div>
+            <div class="grid-2">
+                <div class="form-group"><label>DN Number</label><input type="text" id="dnNumber" name="dnNumber"></div>
+                <div class="form-group"><label>Sales Order Number</label><input type="text" id="salesOrderNumber" name="salesOrderNumber"></div>
+                <div class="form-group"><label>Remarks Sales</label><textarea id="remarksSales" name="remarksSales" rows="3"></textarea></div>
+                <div class="form-group"><label>MCN Remarks (For Shortfall)</label><textarea id="mcnRemarksShortfall" name="mcnRemarksShortfall" rows="3"></textarea></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title dup">Reference — PO Details (Read-only)</div>
+            <div class="grid-2">
+                <div class="form-group"><label>PO Reference Number</label><input type="text" id="dup_s2_poReferenceNumber" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>PO Date</label><input type="date" id="dup_s2_poDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>PO Delivery Date</label><input type="date" id="dup_s2_poDeliveryDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>PO Receipt Date</label><input type="date" id="dup_s2_poReceiptDate" readonly class="dup-field disabled"></div>
+            </div>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"><button class="btn-nav btn-prev" data-goto="0" type="button">← PO Details</button></div>
+            <div class="step-nav-right"><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="2" type="button">Next: Design →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 3: DESIGN -->
+    <div class="step-panel" id="step-2">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">🎨 Step 3 — Design</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-prev" data-goto="1" type="button">← Sales</button><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="3" type="button">Next: QA/QC →</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">🎨</div><div class="step-header-text"><h2>Design</h2><p>LOA, DQ, IFAT protocol, assembly info and design remarks</p></div></div>
+        <div class="card">
+            <div class="card-title">Design Dates</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual LOA Basic Release Date</label><input type="date" id="actualLoaBasic" name="actualLoaBasic"><div class="plan-date" id="planLoaBasic">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual LOA Optional Release Date</label><input type="date" id="actualLoaOptional" name="actualLoaOptional"><div class="plan-date" id="planLoaOptional">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual DQ Release Date</label><input type="date" id="actualDqReleaseDate" name="actualDqReleaseDate"><div class="plan-date" id="planDqReleaseDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual IFAT Protocol Release Date</label><input type="date" id="actualIfatProtocolReleaseDate" name="actualIfatProtocolReleaseDate"><div class="plan-date" id="planIfatProtocolReleaseDate">Kom Plan: —</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Assembly & Design Info</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Total Basic Assembly Attached</label><input type="number" id="totalBasicAssemblyAttached" name="totalBasicAssemblyAttached"></div>
+                <div class="form-group"><label>Total Optional Assembly Attached</label><input type="number" id="totalOptionalAssemblyAttached" name="totalOptionalAssemblyAttached"></div>
+                <div class="form-group"><label>Total Additional New Assembly Attached After CFAT</label><input type="number" id="totalAdditionalNewAssemblyAttachedAfterCfat" name="totalAdditionalNewAssemblyAttachedAfterCfat"></div>
+                <div class="form-group"><label>Additional New Assembly Attached After CFAT Date</label><input type="date" id="additionalNewAssemblyAttachedAfterCfatDate" name="additionalNewAssemblyAttachedAfterCfatDate"></div>
+                <div class="form-group">
+                    <label>Assemblies Released By</label>
+                    <input type="text" id="assembliesReleasedByInput" name="assembliesReleasedBy" placeholder="Enter name or select from suggestions" autocomplete="off">
+                    <div class="dropdown-container" style="position:relative;"><select id="assembliesReleasedByDropdown" class="dropdown" style="display:none;"></select></div>
+                </div>
+                <div class="form-group"><label>Remarks Design</label><textarea id="remarksDesign" name="remarksDesign" rows="3"></textarea></div>
+                <div class="form-group"><label>MCN Number</label><input type="text" id="mcnNumber" name="mcnNumber"></div>
+                <div class="form-group"><label>MCN with Shortfall</label><div class="checkbox-row"><input type="checkbox" id="mcnWithShortfall" name="mcnWithShortfall"><label for="mcnWithShortfall">Yes, MCN with Shortfall</label></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title dup">Reference — From Sales Step (Read-only)</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual Machine Layout Approval Date</label><input type="date" id="dup_s3_actualMachineLayoutApprovalDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Room Layout Approval Date</label><input type="date" id="dup_s3_actualRoomLayoutApprovalDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Change Part Layout Approval Date</label><input type="date" id="dup_s3_actualCpLayoutApprovalDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual OA Generation Date</label><input type="date" id="dup_s3_actualOaGenerationDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Optional CP Layout Approval Date</label><input type="date" id="dup_s3_actualOptionalCpLayoutApprovalDate" readonly class="dup-field disabled"></div>
+            </div>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"><button class="btn-nav btn-prev" data-goto="1" type="button">← Sales</button></div>
+            <div class="step-nav-right"><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="3" type="button">Next: QA/QC →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 4: QA/QC -->
+    <div class="step-panel" id="step-3">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">🔍 Step 4 — QA / QC</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-prev" data-goto="2" type="button">← Design</button><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="4" type="button">Next: PPC →</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">🔍</div><div class="step-header-text"><h2>QA / QC</h2><p>PMR, product & packaging receipts, compliance and packing clearance</p></div></div>
+        <div class="card">
+            <div class="card-title">QA/QC Dates</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual PMR Submission Date</label><input type="date" id="actualPmrSubmissionDate" name="actualPmrSubmissionDate"><div class="plan-date" id="planPmrSubmissionDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Product Receipt Date</label><input type="date" id="actualProductReceiptDate" name="actualProductReceiptDate"><div class="plan-date" id="planProductReceiptDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Packaging Receipt Date</label><input type="date" id="actualPackagingReceiptDate" name="actualPackagingReceiptDate"><div class="plan-date" id="planPackagingReceiptDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Compliance Date</label><input type="date" id="actualComplianceDate" name="actualComplianceDate"><div class="plan-date" id="planComplianceDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Packing Clearance Recd Date</label><input type="date" id="actualPackingClearanceRecdDate" name="actualPackingClearanceRecdDate"><div class="plan-date" id="planPackingClearanceRecdDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>MCN Shortfall Closure Date</label><input type="date" id="mcnShortfallClosureDate" name="mcnShortfallClosureDate"></div>
+            </div>
+        </div>
+
+        <!-- CP TRIAL TABLE IN QA/QC -->
+        <div class="card">
+            <div class="card-title">CP Trial Table</div>
+            <div class="table-wrap"><table id="cpTrialTableQaqc"><thead><tr><th>CP Detail</th><th>IFAT Done On</th><th>QC Cleared On</th><th>Remarks</th><th>Handed To Assembly On</th><th>Received By</th></tr></thead><tbody id="cpTrialTableBodyQaqc"></tbody></table></div>
+            <div class="hint">
+                QA/QC edits: <strong>CP Detail, IFAT Done On, QC Cleared On, Remarks</strong> &nbsp;|&nbsp;
+                <span style="color:var(--disabled-text);">Handed To Assembly On, Received By</span> — filled in CP Cell step.
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title dup">Reference — From Design/Assembly (Read-only)</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual LOA Basic Release Date</label><input type="date" id="dup_s4_actualLoaBasic" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual LOA Optional Release Date</label><input type="date" id="dup_s4_actualLoaOptional" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Project Live Status</label><input type="text" id="dup_s4_liveStatus" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>Actual IFAT Date</label><input type="date" id="dup_s4_actualIfatStdCpDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual CFAT Date</label><input type="date" id="dup_s4_actualCfatDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Total Basic Assembly Attached</label><input type="number" id="dup_s4_totalBasicAssemblyAttached" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Total Optional Assembly Attached</label><input type="number" id="dup_s4_totalOptionalAssemblyAttached" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Total Additional New Assembly After CFAT</label><input type="number" id="dup_s4_totalAdditionalNewAssemblyAttachedAfterCfat" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>MCN Shortfall Closure Date</label><input type="date" id="dup_s4_mcnShortfallClosureDate" readonly class="dup-field disabled"></div>
+            </div>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"><button class="btn-nav btn-prev" data-goto="2" type="button">← Design</button></div>
+            <div class="step-nav-right"><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="4" type="button">Next: PPC →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 5: PPC -->
+    <div class="step-panel" id="step-4">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">📦 Step 5 — PPC</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-prev" data-goto="3" type="button">← QA/QC</button><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="5" type="button">Next: CP Cell →</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">📦</div><div class="step-header-text"><h2>PPC</h2><p>Production Planning & Control — material dates, progress and delays</p></div></div>
+        <div class="card">
+            <div class="card-title">PPC Dates & Status</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual PPC Basic Material Date</label><input type="date" id="actualPpcBasicDate" name="actualPpcBasicDate"><div class="plan-date" id="planPpcBasicDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual PPC Optional Material Date</label><input type="date" id="actualPpcOptionalDate" name="actualPpcOptionalDate"><div class="plan-date" id="planPpcOptionalDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual PPC New Material Date After CFAT</label><input type="date" id="actualPpcNewMaterialDateAfterCfat" name="actualPpcNewMaterialDateAfterCfat"></div>
+                <div class="form-group"><label>Material Progress Status</label><textarea id="materialProgressStatus" name="materialProgressStatus" rows="3"></textarea></div>
+                <div class="form-group"><label>Remarks PPC</label><textarea id="remarksPpc" name="remarksPpc" rows="3"></textarea></div>
+                <div class="form-group"><label>Delay in Days — Basic Material</label><input type="number" id="delayInDaysBasicMaterial" name="delayInDaysBasicMaterial"></div>
+                <div class="form-group"><label>Delay in Days — Optional Basic Material</label><input type="number" id="delayInDaysOptionalBasicMaterial" name="delayInDaysOptionalBasicMaterial"></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title dup">Reference — From Other Steps (Read-only)</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual LOA Basic Release Date</label><input type="date" id="dup_s5_actualLoaBasic" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual LOA Optional Release Date</label><input type="date" id="dup_s5_actualLoaOptional" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Project Live Status</label><input type="text" id="dup_s5_liveStatus" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>Actual IFAT Date</label><input type="date" id="dup_s5_actualIfatStdCpDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual CFAT Date</label><input type="date" id="dup_s5_actualCfatDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Total Basic Assembly Attached</label><input type="number" id="dup_s5_totalBasicAssemblyAttached" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Total Optional Assembly Attached</label><input type="number" id="dup_s5_totalOptionalAssemblyAttached" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Total Additional New Assembly After CFAT</label><input type="number" id="dup_s5_totalAdditionalNewAssemblyAttachedAfterCfat" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>MCN Shortfall Closure Date</label><input type="date" id="dup_s5_mcnShortfallClosureDate" readonly class="dup-field disabled"></div>
+            </div>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"><button class="btn-nav btn-prev" data-goto="3" type="button">← QA/QC</button></div>
+            <div class="step-nav-right"><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="5" type="button">Next: CP Cell →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 6: CP CELL -->
+    <div class="step-panel" id="step-5">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">⚙️ Step 6 — CP Cell</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-prev" data-goto="4" type="button">← PPC</button><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="6" type="button">Next: Stores →</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">⚙️</div><div class="step-header-text"><h2>CP Cell</h2><p>Change Part design, manufacturing, trials and upload</p></div></div>
+        <div class="card">
+            <div class="card-title">CP Dates</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual CP Design Release Date</label><input type="date" id="actualCpDesignReleaseDate" name="actualCpDesignReleaseDate"><div class="plan-date" id="planCpDesignReleaseDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Machine CP Manufacturing Date</label><input type="date" id="actualMachineCpManufacturingDate" name="actualMachineCpManufacturingDate"><div class="plan-date" id="planMachineCpManufacturingDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Machine Optional CP Manufacturing Date</label><input type="date" id="actualMachineOptionalCpManufacturingDate" name="actualMachineOptionalCpManufacturingDate"><div class="plan-date" id="planMachineOptionalCpManufacturingDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Machine CP Trial Completed</label><input type="number" id="machineCpTrialCompleted" name="machineCpTrialCompleted"></div>
+                <div class="form-group"><label>Machine Optional CP Trial Completed</label><input type="number" id="machineOptionalCpTrialCompleted" name="machineOptionalCpTrialCompleted"></div>
+                <div class="form-group"><label>Delay in Days Machine CP</label><input type="number" id="delayInDaysMachineCp" name="delayInDaysMachineCp"></div>
+                <div class="form-group"><label>Delay in Days Optional CP</label><input type="number" id="delayInDaysOptionalCp" name="delayInDaysOptionalCp"></div>
+                <div class="form-group"><label>CP Progress Status</label><textarea id="cpProgressStatusTable" name="cpProgressStatusTable" rows="3"></textarea></div>
+                <div class="form-group"><label>Remarks CP Cell</label><textarea id="remarksCpCell" name="remarksCpCell" rows="3"></textarea></div>
+                <div class="form-group"><label>CP Image Upload</label><div class="file-input-wrap"><input type="file" id="cpImageUpload" name="cpImageUpload" accept="image/*"></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">CP Trial Table</div>
+            <div class="table-wrap"><table id="cpTrialTable"><thead><tr><th>CP Detail</th><th>IFAT Done On</th><th>QC Cleared On</th><th>Remarks</th><th>Handed To Assembly On</th><th>Received By</th></tr></thead><tbody id="cpTrialTableBody"></tbody></table></div>
+            <input type="hidden" id="cpTrialRemarksTable" name="cpTrialRemarksTable">
+            <div class="hint">
+                CP Cell edits: <strong>Handed To Assembly On, Received By</strong> &nbsp;|&nbsp;
+                <span style="color:var(--disabled-text);">CP Detail, IFAT Done On, QC Cleared On, Remarks</span> — filled in QA/QC step.
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title dup">Reference — From Other Steps (Read-only)</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Machine CP Qty</label><input type="number" id="dup_s6_kickoffMachineCpQty" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Machine Optional CP Qty</label><input type="number" id="dup_s6_kickoffMachineOptionalCpQty" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual CP Layout Approval Date</label><input type="date" id="dup_s6_actualCpLayoutApprovalDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Optional CP Layout Approval Date</label><input type="date" id="dup_s6_actualOptionalCpLayoutApprovalDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Change Part OA Generation Date</label><input type="date" id="dup_s6_actualCpOaGenerationDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Project Live Status</label><input type="text" id="dup_s6_liveStatus" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>Machine Completion %</label><input type="number" id="dup_s6_machineCompletionPercentage" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual IFAT Date</label><input type="date" id="dup_s6_actualIfatStdCpDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual CFAT Date</label><input type="date" id="dup_s6_actualCfatDate" readonly class="dup-field disabled"></div>
+            </div>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"><button class="btn-nav btn-prev" data-goto="4" type="button">← PPC</button></div>
+            <div class="step-nav-right"><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="6" type="button">Next: Stores →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 7: STORES -->
+    <div class="step-panel" id="step-6">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">🏭 Step 7 — Stores</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-prev" data-goto="5" type="button">← CP Cell</button><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="7" type="button">Next: Assembly →</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">🏭</div><div class="step-header-text"><h2>Stores</h2><p>Material handover to assembly, progress status and remarks</p></div></div>
+        <div class="card">
+            <div class="card-title">Stores Dates & Info</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual Basic Material Handed Over to Assembly Date</label><input type="date" id="actualBasicMaterialHandedOverAssyDate" name="actualBasicMaterialHandedOverAssyDate"><div class="plan-date" id="planBasicMaterialHandedOverAssyDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Optional Material Handed Over to Assembly Date</label><input type="date" id="actualOptionalMaterialHandedOverAssyDate" name="actualOptionalMaterialHandedOverAssyDate"><div class="plan-date" id="planOptionalMaterialHandedOverAssyDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Material Progress Status (Stores)</label><textarea id="materialProgressStatus_stores" name="materialProgressStatus_stores" rows="3" placeholder="Stores material progress…"></textarea></div>
+                <div class="form-group"><label>Remarks Stores</label><textarea id="remarksStores" name="remarksStores" rows="3"></textarea></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title dup">Reference — From Other Steps (Read-only)</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual PPC Basic Material Date</label><input type="date" id="dup_s7_actualPpcBasicDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual PPC Optional Material Date</label><input type="date" id="dup_s7_actualPpcOptionalDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Project Live Status</label><input type="text" id="dup_s7_liveStatus" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>Actual IFAT Date</label><input type="date" id="dup_s7_actualIfatStdCpDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual CFAT Date</label><input type="date" id="dup_s7_actualCfatDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Machine Completion %</label><input type="number" id="dup_s7_machineCompletionPercentage" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>MCN Shortfall Closure Date</label><input type="date" id="dup_s7_mcnShortfallClosureDate" readonly class="dup-field disabled"></div>
+            </div>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"><button class="btn-nav btn-prev" data-goto="5" type="button">← CP Cell</button></div>
+            <div class="step-nav-right"><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="7" type="button">Next: Assembly →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 8: ASSEMBLY -->
+    <div class="step-panel" id="step-7">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">🔧 Step 8 — Assembly</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-prev" data-goto="6" type="button">← Stores</button><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="8" type="button">Next: Invoice →</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">🔧</div><div class="step-header-text"><h2>Assembly</h2><p>Assembly dates, IFAT/CFAT, live status and workmen</p></div></div>
+        <div class="card">
+            <div class="card-title">Assembly Dates</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Actual Basic Material Receipt Date</label><input type="date" id="actualBasicMaterialReceiptDate" name="actualBasicMaterialReceiptDate"><div class="plan-date" id="planBasicMaterialReceiptDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Customization Material Receipt Date</label><input type="date" id="actualCustomizationMaterialReceiptDate" name="actualCustomizationMaterialReceiptDate"><div class="plan-date" id="planCustomizationMaterialReceiptDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Assembly Start Date</label><input type="date" id="actualAssyStartDate" name="actualAssyStartDate"><div class="plan-date" id="planAssyStartDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Machine Basic Completion</label><input type="date" id="actualMachineBasicCompletion" name="actualMachineBasicCompletion"><div class="plan-date" id="planMachineBasicCompletion">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Machine Customization Completion</label><input type="date" id="actualMachineCustomizationCompletion" name="actualMachineCustomizationCompletion"><div class="plan-date" id="planMachineCustomizationCompletion">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual IFAT with Std CP Date</label><input type="date" id="actualIfatStdCpDate" name="actualIfatStdCpDate"><div class="plan-date" id="planIfatStdCpDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual IFAT Customer CP Date</label><input type="date" id="actualIfatCustomerCpDate" name="actualIfatCustomerCpDate"><div class="plan-date" id="planIfatCustomerCpDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual CFAT Date</label><input type="date" id="actualCfatDate" name="actualCfatDate"><div class="plan-date" id="planCfatDate">Kom Plan: —</div></div>
+                <div class="form-group"><label>Actual Handed To Dispatch Date</label><input type="date" id="actualHandedToDispatchDate" name="actualHandedToDispatchDate"><div class="plan-date" id="planHandedToDispatchDate">Kom Plan: —</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">Assembly Status & Workmen</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Last Updated Data As On</label><input type="date" id="lastUpdatedDataAsOn" name="lastUpdatedDataAsOn"></div>
+                <div class="form-group"><label>Machine Category</label><input type="text" id="kickoffMachineCategory_assy" placeholder="Machine Category" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Task Completed</label><input type="number" id="taskCompleted" name="taskCompleted"></div>
+                <div class="form-group">
+                    <label>Live Status</label>
+                    <select id="liveStatus" name="liveStatus">
+                        <option value="">Select</option>
+                        <option value="NEW CCN FOR APPROVAL">NEW CCN FOR APPROVAL</option>
+                        <option value="DESIGN">DESIGN</option>
+                        <option value="IN MUMBAI">IN MUMBAI</option>
+                        <option value="RECEIVED FROM MUMBAI">RECEIVED FROM MUMBAI</option>
+                        <option value="PPC">PPC</option>
+                        <option value="WIP- KANBAN">WIP- KANBAN</option>
+                        <option value="WIP -BASIC">WIP -BASIC</option>
+                        <option value="WIP- OPTIONALS">WIP- OPTIONALS</option>
+                        <option value="HOLD - AUTOMATION PENDING">HOLD - AUTOMATION PENDING</option>
+                        <option value="HOLD">HOLD</option>
+                        <option value="STD CP TRIALS">STD CP TRIALS</option>
+                        <option value="IFAT IN PROGRESS">IFAT IN PROGRESS</option>
+                        <option value="IFAT DONE">IFAT DONE</option>
+                        <option value="POST IFAT - POINT CLOSURE">POST IFAT - POINT CLOSURE</option>
+                        <option value="READY">READY</option>
+                        <option value="AWAITED PRODUCT">AWAITED PRODUCT</option>
+                        <option value="AWAITED PACKAGING">AWAITED PACKAGING</option>
+                        <option value="AWAITED CP">AWAITED CP</option>
+                        <option value="CUSTOMER CP TRIALS">CUSTOMER CP TRIALS</option>
+                        <option value="AWAITED CFAT">AWAITED CFAT</option>
+                        <option value="CFAT IN PROGRESS">CFAT IN PROGRESS</option>
+                        <option value="CFAT DONE">CFAT DONE</option>
+                        <option value="RE-CFAT">RE-CFAT</option>
+                        <option value="POST CFAT - POINT CLOSURE">POST CFAT - POINT CLOSURE</option>
+                        <option value="COMPLIANCE - SENT TO CUSTOMER">COMPLIANCE - SENT TO CUSTOMER</option>
+                        <option value="AWAITING PACKING CLEARLANCE">AWAITING PACKING CLEARLANCE</option>
+                        <option value="FOR DISPATCH">FOR DISPATCH</option>
+                        <option value="AWAITING COMMERCIAL CLEARLANCE">AWAITING COMMERCIAL CLEARLANCE</option>
+                        <option value="CLOSE TOTAL">CLOSE TOTAL</option>
+                        <option value="STOCK MC - READY">STOCK MC - READY</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>STD Task</label><input type="number" id="stdTask" name="stdTask" readonly></div>
+                <div class="form-group"><label>Machine Completion %</label><input type="number" id="machineCompletionPercentage" name="machineCompletionPercentage" step="0.01" readonly></div>
+                <div class="form-group"><label>Project Completion %</label><input type="number" id="projectCompletionPercentage" name="projectCompletionPercentage" step="0.01" readonly></div>
+                <div class="form-group span-2"><label>Assembly Progress Status</label><textarea id="assemblyProgressStatus" name="assemblyProgressStatus" rows="3"></textarea></div>
+                <div class="form-group span-2">
+                    <label>Workmen</label>
+                    <input type="text" id="workmen-search-input" placeholder="🔍 Filter workmen..." autocomplete="off" style="margin-bottom:8px;width:100%;border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);padding:8px 12px;font-size:0.85rem;font-family:'DM Sans',sans-serif;background:var(--surface2);">
+                    <div id="workmen-container" class="workmen-container"><div id="workmen-checkboxes" class="checkbox-list">Loading workmen...</div></div>
+                    <div class="workmen-add-row"><input type="text" id="add-workmen-input" placeholder="New workman name..." autocomplete="off"><button type="button" id="add-workmen-btn">+ Add</button></div>
+                    <input type="hidden" id="workmen" name="workmen" value="">
+                </div>
+                <div class="form-group"><label>Pending Follow Up (Mech)</label><textarea id="pendingFollowUpMech" name="pendingFollowUpMech" rows="2"></textarea></div>
+                <div class="form-group"><label>Pending Follow Up (Elect)</label><textarea id="pendingFollowUpElect" name="pendingFollowUpElect" rows="2"></textarea></div>
+                <div class="form-group"><label>Pending Follow Up (CP)</label><textarea id="pendingFollowUpCp" name="pendingFollowUpCp" rows="2"></textarea></div>
+                <div class="form-group"><label>Delay Analysis</label><textarea id="delayAnalysis" name="delayAnalysis" rows="2"></textarea></div>
+                <div class="form-group"><label>Machine Image Assembly Upload</label><div class="file-input-wrap"><input type="file" id="machineImageAssemblyUpload" name="machineImageAssemblyUpload" accept="image/*"></div></div>
+            </div>
+            <div class="section-divider"></div>
+            <div class="grid-2">
+                <div class="form-group"><label>Validation Uploaded</label><div class="checkbox-row"><input type="checkbox" id="validationUploaded" name="validationUploaded"><label for="validationUploaded">Yes</label></div></div>
+                <div class="form-group"><label>MATPS Uploaded</label><div class="checkbox-row"><input type="checkbox" id="matpsUploaded" name="matpsUploaded"><label for="matpsUploaded">Yes</label></div></div>
+                <div class="form-group"><label>Video Uploaded</label><div class="checkbox-row"><input type="checkbox" id="videoUploaded" name="videoUploaded"><label for="videoUploaded">Yes</label></div></div>
+                <div class="form-group"><label>12 Days Project</label><div class="checkbox-row"><input type="checkbox" id="twelveDaysProject" name="twelveDaysProject"><label for="twelveDaysProject">Yes</label></div></div>
+                <div class="form-group"><label>CCN Interchanged MC</label><div class="checkbox-row"><input type="checkbox" id="ccnInterchangedMc" name="ccnInterchangedMc"><label for="ccnInterchangedMc">Yes</label></div></div>
+                <div class="form-group"><label>Inter Unit Receipt</label><div class="checkbox-row"><input type="checkbox" id="interUnitReceipt" name="interUnitReceipt"><label for="interUnitReceipt">Yes</label></div></div>
+                <div class="form-group"><label>Inter Unit Transfer</label><div class="checkbox-row"><input type="checkbox" id="interUnitTransfer" name="interUnitTransfer"><label for="interUnitTransfer">Yes</label></div></div>
+                <div class="form-group"><label>Issue Return Qty</label><div class="checkbox-row"><input type="checkbox" id="issueReturnQty" name="issueReturnQty"><label for="issueReturnQty">Yes</label></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title dup">Reference — From Other Steps (Read-only)</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Machine CP Qty</label><input type="number" id="dup_s8_kickoffMachineCpQty" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Machine Optional CP Qty</label><input type="number" id="dup_s8_kickoffMachineOptionalCpQty" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual CP Manufacturing Date</label><input type="date" id="dup_s8_actualMachineCpManufacturingDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Product Receipt Date</label><input type="date" id="dup_s8_actualProductReceiptDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Packaging Receipt Date</label><input type="date" id="dup_s8_actualPackagingReceiptDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Packing Clearance</label><input type="date" id="dup_s8_actualPackingClearanceRecdDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Actual Commercial Clearance</label><input type="date" id="dup_s8_actualCommercialClearanceDate" readonly class="dup-field disabled"></div>
+            </div>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"><button class="btn-nav btn-prev" data-goto="6" type="button">← Stores</button></div>
+            <div class="step-nav-right"><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-next" data-goto="8" type="button">Next: Invoice →</button></div>
+        </div>
+    </div>
+
+    <!-- STEP 9: INVOICE / DISPATCH -->
+    <div class="step-panel" id="step-8">
+        <div class="step-top-nav">
+            <span class="step-top-nav-label">🚚 Step 9 — Invoice / Dispatch</span>
+            <div style="display:flex;gap:10px;"><button class="btn-nav btn-prev" data-goto="7" type="button">← Assembly</button><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-save" id="saveButton" type="button">✅ Save All</button></div>
+        </div>
+        <div class="step-header"><div class="step-icon">🚚</div><div class="step-header-text"><h2>Invoice / Dispatch</h2><p>Invoice, LR, POD, CCN status and machine image</p></div></div>
+        <div class="card">
+            <div class="card-title">Invoice & Dispatch Details</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Invoice Date</label>
+                    <input type="date" id="invoiceDate" name="invoiceDate" readonly>
+                    <div class="hint">Auto-set when Actual Dispatch Date is marked Final &amp; saved</div>
+                </div>
+                <div class="form-group">
+                    <label>Actual Dispatch Date</label>
+                    <input type="date" id="actualDispatchDate" name="actualDispatchDate">
+                    <div class="plan-date" id="planDispatchDate">Kom Plan: —</div>
+                </div>
+                <div class="form-group"><label>Invoice Number</label><input type="text" id="invoiceNumber" name="invoiceNumber"></div>
+                <div class="form-group"><label>LR No</label><input type="text" id="lrNo" name="lrNo"></div>
+                <div class="form-group"><label>LR Date</label><input type="date" id="lrDate" name="lrDate"></div>
+                <div class="form-group"><label>POD Date</label><input type="date" id="podDate" name="podDate"></div>
+                <div class="form-group">
+                    <label>
+                        CCN Status
+                        <span class="ccn-closed-indicator" id="ccnClosedIndicator">● Auto-closed with Dispatch Date</span>
+                    </label>
+                    <select id="ccnStatus" name="ccnStatus">
+                        <option value="">Select</option>
+                        <option value="live">Live</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Progress Status</label><textarea id="progressStatus" name="progressStatus" rows="3"></textarea></div>
+                <div class="form-group"><label>Product Remark</label><textarea id="productRemark" name="productRemark" rows="3"></textarea></div>
+                <div class="form-group"><label>Product Packaging Remarks</label><textarea id="productPackagingRemarks" name="productPackagingRemarks" rows="3"></textarea></div>
+                <div class="form-group"><label>Machine Image Stores Upload</label><div class="file-input-wrap"><input type="file" id="machineImageStoresUpload" name="machineImageStoresUpload" accept="image/*"></div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title dup">Reference — From Other Steps (Read-only)</div>
+            <div class="grid-2">
+                <div class="form-group"><label>Customer PO Ref</label><input type="text" id="dup_s9_poReferenceNumber" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>PO Date</label><input type="date" id="dup_s9_poDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>MCN No</label><input type="text" id="dup_s9_mcnNumber" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>DN No</label><input type="text" id="dup_s9_dnNumber" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>Actual Packing Clearance Recd Date</label><input type="date" id="dup_s9_actualPackingClearanceRecdDate" readonly class="dup-field disabled"></div>
+                <div class="form-group"><label>Sales Order Number</label><input type="text" id="dup_s9_salesOrderNumber" readonly class="dup-field disabled" placeholder="—"></div>
+                <div class="form-group"><label>MCN Shortfall Closure Date</label><input type="date" id="dup_s9_mcnShortfallClosureDate" readonly class="dup-field disabled"></div>
+            </div>
+        </div>
+        <div class="step-nav">
+            <div class="step-nav-left"><button class="btn-nav btn-prev" data-goto="7" type="button">← Assembly</button></div>
+            <div class="step-nav-right"><button class="btn-nav btn-save-step" data-save="true" type="button">💾 Save Step</button><button class="btn-nav btn-save" id="saveButtonBottom" type="button">✅ Save All</button></div>
+        </div>
+    </div>
+
+</div><!-- /page-shell -->
+
+<!-- SUCCESS MODAL -->
+<div id="successModal" style="display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;">
+    <div style="background:white;padding:28px 32px;border-radius:16px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.2);max-width:360px;width:90%;">
+        <div style="font-size:2.5rem;margin-bottom:12px;">✅</div>
+        <p style="font-size:1rem;font-weight:700;color:#0f172a;margin-bottom:6px;">Form Saved Successfully</p>
+        <p style="font-size:0.82rem;color:#64748b;margin-bottom:20px;">All finalized dates have been committed to the server.</p>
+        <button id="modalOkBtn" style="background:linear-gradient(135deg,#2563eb,#0ea5e9);color:white;border:none;border-radius:10px;padding:11px 32px;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:'DM Sans',sans-serif;">OK</button>
+    </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════════════════════════════
+const apiBase = '/api/machineccnproject';
+
+// ── FIXED HEADER HEIGHT ───────────────────────────────────────────
+function measureAndApplyHeaderHeight() {
+    const topBar      = document.querySelector('.top-bar');
+    const ccnHeader   = document.getElementById('ccnHeader');
+    const globalProg  = document.getElementById('globalProgress');
+    const stepperWrap = document.getElementById('stepperWrap');
+    const topH  = topBar      ? topBar.offsetHeight      : 60;
+    const ccnH  = ccnHeader   ? ccnHeader.offsetHeight   : 56;
+    const progH = globalProg  ? globalProg.offsetHeight  : 36;
+    const stepH = stepperWrap ? stepperWrap.offsetHeight : 58;
+    if (ccnHeader)   ccnHeader.style.top   = topH + 'px';
+    if (globalProg)  globalProg.style.top  = (topH + ccnH) + 'px';
+    if (stepperWrap) stepperWrap.style.top = (topH + ccnH + progH) + 'px';
+    document.documentElement.style.setProperty('--header-h', (topH + ccnH + progH + stepH) + 'px');
+}
+window.addEventListener('load',   measureAndApplyHeaderHeight);
+window.addEventListener('resize', measureAndApplyHeaderHeight);
+
+// ═══════════════════════════════════════════════════════════════════
+//  PENDING FINAL STATE
+// ═══════════════════════════════════════════════════════════════════
+const pendingFinalFields = new Set();
+
+const skipFinalFields = new Set([
+    'invoiceDate', 'additionalNewAssemblyAttachedAfterCfatDate',
+    'mcnShortfallClosureDate', 'actualPpcNewMaterialDateAfterCfat',
+    'lastUpdatedDataAsOn', 'lrDate', 'podDate'
+]);
+
+// ── CCN STATUS DISABLED WHEN CLOSED ──────────────────────────────
+function applyCcnStatusClosedState() {
+    const ccnStatusEl = document.getElementById('ccnStatus');
+    if (!ccnStatusEl) return;
+    if (ccnStatusEl.value === 'closed') {
+        ccnStatusEl.disabled = true;
+    }
+}
+
+// ── DISPATCH FINAL HELPERS ────────────────────────────────────────
+function applyDispatchFinalUI(dispatchValue) {
+    const invoiceInput = document.getElementById('invoiceDate');
+    if (invoiceInput) invoiceInput.value = dispatchValue || '';
+    const ccnStatusEl = document.getElementById('ccnStatus');
+    if (ccnStatusEl) {
+        ccnStatusEl.value = 'closed';
+        ccnStatusEl.disabled = true;
+    }
+    const indicator = document.getElementById('ccnClosedIndicator');
+    if (indicator) indicator.classList.add('visible');
+}
+
+function revertDispatchFinalUI() {
+    const invoiceInput = document.getElementById('invoiceDate');
+    if (invoiceInput) invoiceInput.value = '';
+    const ccnStatusEl = document.getElementById('ccnStatus');
+    if (ccnStatusEl) {
+        ccnStatusEl.value = 'live';
+        ccnStatusEl.disabled = false;
+    }
+    const indicator = document.getElementById('ccnClosedIndicator');
+    if (indicator) indicator.classList.remove('visible');
+}
+
+// ── ATTACH FINAL CHECKBOXES ───────────────────────────────────────
+function attachFinalCheckboxes() {
+    const actualFields = getActualFieldNames();
+    actualFields.forEach(fieldName => {
+        if (skipFinalFields.has(fieldName)) return;
+        const dateInput = document.getElementById(fieldName);
+        if (!dateInput || dateInput.type !== 'date') return;
+        if (document.querySelector(`.final-checkbox[data-field="${fieldName}"]`)) return;
+
+        const rowWrapper = document.createElement('div');
+        rowWrapper.className = 'date-input-row';
+
+        const checkWrapper = document.createElement('div');
+        checkWrapper.className = 'final-checkbox-container';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'final-checkbox';
+        checkbox.dataset.field = fieldName;
+        checkbox.id = `${fieldName}-final-checkbox`;
+        checkbox.title = 'Check to mark as Final (will be committed on Save)';
+
+        const label = document.createElement('label');
+        label.htmlFor = checkbox.id;
+        label.textContent = 'Final';
+
+        const badge = document.createElement('span');
+        badge.className = 'final-pending-badge';
+        badge.textContent = 'Pending Save';
+        badge.id = `${fieldName}-pending-badge`;
+
+        checkWrapper.appendChild(checkbox);
+        checkWrapper.appendChild(label);
+        checkWrapper.appendChild(badge);
+
+        const parent = dateInput.parentElement;
+        if (parent) {
+            parent.insertBefore(rowWrapper, dateInput);
+            rowWrapper.appendChild(dateInput);
+            rowWrapper.appendChild(checkWrapper);
+        } else {
+            dateInput.insertAdjacentElement('afterend', checkWrapper);
+        }
+
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+                const confirmed = window.confirm(
+                    'Mark this date as Final?\n\n' +
+                    'The date will be locked after you click Save.\n' +
+                    'If you do NOT save, it will remain editable.'
+                );
+                if (!confirmed) { checkbox.checked = false; return; }
+                pendingFinalFields.add(fieldName);
+                dateInput.disabled = true;
+                badge.classList.add('visible');
+                if (fieldName === 'actualDispatchDate') {
+                    applyDispatchFinalUI(dateInput.value);
+                }
+            } else {
+                pendingFinalFields.delete(fieldName);
+                dateInput.disabled = false;
+                badge.classList.remove('visible');
+                if (fieldName === 'actualDispatchDate') {
+                    revertDispatchFinalUI();
+                }
+            }
+        });
+    });
+}
+
+// ── SET FINAL STATE (from server data on load) ────────────────────
+function setFinalCheckboxState(fieldName, isFinal) {
+    const dateInput = document.getElementById(fieldName);
+    const checkbox  = document.querySelector(`.final-checkbox[data-field="${fieldName}"]`);
+    const badge     = document.getElementById(`${fieldName}-pending-badge`);
+    if (!dateInput || !checkbox) return;
+
+    const finalized = Boolean(isFinal);
+    checkbox.checked   = finalized;
+    checkbox.disabled  = finalized;
+    dateInput.disabled = finalized;
+    if (badge) badge.classList.remove('visible');
+
+    checkbox.title = finalized
+        ? 'This date is finalized and cannot be changed'
+        : 'Check to mark as Final (will be committed on Save)';
+
+    if (fieldName === 'actualDispatchDate' && finalized) {
+        const indicator = document.getElementById('ccnClosedIndicator');
+        if (indicator) indicator.classList.add('visible');
+    }
+}
+
+// ── MARK FINAL ON SERVER after successful save ────────────────────
+async function markFinalFieldsOnServer(ccn) {
+    const tasks = [...pendingFinalFields];
+    console.log(`📤 Sending ${tasks.length} pending final fields to server:`, tasks);
+
+    let successCount = 0;
+    let failureCount = 0;
+    const failedFields = [];
+
+    for (const fieldName of tasks) {
+        try {
+            console.log(`⏳ Marking ${fieldName} as final...`);
+            const response = await fetch(
+                `${apiBase}/mark-final/${encodeURIComponent(ccn)}?dateField=${encodeURIComponent(fieldName)}`,
+                { method: 'POST' }
+            );
+            const jsonData = await response.json();
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}: ${jsonData.error || 'Server error'}`);
+
+            if (jsonData.success) {
+                console.log(`✅ ${fieldName} marked as final on server`);
+                setFinalCheckboxState(fieldName, true);
+                pendingFinalFields.delete(fieldName);
+                successCount++;
+
+                if (fieldName === 'actualDispatchDate') {
+                    const dispatchVal = document.getElementById('actualDispatchDate').value;
+                    document.getElementById('invoiceDate').value = dispatchVal || '';
+                    const ccnStatusEl = document.getElementById('ccnStatus');
+                    if (ccnStatusEl) {
+                        ccnStatusEl.value = 'closed';
+                        ccnStatusEl.disabled = true;
+                    }
+                    const indicator = document.getElementById('ccnClosedIndicator');
+                    if (indicator) indicator.classList.add('visible');
+                }
+
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } else {
+                throw new Error(jsonData.error || 'Unknown error from server');
+            }
+        } catch (error) {
+            console.warn(`❌ Failed to mark ${fieldName} as final: ${error.message}`);
+            failedFields.push(fieldName);
+
+            const checkbox = document.querySelector(`.final-checkbox[data-field="${fieldName}"]`);
+            const dateInput = document.getElementById(fieldName);
+            const badge     = document.getElementById(`${fieldName}-pending-badge`);
+            if (checkbox) checkbox.checked = false;
+            if (dateInput) dateInput.disabled = false;
+            if (badge) badge.classList.remove('visible');
+            pendingFinalFields.delete(fieldName);
+            failureCount++;
+
+            if (fieldName === 'actualDispatchDate') {
+                revertDispatchFinalUI();
+            }
+        }
+    }
+
+    if (failureCount > 0) {
+        showMessage(`⚠️ Warning: ${failureCount} field(s) could not be marked as final: ${failedFields.join(', ')}`, 'error');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+//  FIELDS CONFIG
+// ═══════════════════════════════════════════════════════════════════
+function getActualFieldNames() {
+    return [
+        'actualOaGenerationDate','actualCpOaGenerationDate','actualAdvPaymentRecdDate',
+        'actualBalPaymentRecdDate','actualMachineLayoutApprovalDate','actualRoomLayoutApprovalDate',
+        'actualDispatchClearanceRecdDate','actualCommercialClearanceDate',
+        'actualCpLayoutApprovalDate','actualOptionalCpLayoutApprovalDate','actualDqReleaseDate',
+        'actualIfatProtocolReleaseDate','actualPmrSubmissionDate','actualProductReceiptDate',
+        'actualPackagingReceiptDate','actualComplianceDate','actualPackingClearanceRecdDate',
+        'actualCpDesignReleaseDate','actualMachineCpManufacturingDate',
+        'actualMachineOptionalCpManufacturingDate','actualMachineBasicCompletion',
+        'actualMachineCustomizationCompletion','actualAssyStartDate',
+        'actualBasicMaterialHandedOverAssyDate','actualOptionalMaterialHandedOverAssyDate',
+        'actualBasicMaterialReceiptDate','actualCustomizationMaterialReceiptDate',
+        'actualIfatStdCpDate','actualIfatCustomerCpDate','actualCfatDate',
+        'actualHandedToDispatchDate','actualDispatchDate','actualPpcBasicDate',
+        'actualPpcOptionalDate','actualLoaBasic','actualLoaOptional',
+        'dnNumber','salesOrderNumber','remarksSales','mcnRemarksShortfall',
+        'totalBasicAssemblyAttached','totalOptionalAssemblyAttached',
+        'totalAdditionalNewAssemblyAttachedAfterCfat','additionalNewAssemblyAttachedAfterCfatDate',
+        'assembliesReleasedBy','remarksDesign','mcnNumber','mcnWithShortfall',
+        'productRemark','productPackagingRemarks','cpTrialRemarksTable',
+        'machineCpTrialCompleted','machineOptionalCpTrialCompleted','mcnShortfallClosureDate',
+        'actualPpcNewMaterialDateAfterCfat','materialProgressStatus','remarksPpc',
+        'delayInDaysBasicMaterial','delayInDaysOptionalBasicMaterial',
+        'delayInDaysMachineCp','delayInDaysOptionalCp','cpProgressStatusTable',
+        'remarksCpCell','remarksStores','invoiceNumber','invoiceDate','lrNo','lrDate',
+        'podDate','ccnStatus','machineName','progressStatus','lastUpdatedDataAsOn',
+        'workmen','assemblyProgressStatus','pendingFollowUpMech','pendingFollowUpElect',
+        'pendingFollowUpCp','delayAnalysis','validationUploaded','matpsUploaded',
+        'videoUploaded','twelveDaysProject','ccnInterchangedMc','interUnitReceipt',
+        'interUnitTransfer','issueReturnQty','liveStatus','stdTask','taskCompleted',
+        'machineCompletionPercentage','projectCompletionPercentage'
+    ];
+}
+
+const planMappings = {
+    actualOaGenerationDate:'oa_generation_date',
+    actualCpOaGenerationDate:'cp_oa_genration_date',
+    actualAdvPaymentRecdDate:'advance_payment_receipt_date',
+    actualBalPaymentRecdDate:'balance_payment_receipt_date',
+    actualMachineLayoutApprovalDate:'machine_layout_approvals',
+    actualRoomLayoutApprovalDate:'room_layout_approvals',
+    actualDispatchClearanceRecdDate:'dispatch_clearance',
+    actualCommercialClearanceDate:'commercial_clearance',
+    actualCpLayoutApprovalDate:'cp_layout_approvals',
+    actualOptionalCpLayoutApprovalDate:'optional_cp_layout_approval_date',
+    actualDqReleaseDate:'dq_release',
+    actualIfatProtocolReleaseDate:'ifat_protocol_release',
+    actualPmrSubmissionDate:'pmr_genration_submission_date',
+    actualProductReceiptDate:'products_receipt_date',
+    actualPackagingReceiptDate:'packaging_receipt_date',
+    actualComplianceDate:'compliance',
+    actualPackingClearanceRecdDate:'packaging_clearance_rec_date',
+    actualCpDesignReleaseDate:'cp_design_release_date',
+    actualMachineCpManufacturingDate:'cp_manufacturing_date',
+    actualMachineOptionalCpManufacturingDate:'optional_cp_manufacturing_date',
+    actualMachineBasicCompletion:'machine_manufacturing_basic',
+    actualMachineCustomizationCompletion:'machine_manufacturing_customisation',
+    actualAssyStartDate:'assy_start_date',
+    actualBasicMaterialHandedOverAssyDate:'basic_matl_handed_over_Assy_date',
+    actualOptionalMaterialHandedOverAssyDate:'optional_matl_handed_over_Assy_date',
+    actualBasicMaterialReceiptDate:'basic_matl_handed_receipt_date',
+    actualCustomizationMaterialReceiptDate:'customization_matl_handed_receipt_date',
+    actualIfatStdCpDate:'ifat_std_cp',
+    actualIfatCustomerCpDate:'ifat_customer_cp',
+    actualCfatDate:'cfat',
+    actualHandedToDispatchDate:'handed_dispatch_date',
+    actualDispatchDate:'planned_dispatch_date',
+    actualPpcBasicDate:'ppc_basic_date',
+    actualPpcOptionalDate:'ppc_optional_date',
+    actualLoaBasic:'loa_basic',
+    actualLoaOptional:'loa_optional'
+};
+
+const duplicateMap = [
+    {src:'poReferenceNumber',  dup:'dup_s2_poReferenceNumber'},
+    {src:'poDate',             dup:'dup_s2_poDate'},
+    {src:'poDeliveryDate',     dup:'dup_s2_poDeliveryDate'},
+    {src:'poReceiptDate',      dup:'dup_s2_poReceiptDate'},
+    {src:'actualMachineLayoutApprovalDate', dup:'dup_s3_actualMachineLayoutApprovalDate'},
+    {src:'actualRoomLayoutApprovalDate',    dup:'dup_s3_actualRoomLayoutApprovalDate'},
+    {src:'actualCpLayoutApprovalDate',      dup:'dup_s3_actualCpLayoutApprovalDate'},
+    {src:'actualOaGenerationDate',          dup:'dup_s3_actualOaGenerationDate'},
+    {src:'actualOptionalCpLayoutApprovalDate', dup:'dup_s3_actualOptionalCpLayoutApprovalDate'},
+    {src:'actualLoaBasic',     dup:'dup_s4_actualLoaBasic'},
+    {src:'actualLoaOptional',  dup:'dup_s4_actualLoaOptional'},
+    {src:'liveStatus',         dup:'dup_s4_liveStatus'},
+    {src:'actualIfatStdCpDate',dup:'dup_s4_actualIfatStdCpDate'},
+    {src:'actualCfatDate',     dup:'dup_s4_actualCfatDate'},
+    {src:'totalBasicAssemblyAttached',   dup:'dup_s4_totalBasicAssemblyAttached'},
+    {src:'totalOptionalAssemblyAttached',dup:'dup_s4_totalOptionalAssemblyAttached'},
+    {src:'totalAdditionalNewAssemblyAttachedAfterCfat',dup:'dup_s4_totalAdditionalNewAssemblyAttachedAfterCfat'},
+    {src:'mcnShortfallClosureDate',      dup:'dup_s4_mcnShortfallClosureDate'},
+    {src:'actualLoaBasic',     dup:'dup_s5_actualLoaBasic'},
+    {src:'actualLoaOptional',  dup:'dup_s5_actualLoaOptional'},
+    {src:'liveStatus',         dup:'dup_s5_liveStatus'},
+    {src:'actualIfatStdCpDate',dup:'dup_s5_actualIfatStdCpDate'},
+    {src:'actualCfatDate',     dup:'dup_s5_actualCfatDate'},
+    {src:'totalBasicAssemblyAttached',   dup:'dup_s5_totalBasicAssemblyAttached'},
+    {src:'totalOptionalAssemblyAttached',dup:'dup_s5_totalOptionalAssemblyAttached'},
+    {src:'totalAdditionalNewAssemblyAttachedAfterCfat',dup:'dup_s5_totalAdditionalNewAssemblyAttachedAfterCfat'},
+    {src:'mcnShortfallClosureDate',      dup:'dup_s5_mcnShortfallClosureDate'},
+    {src:'kickoffMachineCpQty',        dup:'dup_s6_kickoffMachineCpQty'},
+    {src:'kickoffMachineOptionalCpQty',dup:'dup_s6_kickoffMachineOptionalCpQty'},
+    {src:'actualCpLayoutApprovalDate',        dup:'dup_s6_actualCpLayoutApprovalDate'},
+    {src:'actualOptionalCpLayoutApprovalDate',dup:'dup_s6_actualOptionalCpLayoutApprovalDate'},
+    {src:'actualCpOaGenerationDate',          dup:'dup_s6_actualCpOaGenerationDate'},
+    {src:'liveStatus',              dup:'dup_s6_liveStatus'},
+    {src:'machineCompletionPercentage', dup:'dup_s6_machineCompletionPercentage'},
+    {src:'actualIfatStdCpDate', dup:'dup_s6_actualIfatStdCpDate'},
+    {src:'actualCfatDate',      dup:'dup_s6_actualCfatDate'},
+    {src:'actualPpcBasicDate',   dup:'dup_s7_actualPpcBasicDate'},
+    {src:'actualPpcOptionalDate',dup:'dup_s7_actualPpcOptionalDate'},
+    {src:'liveStatus',           dup:'dup_s7_liveStatus'},
+    {src:'actualIfatStdCpDate',  dup:'dup_s7_actualIfatStdCpDate'},
+    {src:'actualCfatDate',       dup:'dup_s7_actualCfatDate'},
+    {src:'machineCompletionPercentage', dup:'dup_s7_machineCompletionPercentage'},
+    {src:'mcnShortfallClosureDate',    dup:'dup_s7_mcnShortfallClosureDate'},
+    {src:'kickoffMachineCpQty',        dup:'dup_s8_kickoffMachineCpQty'},
+    {src:'kickoffMachineOptionalCpQty',dup:'dup_s8_kickoffMachineOptionalCpQty'},
+    {src:'actualMachineCpManufacturingDate', dup:'dup_s8_actualMachineCpManufacturingDate'},
+    {src:'actualProductReceiptDate',         dup:'dup_s8_actualProductReceiptDate'},
+    {src:'actualPackagingReceiptDate',        dup:'dup_s8_actualPackagingReceiptDate'},
+    {src:'actualPackingClearanceRecdDate',    dup:'dup_s8_actualPackingClearanceRecdDate'},
+    {src:'actualCommercialClearanceDate',     dup:'dup_s8_actualCommercialClearanceDate'},
+    {src:'poReferenceNumber',  dup:'dup_s9_poReferenceNumber'},
+    {src:'poDate',             dup:'dup_s9_poDate'},
+    {src:'mcnNumber',          dup:'dup_s9_mcnNumber'},
+    {src:'dnNumber',           dup:'dup_s9_dnNumber'},
+    {src:'actualPackingClearanceRecdDate', dup:'dup_s9_actualPackingClearanceRecdDate'},
+    {src:'salesOrderNumber',   dup:'dup_s9_salesOrderNumber'},
+    {src:'mcnShortfallClosureDate', dup:'dup_s9_mcnShortfallClosureDate'},
+    {src:'kickoffMachineCategory', dup:'kickoffMachineCategory_assy'}
+];
+
+function syncDuplicates() {
+    duplicateMap.forEach(({src, dup}) => {
+        const s = document.getElementById(src);
+        const d = document.getElementById(dup);
+        if (s && d) d.value = s.value;
+    });
+}
+
+function attachDuplicateSyncListeners() {
+    const ids = [...new Set(duplicateMap.map(m => m.src))];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('change', syncDuplicates);
+        el.addEventListener('input',  syncDuplicates);
+    });
+}
+
+// ── STATUS / MESSAGES ─────────────────────────────────────────────
+function setStatus(text, variant = 'success') {
+    const pill = document.getElementById('statusPill');
+    pill.textContent = text;
+    pill.className = 'status-pill';
+    if (variant === 'error') pill.classList.add('error');
+    else if (variant === 'idle') pill.classList.add('idle');
+}
+
+function showMessage(text, type = 'success') {
+    const mb = document.getElementById('messageBox');
+    mb.textContent = text;
+    mb.className = `message-box ${type}`;
+    mb.style.display = 'block';
+    clearTimeout(mb._timer);
+    mb._timer = setTimeout(() => { mb.style.display = 'none'; }, 6000);
+}
+
+function showSuccessModal() {
+    const m = document.getElementById('successModal');
+    m.style.display = 'flex';
+}
+
+// ── PLAN VALUES ───────────────────────────────────────────────────
+function formatPlanLabel(fieldName) {
+    if (!fieldName || !fieldName.startsWith('actual'))
+        return 'plan' + fieldName.charAt(0).toUpperCase() + fieldName.slice(1);
+    return 'plan' + fieldName.substring(6);
+}
+
+function parsePlanDate(value) {
+    if (!value || typeof value !== 'string') return null;
+    const iso = value.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?/);
+    if (iso) return new Date(`${iso[1]}-${iso[2]}-${iso[3]||'01'}`);
+    const sl  = value.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+    if (sl)  return new Date(`${sl[3]}-${sl[2]}-${sl[1]}`);
+    const p = Date.parse(value);
+    return isNaN(p) ? null : new Date(p);
+}
+
+function formatMonthYear(value) {
+    const d = parsePlanDate(value);
+    if (!d) return value || '—';
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function populatePlanValues(kickoff) {
+    getActualFieldNames().forEach(fieldName => {
+        const planKey = planMappings[fieldName];
+        const planEl  = document.getElementById(formatPlanLabel(fieldName));
+        if (!planEl) return;
+        const val = kickoff && planKey ? kickoff[planKey] : null;
+        planEl.textContent = `Kom Plan: ${val ? formatMonthYear(val) : '—'}`;
+    });
+}
+
+// ── HEADER CHIPS ──────────────────────────────────────────────────
+function updateHeaderChips(ccn, machine, model, family, sales, customer, unit) {
+    const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = val || '—';
+        const chip = el.closest('.meta-chip');
+        if (chip) chip.classList.toggle('meta-chip-empty', !val);
+    };
+    if (ccn      !== undefined) set('chipCcnVal',      ccn);
+    if (machine  !== undefined) set('chipMachineVal',  machine);
+    if (model    !== undefined) set('chipModelVal',    model);
+    if (family   !== undefined) set('chipFamilyVal',   family);
+    if (sales    !== undefined) set('chipSalesVal',    sales);
+    if (customer !== undefined) set('chipCustomerVal', customer);
+    if (unit     !== undefined) set('chipUnitVal',     unit);
+}
+
+// ── FILL FUNCTIONS ────────────────────────────────────────────────
+function normalizeCcnStatus(v) {
+    if (!v) return '';
+    const n = String(v).trim().toLowerCase();
+    if (n === 'close' || n === 'closed') return 'closed';
+    if (n === 'live')  return 'live';
+    return n;
+}
+
+function fillPurchaseOrder(po) {
+    if (!po) { setStatus('No PO found for this CCN.', 'error'); return; }
+    document.getElementById('ccnDisplay').value       = po.ccn            || '';
+    document.getElementById('poRecordNo').value        = po.recordNo       || '';
+    document.getElementById('poReferenceNumber').value = po.poReferenceNumber || '';
+    document.getElementById('poSalesPerson').value     = po.salesPerson    || '';
+    document.getElementById('poCustomerName').value    = po.customerName   || '';
+    document.getElementById('poMachineName').value     = po.machineName    || '';
+    document.getElementById('poModelName').value       = po.modelName      || '';
+    document.getElementById('poOrderType').value       = po.orderType      || '';
+    document.getElementById('poDate').value            = po.poDate         || '';
+    document.getElementById('poDeliveryDate').value    = po.poDeliveryDate || '';
+    document.getElementById('poReceiptDate').value     = po.poReceiptDate  || '';
+    document.getElementById('poValueLacs').value       = po.poValueLacs    || '';
+    document.getElementById('poAddress').value = [po.addressLine1,po.addressLine2,po.city,po.state,po.country].filter(Boolean).join(', ');
+    const mn = document.getElementById('machineName');
+    if (mn) mn.value = po.machineName || '';
+    updateHeaderChips(po.ccn,po.machineName,po.modelName,undefined,po.salesPerson,po.customerName);
+}
+
+function parseKickoffJsonField(value) {
+    if (!value) return '';
+    try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed.map(i => typeof i==='string'?i:JSON.stringify(i)).join('\n');
+        if (parsed && typeof parsed==='object') return Object.entries(parsed).map(([k,v])=>`${k}: ${v}`).join('\n');
+        return String(parsed);
+    } catch { return String(value); }
+}
+
+function fillKickoff(kickoff) {
+    if (!kickoff) { setStatus('No Kickoff found.', 'error'); return; }
+    document.getElementById('kickoffMachineFamily').value = kickoff.machineFamily || '';
+    document.getElementById('kickoffUnit').value          = kickoff.unit          || '';
+    document.getElementById('kickoffMachineCategory').value = kickoff.machineCategory || '';
+    document.getElementById('kickoffOrderType').value     = kickoff.orderType     || '';
+    document.getElementById('kickoffCcnStatus').value     = normalizeCcnStatus(kickoff.ccnStatus) || '';
+    document.getElementById('kickoffInterUnitChange').value = kickoff.interUnitChange || '';
+    document.getElementById('kickoffMachineCpQty').value  = kickoff.machineCpQty || '';
+    document.getElementById('kickoffMachineOptionalCpQty').value = kickoff.machineOptionalCpQty || '';
+    document.getElementById('kickoffMembersPresent').value = kickoff.membersPresent || '';
+    document.getElementById('kickoffMachineBasics').value  = parseKickoffJsonField(kickoff.machineBasics);
+    document.getElementById('kickoffMachineFeatures').value = parseKickoffJsonField(kickoff.machineFeatures);
+    document.getElementById('kickoffAdditionalOptions').value = parseKickoffJsonField(kickoff.additionalOptions);
+    document.getElementById('kickoffProjectKickoffDetails').value = kickoff.projectKickoffDetails || '';
+    populatePlanValues(kickoff);
+    updateHeaderChips(undefined,undefined,undefined,kickoff.machineFamily,undefined,undefined,kickoff.unit);
+}
+
+function fillMachineCcnProject(project, kickoff) {
+    if (!project && !kickoff) return;
+    getActualFieldNames().forEach(fieldName => {
+        let elementId = fieldName === 'assembliesReleasedBy' ? 'assembliesReleasedByInput' : fieldName;
+        const field = document.getElementById(elementId);
+        if (!field) return;
+
+        const actualValue  = project ? project[fieldName] : null;
+        const planKey      = planMappings[fieldName];
+        let kickoffValue   = kickoff && planKey ? kickoff[planKey] : null;
+        if (fieldName === 'ccnStatus' && kickoff?.ccnStatus) kickoffValue = normalizeCcnStatus(kickoff.ccnStatus);
+
+        if (field.type === 'checkbox') {
+            if (actualValue != null) field.checked = Boolean(actualValue);
+        } else if (fieldName === 'workmen') {
+            setSelectedWorkmen(actualValue || kickoffValue);
+        } else {
+            if (actualValue != null && actualValue !== '') field.value = actualValue;
+            else if (kickoffValue != null && kickoffValue !== '') field.value = kickoffValue;
+        }
+
+        if (field.type === 'date') {
+            const isFinal = project ? Boolean(project[`${fieldName}Final`]) : false;
+            setFinalCheckboxState(fieldName, isFinal);
+
+            if (fieldName === 'actualDispatchDate' && isFinal) {
+                const indicator = document.getElementById('ccnClosedIndicator');
+                if (indicator) indicator.classList.add('visible');
+            }
+        }
+    });
+
+    const savedStatus = project ? normalizeCcnStatus(project['ccnStatus']) : '';
+    if (savedStatus === 'closed') {
+        const indicator = document.getElementById('ccnClosedIndicator');
+        if (indicator) indicator.classList.add('visible');
+        applyCcnStatusClosedState();
+    }
+}
+
+// ── LOAD CCN ──────────────────────────────────────────────────────
+async function loadCcn() {
+    const ccn = document.getElementById('machineCcnProjectCcn').value.trim();
+    if (!ccn) { showMessage('No CCN provided.', 'error'); return; }
+    setStatus('Loading…', 'idle');
+    try {
+        const res = await fetch(`${apiBase}/by-ccn?ccn=${encodeURIComponent(ccn)}`);
+        if (!res.ok) { const e = await res.json(); showMessage(e.error||'Load failed.','error'); setStatus('Load failed','error'); return; }
+        const data = await res.json();
+        const { purchaseOrder, kickoffForm, machineCcnProject } = data;
+        fillPurchaseOrder(purchaseOrder);
+        fillKickoff(kickoffForm);
+        fillMachineCcnProject(machineCcnProject, kickoffForm);
+        updateHeaderChips(
+            purchaseOrder?.ccn||ccn, purchaseOrder?.machineName||'',
+            purchaseOrder?.modelName||'', kickoffForm?.machineFamily||'',
+            purchaseOrder?.salesPerson||'', purchaseOrder?.customerName||'',
+            kickoffForm?.unit||''
+        );
+        initializeCpTrialTable();
+        if (purchaseOrder?.modelName) {
+            const st = await fetchStdTask(purchaseOrder.modelName);
+            if (st !== null) document.getElementById('stdTask').value = st;
+        }
+        generateCpTrialRemarksTable();
+        calculateMachineCompletionPercentage();
+        updateProjectPercentage();
+        syncDuplicates();
+        setStatus('Loaded', 'success');
+        document.getElementById('ccnDisplay').value = ccn;
+        updateStepProgress();
+        measureAndApplyHeaderHeight();
+    } catch (err) {
+        showMessage('Server error loading CCN.', 'error');
+        setStatus('Error', 'error');
+        console.error(err);
+    }
+}
+
+function loadCcnFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    const ccn = params.get('ccn');
+    if (ccn?.trim()) {
+        document.getElementById('machineCcnProjectCcn').value = ccn.trim();
+        loadCcn();
+    }
+}
+
+// ── SAVE PROJECT ──────────────────────────────────────────────────
+async function saveProject() {
+    const ccn = document.getElementById('machineCcnProjectCcn').value.trim();
+    if (!ccn) { showMessage('Load a valid CCN first.', 'error'); return; }
+
+    const payload = { ccn, machineCategory: document.getElementById('kickoffMachineCategory').value || null };
+    getActualFieldNames().forEach(fieldName => {
+        let elementId = fieldName === 'assembliesReleasedBy' ? 'assembliesReleasedByInput' : fieldName;
+        const field = document.getElementById(elementId);
+        if (field) payload[fieldName] = field.type === 'checkbox' ? field.checked : (field.value || null);
+    });
+
+    try {
+        const res = await fetch(`${apiBase}/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) { const t = await res.text(); showMessage(`Server error (${res.status}): ${t}`, 'error'); return; }
+        const ct = res.headers.get('content-type');
+        if (!ct?.includes('application/json')) { showMessage('Unexpected response format.', 'error'); return; }
+        const result = await res.json();
+        if (!result.success) { showMessage(result.error || 'Save failed.', 'error'); return; }
+
+        if (pendingFinalFields.size > 0) {
+            await markFinalFieldsOnServer(ccn);
+        }
+
+        showSuccessModal();
+        document.getElementById('machineCcnProjectCcn').value = ccn;
+        updateStepProgress();
+    } catch (err) {
+        showMessage('Network error when saving.', 'error');
+        console.error(err);
+    }
+}
+
+// ── STD TASK ──────────────────────────────────────────────────────
+async function fetchStdTask(machineModel) {
+    if (!machineModel) return null;
+    try {
+        const r = await fetch(`/api/machine-model/std-task?model=${encodeURIComponent(machineModel)}`);
+        if (r.ok) return await r.json();
+    } catch {}
+    return null;
+}
+
+// ── PERCENTAGE CALCS ──────────────────────────────────────────────
+function calculateMachineCompletionPercentage() {
+    const std  = parseFloat(document.getElementById('stdTask').value)      || 0;
+    const done = parseFloat(document.getElementById('taskCompleted').value) || 0;
+    document.getElementById('machineCompletionPercentage').value = std > 0 ? ((done/std)*100).toFixed(2) : '0.00';
+    syncDuplicates();
+}
+
+function updateProjectPercentage() {
+    const status = document.getElementById('liveStatus').value;
+    const map = { 'NEW CCN FOR APPROVAL':0,'DESIGN':4,'IN MUMBAI':8,'RECEIVED FROM MUMBAI':10,'PPC':15,'WIP- KANBAN':20,'WIP -BASIC':25,'WIP- OPTIONALS':27,'HOLD - AUTOMATION PENDING':30,'HOLD':15,'STD CP TRIALS':35,'IFAT IN PROGRESS':40,'IFAT DONE':45,'POST IFAT - POINT CLOSURE':47,'READY':50,'AWAITED PRODUCT':52,'AWAITED PACKAGING':52,'AWAITED CP':55,'CUSTOMER CP TRIALS':60,'AWAITED CFAT':65,'CFAT IN PROGRESS':70,'CFAT DONE':75,'RE-CFAT':60,'POST CFAT - POINT CLOSURE':80,'COMPLIANCE - SENT TO CUSTOMER':85,'AWAITING PACKING CLEARLANCE':90,'FOR DISPATCH':95,'AWAITING COMMERCIAL CLEARLANCE':100,'CLOSE TOTAL':100,'STOCK MC - READY':50 };
+    document.getElementById('projectCompletionPercentage').value = (map[status] ?? 0).toFixed(2);
+    syncDuplicates();
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  CP TRIAL TABLE
+//  ┌─────────────────────────────────────────────────────────────┐
+//  │  Step 4 QA/QC  → CP Detail, IFAT Done On, QC Cleared On,   │
+//  │                   Remarks          → ENABLED                │
+//  │                   Handed To Assy, Received By → DISABLED    │
+//  │                                                             │
+//  │  Step 6 CP Cell→ CP Detail, IFAT Done On, QC Cleared On,   │
+//  │                   Remarks          → DISABLED               │
+//  │                   Handed To Assy, Received By → ENABLED     │
+//  └─────────────────────────────────────────────────────────────┘
+// ══════════════════════════════════════════════════════════════════
+let cpTrialData = [];
+
+function parseCpTrialDataField() {
+    const raw = document.getElementById('cpTrialRemarksTable')?.value;
+    if (!raw) return null;
+    try { const p = JSON.parse(raw); return Array.isArray(p) ? p : null; } catch { return null; }
+}
+
+function getCpQuantities() {
+    return {
+        machineCpQty: parseInt(document.getElementById('kickoffMachineCpQty')?.value,10)||0,
+        machineOptionalCpQty: parseInt(document.getElementById('kickoffMachineOptionalCpQty')?.value,10)||0
+    };
+}
+
+function saveCpTrialData() {
+    const inp = document.getElementById('cpTrialRemarksTable');
+    if (inp) inp.value = JSON.stringify(cpTrialData);
+}
+
+/**
+ * Update a field in a specific row, save, and sync the mirror table.
+ * @param {number} i - row index
+ * @param {string} f - field name
+ * @param {string} v - new value
+ * @param {string} sourceTbodyId - tbody that triggered the change (don't re-render it)
+ */
+function updateCpTrialRow(i, f, v, sourceTbodyId) {
+    if (cpTrialData[i]) {
+        cpTrialData[i][f] = v || '';
+        saveCpTrialData();
+        // Sync the OTHER table only (avoids cursor jump in the source)
+        const otherTbodyId = sourceTbodyId === 'cpTrialTableBody' ? 'cpTrialTableBodyQaqc' : 'cpTrialTableBody';
+        renderSingleCpTrialTable(otherTbodyId);
+    }
+}
+
+function ensureCpTrialData() {
+    const {machineCpQty, machineOptionalCpQty} = getCpQuantities();
+    const total = machineCpQty + machineOptionalCpQty;
+    if (total === 0) { cpTrialData = []; saveCpTrialData(); return; }
+    const preserved = Array.isArray(cpTrialData) ? cpTrialData.slice(0,total) : [];
+    cpTrialData = Array.from({length:total}, (_,i) => {
+        const e = preserved[i]||{};
+        return {
+            cpDetail:           e.cpDetail           || '',
+            ifatDoneOn:         e.ifatDoneOn         || '',
+            qcClearedOn:        e.qcClearedOn        || '',
+            remarks:            e.remarks            || '',
+            handedToAssemblyOn: e.handedToAssemblyOn || '',
+            receivedBy:         e.receivedBy         || ''
+        };
+    });
+    saveCpTrialData();
+}
+
+/**
+ * Render CP trial rows into a specific tbody.
+ *
+ * Column permissions:
+ *   QA/QC  (cpTrialTableBodyQaqc) : cpDetail, ifatDoneOn, qcClearedOn, remarks → enabled
+ *                                    handedToAssemblyOn, receivedBy              → disabled
+ *   CP Cell (cpTrialTableBody)    : cpDetail, ifatDoneOn, qcClearedOn, remarks → disabled
+ *                                    handedToAssemblyOn, receivedBy              → enabled
+ */
+function renderSingleCpTrialTable(tbodyId) {
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    // true  = this is the QA/QC table
+    // false = this is the CP Cell table
+    const isQaqc = tbodyId === 'cpTrialTableBodyQaqc';
+
+    // Column definitions:
+    // { f: fieldName, isDate: bool, disabledQaqc: bool, disabledCp: bool }
+    const columns = [
+        { f: 'cpDetail',            isDate: false, disabledQaqc: false, disabledCp: true  },
+        { f: 'ifatDoneOn',          isDate: true,  disabledQaqc: false, disabledCp: true  },
+        { f: 'qcClearedOn',         isDate: true,  disabledQaqc: false, disabledCp: true  },
+        { f: 'remarks',             isDate: false, disabledQaqc: false, disabledCp: true  },
+        { f: 'handedToAssemblyOn',  isDate: true,  disabledQaqc: true,  disabledCp: false },
+        { f: 'receivedBy',          isDate: false, disabledQaqc: true,  disabledCp: false },
+    ];
+
+    cpTrialData.forEach((row, i) => {
+        const tr = document.createElement('tr');
+
+        columns.forEach(({ f, isDate, disabledQaqc, disabledCp }) => {
+            const td  = document.createElement('td');
+            const inp = document.createElement('input');
+            inp.type  = isDate ? 'date' : 'text';
+            inp.value = row[f] || '';
+
+            const isDisabled = isQaqc ? disabledQaqc : disabledCp;
+
+            if (isDisabled) {
+                inp.disabled = true;
+                // Styles already handled by CSS rule:
+                // #cpTrialTable input:disabled, #cpTrialTableQaqc input:disabled { ... }
+            } else {
+                inp.addEventListener('change', e => updateCpTrialRow(i, f, e.target.value, tbodyId));
+            }
+
+            td.appendChild(inp);
+            tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+    });
+}
+
+/** Render both CP trial tables (CP Cell + QA/QC) */
+function renderCpTrialTable() {
+    renderSingleCpTrialTable('cpTrialTableBody');
+    renderSingleCpTrialTable('cpTrialTableBodyQaqc');
+}
+
+function initializeCpTrialTable() {
+    const s = parseCpTrialDataField();
+    if (s) cpTrialData = s;
+    ensureCpTrialData();
+    renderCpTrialTable();
+}
+
+function handleCpQuantityChange() { ensureCpTrialData(); renderCpTrialTable(); }
+function generateCpTrialRemarksTable() { /* data already in cpTrialData */ }
+
+// ── WORKMEN ───────────────────────────────────────────────────────
+function parseWorkmenValue(v) { return v ? String(v).split(',').map(s=>s.trim()).filter(Boolean) : []; }
+function updateWorkmenHiddenField(vals) { const f=document.getElementById('workmen'); if(f) f.value=vals.join(', '); }
+
+async function fetchWorkmenSuggestions(q) {
+    try { const r=await fetch(`${apiBase}/suggestions?field=workmen&q=${encodeURIComponent(q)}`); if(r.ok) return await r.json(); } catch {} return [];
+}
+async function fetchAssembliesSuggestions(q) {
+    try { const r=await fetch(`${apiBase}/suggestions?field=assembliesReleasedBy&q=${encodeURIComponent(q)}`); if(r.ok) return await r.json(); } catch {} return [];
+}
+
+function renderWorkmenCheckboxes(options, selected=[]) {
+    const container = document.getElementById('workmen-checkboxes');
+    if (!container) return;
+    container.innerHTML = '';
+    const unique = [...new Set(options.map(o=>String(o).trim()).filter(Boolean))].sort();
+    if (!unique.length) { container.textContent='No workmen yet.'; return; }
+    unique.forEach(opt => {
+        const id = `wm-${opt.replace(/[^a-zA-Z0-9]/g,'_')}`;
+        const wrap = document.createElement('div'); wrap.className='checkbox-item';
+        const inp = document.createElement('input'); inp.type='checkbox'; inp.id=id; inp.value=opt; inp.checked=selected.includes(opt);
+        inp.addEventListener('change', () => {
+            const sel = [...container.querySelectorAll('input:checked')].map(c=>c.value);
+            updateWorkmenHiddenField(sel);
+        });
+        const lbl = document.createElement('label'); lbl.htmlFor=id; lbl.textContent=opt;
+        wrap.appendChild(inp); wrap.appendChild(lbl); container.appendChild(wrap);
+    });
+    updateWorkmenHiddenField(selected.filter(v=>unique.includes(v)));
+}
+
+async function loadWorkmenOptions(q='') {
+    const opts = await fetchWorkmenSuggestions(q);
+    const sel  = parseWorkmenValue(document.getElementById('workmen')?.value);
+    renderWorkmenCheckboxes(opts, sel);
+}
+
+function setSelectedWorkmen(value) {
+    const sel = parseWorkmenValue(value);
+    updateWorkmenHiddenField(sel);
+    loadWorkmenOptions('');
+}
+
+async function addNewWorkmen() {
+    const inp = document.getElementById('add-workmen-input');
+    if (!inp) return;
+    const val = inp.value.trim();
+    if (!val) return;
+    const norm = val.toUpperCase();
+    const existing = [...document.querySelectorAll('#workmen-checkboxes input[type="checkbox"]')].map(c=>c.value.toUpperCase());
+    if (existing.includes(norm)) {
+        document.querySelectorAll('#workmen-checkboxes input[type="checkbox"]').forEach(c=>{ if(c.value.toUpperCase()===norm) c.checked=true; });
+        const sel=[...document.querySelectorAll('#workmen-checkboxes input:checked')].map(c=>c.value);
+        updateWorkmenHiddenField(sel); inp.value=''; return;
+    }
+    try {
+        const ccn = document.getElementById('machineCcnProjectCcn').value;
+        await fetch(`${apiBase}/add-new?field=workmen&value=${encodeURIComponent(val)}&ccn=${encodeURIComponent(ccn)}`,{method:'POST'});
+    } catch {}
+    await loadWorkmenOptions('');
+    const cb = [...document.querySelectorAll('#workmen-checkboxes input[type="checkbox"]')].find(c=>c.value.toUpperCase()===norm);
+    if (cb) cb.checked=true;
+    const sel=[...document.querySelectorAll('#workmen-checkboxes input:checked')].map(c=>c.value);
+    updateWorkmenHiddenField(sel); inp.value='';
+}
+
+// ── ASSEMBLIES RELEASED BY DROPDOWN ──────────────────────────────
+function setupAssembliesDropdown(inputId, dropdownId) {
+    const input = document.getElementById(inputId);
+    const dropdown = document.getElementById(dropdownId);
+    if (!input || !dropdown) return;
+    function render(opts) {
+        dropdown.innerHTML='';
+        opts.forEach(opt=>{ const o=document.createElement('option'); o.value=opt; o.textContent=opt; dropdown.appendChild(o); });
+        dropdown.size=Math.min(opts.length,6);
+        dropdown.style.display=opts.length?'block':'none';
+    }
+    input.addEventListener('focus', async()=>render(await fetchAssembliesSuggestions('')));
+    input.addEventListener('input', async function(){
+        const v=input.value.trim();
+        const all=await fetchAssembliesSuggestions(v);
+        render(v?all.filter(o=>o.toLowerCase().includes(v.toLowerCase())):all);
+    });
+    dropdown.addEventListener('mousedown',e=>{ e.preventDefault(); if(dropdown.selectedIndex>=0){input.value=dropdown.value;dropdown.style.display='none';input.focus();} });
+    dropdown.addEventListener('change',()=>{ input.value=dropdown.value;dropdown.style.display='none';input.focus(); });
+    input.addEventListener('blur',()=>setTimeout(()=>{dropdown.style.display='none';},200));
+    input.addEventListener('keydown',e=>{
+        if(dropdown.style.display==='block'){
+            if(e.key==='ArrowDown'){e.preventDefault();dropdown.selectedIndex=Math.min(dropdown.selectedIndex+1,dropdown.options.length-1);}
+            else if(e.key==='ArrowUp'){e.preventDefault();dropdown.selectedIndex=Math.max(dropdown.selectedIndex-1,0);}
+            else if(e.key==='Enter'&&dropdown.selectedIndex>=0){input.value=dropdown.value;dropdown.style.display='none';e.preventDefault();}
+        }
+    });
+}
+
+// ── STEP PROGRESS ─────────────────────────────────────────────────
+const TOTAL_STEPS = 9;
+let currentStep = 0;
+
+function getStepFilledCount(idx) {
+    const groups = [
+        ['poReferenceNumber','poDate','poCustomerName','poMachineName'],
+        ['actualMachineLayoutApprovalDate','actualOaGenerationDate','dnNumber','salesOrderNumber'],
+        ['actualLoaBasic','actualDqReleaseDate','totalBasicAssemblyAttached'],
+        ['actualPmrSubmissionDate','actualProductReceiptDate','actualComplianceDate'],
+        ['actualPpcBasicDate','actualPpcOptionalDate','materialProgressStatus'],
+        ['actualCpDesignReleaseDate','actualMachineCpManufacturingDate','remarksCpCell'],
+        ['actualBasicMaterialHandedOverAssyDate','remarksStores'],
+        ['actualBasicMaterialReceiptDate','actualAssyStartDate','actualCfatDate','liveStatus'],
+        ['invoiceDate','actualDispatchDate','invoiceNumber','ccnStatus']
+    ];
+    const g = groups[idx]||[];
+    let filled=0;
+    g.forEach(id=>{ const el=document.getElementById(id); if(el&&el.value&&el.value.trim()) filled++; });
+    return {filled, total:g.length};
+}
+
+function updateStepProgress() {
+    let completed=0;
+    for(let i=0;i<TOTAL_STEPS;i++){
+        const {filled,total}=getStepFilledCount(i);
+        const pct=total>0?(filled/total)*100:0;
+        const fi=document.getElementById(`fill-${i}`); if(fi) fi.style.width=pct+'%';
+        const btn=document.querySelector(`.step-btn[data-step="${i}"]`);
+        if(btn){ if(pct>=50){btn.classList.add('completed');completed++;} else btn.classList.remove('completed'); }
+    }
+    document.getElementById('globalProgressFill').style.width=(completed/TOTAL_STEPS*100)+'%';
+    document.getElementById('globalProgressText').textContent=`${completed} / ${TOTAL_STEPS} steps`;
+}
+
+function goToStep(idx) {
+    if(idx<0||idx>=TOTAL_STEPS) return;
+    document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.step-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById(`step-${idx}`).classList.add('active');
+    document.querySelector(`.step-btn[data-step="${idx}"]`).classList.add('active');
+    currentStep=idx;
+    document.querySelector(`.step-btn[data-step="${idx}"]`).scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    syncDuplicates();
+    updateStepProgress();
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function initStepperNav() {
+    document.querySelectorAll('.step-btn').forEach(btn=>btn.addEventListener('click',()=>goToStep(+btn.dataset.step)));
+    document.querySelectorAll('.btn-next[data-goto]').forEach(btn=>btn.addEventListener('click',()=>goToStep(+btn.dataset.goto)));
+    document.querySelectorAll('.btn-prev[data-goto]').forEach(btn=>btn.addEventListener('click',()=>goToStep(+btn.dataset.goto)));
+    document.querySelectorAll('.btn-save-step[data-save]').forEach(btn=>btn.addEventListener('click',saveProject));
+    document.getElementById('saveButton').addEventListener('click',saveProject);
+    document.getElementById('saveButtonBottom').addEventListener('click',saveProject);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+function init() {
+    const ccnStatusEl = document.getElementById('ccnStatus');
+    if (ccnStatusEl) {
+        ccnStatusEl.addEventListener('change', function() {
+            if (this.value === 'closed') {
+                this.disabled = true;
+            }
+        });
+    }
+
+    document.getElementById('taskCompleted').addEventListener('input', calculateMachineCompletionPercentage);
+    document.getElementById('liveStatus').addEventListener('change',()=>{ updateProjectPercentage(); syncDuplicates(); });
+    document.getElementById('kickoffMachineCpQty').addEventListener('input', handleCpQuantityChange);
+    document.getElementById('kickoffMachineOptionalCpQty').addEventListener('input', handleCpQuantityChange);
+
+    const awb = document.getElementById('add-workmen-btn');
+    const awi = document.getElementById('add-workmen-input');
+    if (awb) awb.addEventListener('click', addNewWorkmen);
+    if (awi) awi.addEventListener('keypress',e=>{ if(e.key==='Enter') addNewWorkmen(); });
+
+    const wsearch=document.getElementById('workmen-search-input');
+    if(wsearch) wsearch.addEventListener('input',function(){
+        const q=this.value.trim().toLowerCase();
+        document.querySelectorAll('#workmen-checkboxes .checkbox-item').forEach(item=>{
+            const lbl=item.querySelector('label');
+            item.style.display=(lbl&&lbl.textContent.toLowerCase().includes(q))?'flex':'none';
+        });
+    });
+
+    attachFinalCheckboxes();
+    attachDuplicateSyncListeners();
+    loadDynamicDropdowns();
+    renderCpTrialTable();
+    initStepperNav();
+    updateStepProgress();
+    loadCcnFromUrl();
+    measureAndApplyHeaderHeight();
+}
+
+async function loadDynamicDropdowns() {
+    setupAssembliesDropdown('assembliesReleasedByInput','assembliesReleasedByDropdown');
+    await loadWorkmenOptions('');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────
+document.getElementById('modalOkBtn').addEventListener('click', () => {
+    document.getElementById('successModal').style.display = 'none';
+    window.location.href = 'kickoff-machine-dashboard.html';
+});
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

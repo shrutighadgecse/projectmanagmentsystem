@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commercial Dispatch Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --blue: #2563eb; --blue-light: #eff6ff; --blue-mid: #dbeafe;
+            --sidebar-bg: #ffffff; --sidebar-border: #e5e9f0;
+            --sidebar-w: 220px; --header-h: 64px;
+            --gray-50: #f8fafc; --gray-100: #f1f5f9; --gray-200: #e2e8f0;
+            --gray-400: #94a3b8; --gray-600: #475569; --gray-900: #0f172a;
+            --green: #22c55e; --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,.10); --radius: 10px;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); display: flex; min-height: 100vh; }
+
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
+        .sidebar-brand { height: var(--header-h); display: flex; align-items: center; gap: 10px; padding: 0 20px; border-bottom: 1px solid var(--sidebar-border); }
+        .brand-icon { width: 34px; height: 34px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .brand-name { font-size: 15px; font-weight: 800; color: var(--blue); letter-spacing: -0.3px; }
+        .sidebar-label { font-size: 10px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: .08em; padding: 18px 20px 6px; }
+        .sidebar-menu { list-style: none; padding: 0 10px; }
+        .sidebar-menu li { margin-bottom: 2px; }
+        .sidebar-menu a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 500; color: var(--gray-600); transition: all .15s; }
+        .sidebar-menu a:hover { background: var(--gray-100); color: var(--gray-900); }
+        .sidebar-menu a.active { background: var(--blue-light); color: var(--blue); font-weight: 700; }
+        .sidebar-menu .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gray-200); flex-shrink: 0; }
+        .sidebar-menu a.active .dot { background: var(--blue); }
+        .month-list { flex: 1; overflow-y: auto; }
+        .back-btn { margin: 12px 10px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; background: var(--blue); color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; }
+        .back-btn:hover { background: #1d4ed8; }
+
+        /* MAIN */
+        .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .top-header { height: var(--header-h); background: white; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 50; }
+        .page-title-area h1 { font-size: 18px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.4px; }
+        .page-title-area p { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .search-bar { display: flex; align-items: center; gap: 8px; background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 8px; padding: 8px 14px; width: 260px; }
+        .search-bar svg { color: var(--gray-400); flex-shrink: 0; }
+        .search-bar input { border: none; background: transparent; outline: none; font-size: 13px; font-family: inherit; color: var(--gray-900); width: 100%; }
+        .search-bar input::placeholder { color: var(--gray-400); }
+        .icon-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--gray-200); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--gray-600); transition: all .15s; }
+        .icon-btn:hover { background: var(--gray-100); color: var(--gray-900); }
+        .filter-select-wrap { position: relative; }
+        .filter-select-wrap select { appearance: none; background: var(--blue); color: white; border: none; border-radius: 8px; padding: 9px 30px 9px 14px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; outline: none; }
+        .filter-select-wrap::after { content: '▾'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: white; pointer-events: none; font-size: 11px; }
+
+        /* STATS */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 28px 0; }
+        .stat-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow-sm); }
+        .stat-label { font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+        .stat-value { font-size: 28px; font-weight: 800; color: var(--gray-900); letter-spacing: -1px; line-height: 1; }
+        .stat-sub { font-size: 11px; color: var(--gray-400); margin-top: 6px; }
+        .stat-card.card-plan-po .stat-label { color: #1e40af; }
+        .stat-card.card-plan-po { border-left: 4px solid #2563eb; }
+        .stat-card.card-plan-po .stat-value { color: #1e40af; font-size: 20px; }
+        .stat-card.card-actual-po .stat-label { color: #166534; }
+        .stat-card.card-actual-po { border-left: 4px solid #22c55e; }
+        .stat-card.card-actual-po .stat-value { color: #166534; font-size: 20px; }
+        .stat-card.card-live .stat-label { color: #166534; }
+        .stat-card.card-live .stat-value { color: #166534; }
+        .stat-card.card-close .stat-label { color: #020149; }
+        .stat-card.card-close .stat-value { color: #161415; }
+
+        /* FILTERS */
+        .table-filters { display: flex; align-items: center; gap: 10px; padding: 20px 28px 0; flex-wrap: wrap; }
+        .filter-pill { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid var(--gray-200); border-radius: 7px; padding: 7px 12px; font-size: 12px; font-weight: 600; color: var(--gray-600); cursor: pointer; }
+
+        /* TABLE */
+        .content-area { padding: 20px 28px 40px; }
+        .month-section { margin-bottom: 30px; }
+        .month-section-header { font-size: 14px; font-weight: 800; color: var(--gray-900); margin-bottom: 10px; padding-left: 4px; letter-spacing: -.2px; }
+        .table-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .dispatch-table { width: 100%; border-collapse: collapse; }
+        .dispatch-table thead th { padding: 11px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--gray-100); background: var(--gray-50); white-space: nowrap; }
+        .dispatch-table thead th:first-child { padding-left: 16px; }
+        .dispatch-table tbody tr { border-bottom: 1px solid var(--gray-100); transition: background .1s; }
+        .dispatch-table tbody tr:last-child { border-bottom: none; }
+        .dispatch-table tbody tr:hover { background: var(--gray-50); }
+        .dispatch-table tbody td { padding: 13px 14px; font-size: 13px; color: var(--gray-900); vertical-align: middle; }
+        .dispatch-table tbody td:first-child { padding-left: 16px; }
+        .row-name-cell { display: flex; align-items: center; gap: 0; }
+        .row-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+        .badge-plan { background: #dbeafe; color: #1e40af; }
+        .badge-dynamic { background: #fef9c3; color: #854d0e; }
+        .badge-actual { background: #dcfce7; color: #166534; }
+        .badge-live { background: #d1fae5; color: #166534; }
+        .badge-closed { background: #f8d7da; color: #9f1239; }
+        .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+        .toggle { width: 40px; height: 18px; border-radius: 999px; background: #22c55e; position: relative; transition: background 150ms ease; }
+        .toggle::after { content: ''; position: absolute; top: 2px; right: 3px; width: 14px; height: 14px; border-radius: 999px; background: #ffffff; transition: right 150ms ease, left 150ms ease; }
+        .toggle.off { background: var(--gray-200); }
+        .toggle.off::after { right: auto; left: 3px; }
+        .highlight-row td { background: #fefce8 !important; }
+        .state-box { padding: 40px; text-align: center; color: var(--gray-400); font-size: 14px; }
+        .error-box { margin: 20px 28px; padding: 16px 20px; background: #fff1f0; border: 1px solid #fca5a5; border-radius: var(--radius); color: #b91c1c; font-size: 13px; }
+        .temporarily-hidden { display: none !important; }
+
+        /* PRINT DIALOG */
+        .print-dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; align-items: center; justify-content: center; }
+        .print-dialog-overlay.open { display: flex; }
+        .print-dialog { background: white; border-radius: 14px; padding: 28px; width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .print-dialog h2 { font-size: 17px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .print-dialog p { font-size: 12px; color: var(--gray-400); margin-bottom: 22px; }
+        .dialog-field { margin-bottom: 14px; }
+        .dialog-field label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+        .dialog-field input { width: 100%; padding: 9px 12px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--gray-900); outline: none; transition: border .15s; }
+        .dialog-field input:focus { border-color: var(--blue); }
+        .dialog-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel { flex: 1; padding: 10px; border: 1px solid var(--gray-200); background: white; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--gray-600); cursor: pointer; transition: background .15s; }
+        .btn-cancel:hover { background: var(--gray-100); }
+        .btn-print { flex: 2; padding: 10px; background: var(--blue); border: none; border-radius: 8px; font-size: 13px; font-weight: 700; color: white; cursor: pointer; transition: background .15s; }
+        .btn-print:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+
+<!-- PRINT DIALOG -->
+<div class="print-dialog-overlay" id="printDialogOverlay">
+    <div class="print-dialog">
+        <h2>🖨️ Print Report</h2>
+        <p>Customize the report header before printing.</p>
+        <div class="dialog-field">
+            <label>Prepared By</label>
+            <input type="text" id="printPreparedBy" placeholder="e.g. John Doe, Manager" />
+        </div>
+        <div class="dialog-actions">
+            <button class="btn-cancel" id="dialogCancel">Cancel</button>
+            <button class="btn-print" id="dialogPrint">Print Report</button>
+        </div>
+    </div>
+</div>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">🚚</div>
+        <span class="brand-name">Commercial</span>
+    </div>
+    <div class="month-list">
+        <p class="sidebar-label">Months</p>
+        <ul class="sidebar-menu" id="monthNav">
+            <li><a href="#" class="active" data-month="all"><span class="dot"></span>All Months</a></li>
+        </ul>
+    </div>
+    <a class="back-btn" href="/home">← Dashboard</a>
+</aside>
+
+<div class="main">
+    <header class="top-header">
+        <div class="page-title-area">
+            <h1 id="pageTitle">Commercial Dispatch Details</h1>
+            <p id="pageSubtitle">Loading...</p>
+        </div>
+        <div class="header-actions">
+            <div class="search-bar">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input id="searchInput" type="search" placeholder="Search by CCN, customer or machine..." />
+            </div>
+            <button class="icon-btn" id="printButton" title="Print Report">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M6 9V2h12v7"/><rect x="6" y="17" width="12" height="5" rx="1"/>
+                    <path d="M6 13H4a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-2"/>
+                    <circle cx="18" cy="15" r="1"/>
+                </svg>
+            </button>
+            <div class="filter-select-wrap temporarily-hidden">
+                <select id="typeFilter" disabled>
+                    <option value="">All Types</option>
+                    <option value="plan">Dispatch Plan As Per Kickoff</option>
+                    <option value="dynamic">Dynamic</option>
+                    <option value="actual">Actual</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-label">Total Records</div>
+            <div class="stat-value" id="totalRecords">0</div>
+            <div class="stat-sub">All months combined</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">PO Total Value</div>
+            <div class="stat-value" id="poTotalValue" style="font-size:20px;">₹0 Lacs</div>
+            <div class="stat-sub" id="poTotalValueSub">Sum of all PO values</div>
+        </div>
+        <div class="stat-card card-plan-po" id="cardPlanPO" style="display:none;">
+            <div class="stat-label">📋 Dispatch Plan PO Value</div>
+            <div class="stat-value" id="planPOValue">₹0 Lacs</div>
+            <div class="stat-sub"><span id="planRecordCount">0</span> records from Kickoff Plan</div>
+        </div>
+        <div class="stat-card card-actual-po" id="cardActualPO" style="display:none;">
+            <div class="stat-label">✅ Actual Dispatch PO Value</div>
+            <div class="stat-value" id="actualPOValue">₹0 Lacs</div>
+            <div class="stat-sub"><span id="actualRecordCount">0</span> records dispatched (Final)</div>
+        </div>
+        <div class="stat-card temporarily-hidden"><div class="stat-label">With Dispatch Date</div><div class="stat-value" id="withDispatch">0</div></div>
+        <div class="stat-card temporarily-hidden"><div class="stat-label">Live Records</div><div class="stat-value" id="liveCount">0</div></div>
+        <div class="stat-card card-live" id="cardLive" style="display:none;">
+            <div class="stat-label">CCN Status: Live</div>
+            <div class="stat-value" id="liveRecordCount">0</div>
+            <div class="stat-sub">PO Value: <span id="livePOValue" style="font-weight:700;color:#166534;">₹0 Lacs</span></div>
+        </div>
+        <div class="stat-card card-close" id="cardClose" style="display:none;">
+            <div class="stat-label">CCN Status: Close</div>
+            <div class="stat-value" id="closeRecordCount">0</div>
+            <div class="stat-sub">PO Value: <span id="closePOValue" style="font-weight:700;color:#1a1819;">₹0 Lacs</span></div>
+        </div>
+    </div>
+
+    <div class="table-filters">
+        <div class="filter-pill">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+            Showing filtered results
+        </div>
+        <div class="filter-pill">📅 Year: <span id="filterYearLabel" style="margin-left:4px;color:#0f172a">-</span></div>
+        <div class="filter-pill">🚚 Type: <span id="filterTypeLabel" style="margin-left:4px;color:#0f172a">-</span></div>
+    </div>
+
+    <div class="content-area">
+        <div id="loadingState" class="state-box">Loading records...</div>
+        <div id="errorState" class="error-box" style="display:none;"></div>
+        <div id="emptyState" class="state-box" style="display:none;">No records found.</div>
+        <div id="detailContent"></div>
+    </div>
+</div>
+
+<script>
+    const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let allRows = [];
+    let activeMonth = 'all';
+    let planPOData = { records: 0, poValue: 0 };
+    let actualPOData = { records: 0, poValue: 0 };
+
+    function getQueryParam(name) { return new URL(window.location.href).searchParams.get(name); }
+
+    function formatTypeLabel(type) {
+        switch ((type || '').toLowerCase()) {
+            case 'plan': return 'Dispatch Plan As Per Kickoff';
+            case 'dynamic': return 'Dynamic Dispatch';
+            case 'actual': return 'Actual Dispatch';
+            default: return type || 'Unknown';
+        }
+    }
+
+    function formatDate(value) {
+        if (!value) return '-';
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let d;
+        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+            const parts = value.split('T')[0].split('-');
+            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        } else { d = new Date(value); }
+        if (isNaN(d.getTime())) return value;
+        return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function formatNumber(value) {
+        if (value == null || value === '') return '-';
+        return Number(value).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+
+    function matchesSearch(row, term) {
+        if (!term) return true;
+        const n = term.toLowerCase();
+        return [row.ccn, row.machineName, row.customerName].some(v => v && v.toString().toLowerCase().includes(n));
+    }
+
+    function getNow() {
+        const d = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        return `${pad(d.getDate())} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function buildSidebar(monthIndexes) {
+        const nav = document.getElementById('monthNav');
+        nav.innerHTML = '';
+        const allLi = document.createElement('li');
+        allLi.innerHTML = `<a href="#" class="${activeMonth === 'all' ? 'active' : ''}" data-month="all"><span class="dot"></span>All Months</a>`;
+        nav.appendChild(allLi);
+        monthIndexes.forEach(m => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="#" class="${activeMonth == m ? 'active' : ''}" data-month="${m}"><span class="dot"></span>${MONTH_NAMES[m - 1] || 'Month ' + m}</a>`;
+            nav.appendChild(li);
+        });
+        nav.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                activeMonth = a.dataset.month;
+                nav.querySelectorAll('a').forEach(x => x.classList.remove('active'));
+                a.classList.add('active');
+                applyFilters();
+            });
+        });
+    }
+
+    function buildSummary(rows) {
+        const dispatchType = getQueryParam('type') || 'plan';
+        const isDynamic = dispatchType === 'dynamic';
+        const isPlan = dispatchType === 'plan';
+        const isActual = dispatchType === 'actual';
+        document.getElementById('totalRecords').textContent = rows.length;
+        const poTotal = rows.reduce((sum, r) => sum + (parseFloat(r.poValue) || 0), 0);
+        document.getElementById('poTotalValue').textContent = '₹' + formatNumber(poTotal) + ' Lacs';
+        document.getElementById('poTotalValueSub').textContent = isPlan ? 'Dispatch Plan PO total (filtered)' : isActual ? 'Actual Dispatch PO total (filtered)' : 'Sum of all PO values';
+        const withDispatch = rows.filter(r => r.actualDispatchDate || r.dynamicDispatchDate || r.dispatchDate).length;
+        document.getElementById('withDispatch').textContent = withDispatch;
+        const liveCount = rows.filter(r => (r.liveStatus || r.ccnStatus || '').toLowerCase().includes('live')).length;
+        document.getElementById('liveCount').textContent = liveCount;
+        const showPlanActualCards = isPlan || isActual;
+        document.getElementById('cardPlanPO').style.display = showPlanActualCards ? '' : 'none';
+        document.getElementById('cardActualPO').style.display = showPlanActualCards ? '' : 'none';
+        if (showPlanActualCards) {
+            document.getElementById('planPOValue').textContent = '₹' + formatNumber(planPOData.poValue) + ' Lacs';
+            document.getElementById('planRecordCount').textContent = planPOData.records;
+            document.getElementById('actualPOValue').textContent = '₹' + formatNumber(actualPOData.poValue) + ' Lacs';
+            document.getElementById('actualRecordCount').textContent = actualPOData.records;
+        }
+        document.getElementById('cardLive').style.display = isDynamic ? '' : 'none';
+        document.getElementById('cardClose').style.display = isDynamic ? '' : 'none';
+        if (isDynamic) {
+            const liveRows = rows.filter(r => (r.ccnStatus || '').toLowerCase().includes('live'));
+            const closeRows = rows.filter(r => (r.ccnStatus || '').toLowerCase().includes('close'));
+            const livePO = liveRows.reduce((sum, r) => sum + (parseFloat(r.poValue) || 0), 0);
+            const closePO = closeRows.reduce((sum, r) => sum + (parseFloat(r.poValue) || 0), 0);
+            document.getElementById('liveRecordCount').textContent = liveRows.length;
+            document.getElementById('closeRecordCount').textContent = closeRows.length;
+            document.getElementById('livePOValue').textContent = '₹' + formatNumber(livePO) + ' Lacs';
+            document.getElementById('closePOValue').textContent = '₹' + formatNumber(closePO) + ' Lacs';
+        }
+    }
+
+    function renderMonthSection(monthIndex, rows, searchTerm) {
+        const section = document.createElement('div');
+        section.className = 'month-section';
+        const year = getQueryParam('year') || new Date().getFullYear();
+        const dispatchType = getQueryParam('type') || 'plan';
+        const isDynamic = dispatchType === 'dynamic';
+        section.innerHTML = `<div class="month-section-header">📅 ${MONTH_NAMES[monthIndex - 1] || 'Month ' + monthIndex} ${year} <span style="font-weight:400;color:#94a3b8;font-size:12px;">(${rows.length} records)</span></div>`;
+        const card = document.createElement('div');
+        card.className = 'table-card';
+        const dispatchColumnLabel = 'Invoice Date';
+        let html = `<table class="dispatch-table"><thead><tr>
+            <th>CCN</th><th>Customer Name</th><th>Machine Name</th>
+            <th>PO Delivery Date</th><th>Dispatch Plan (KOM)</th>${isDynamic ? '<th>Dynamic Dispatch Date</th>' : ''}
+            <th>CCN Status</th><th>Live Status</th>
+            <th>Assy Start Date</th>
+            <th>${dispatchColumnLabel}</th>
+            <th>PO Value</th>
+        </tr></thead><tbody>`;
+        rows.forEach(row => {
+            const isHighlight = searchTerm && matchesSearch(row, searchTerm);
+            const ccnStatusLower = (row.ccnStatus || '').toLowerCase();
+            const isClosed = ccnStatusLower.includes('close');
+            const liveStatusVal = row.liveStatus || '-';
+            const liveClass = liveStatusVal.toLowerCase().includes('live') ? 'badge-live' : liveStatusVal.toLowerCase().includes('close') ? 'badge-closed' : 'badge-gray';
+            const dispatchDateVal = row.invoiceDate || null;
+            const dispatchPlanDateVal = row.dispatchPlanDate ? formatDate(row.dispatchPlanDate) : '-';
+            const dynamicDispatchDateVal = isDynamic ? formatDate(row.actualDispatchDate || row.dispatchDate) : null;
+            html += `<tr class="${isHighlight ? 'highlight-row' : ''}">
+                <td><div class="row-name-cell"><div class="row-name">${row.ccn || '-'}</div></div></td>
+                <td style="font-weight:500">${row.customerName || '-'}</td>
+                <td style="color:#475569">${row.machineName || '-'}</td>
+                <td style="color:#475569">${formatDate(row.poDeliveryDate)}</td>
+                <td style="color:#475569">${dispatchPlanDateVal}</td>${isDynamic ? `<td style="color:#475569">${dynamicDispatchDateVal}</td>` : ''}
+                <td><div class="toggle ${isClosed ? '' : 'off'}"></div></td>
+                <td><span class="badge ${liveClass}">${liveStatusVal}</span></td>
+                <td style="color:#475569">${formatDate(row.assyStartDate || row.actualAssyStartDate)}</td>
+                <td style="color:#475569">${formatDate(dispatchDateVal)}</td>
+                <td style="font-weight:600">${formatNumber(row.poValue)} Lacs</td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+        card.innerHTML = html;
+        section.appendChild(card);
+        return section;
+    }
+
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        const typeFilter = document.getElementById('typeFilter').value.toLowerCase();
+        let filtered = allRows.filter(row => {
+            if (!matchesSearch(row, searchTerm)) return false;
+            if (typeFilter && row.type !== typeFilter) return false;
+            if (activeMonth !== 'all' && row.month != activeMonth) return false;
+            return true;
+        });
+        buildSummary(filtered);
+        const content = document.getElementById('detailContent');
+        content.innerHTML = '';
+        document.getElementById('emptyState').style.display = filtered.length === 0 ? 'block' : 'none';
+        const grouped = filtered.reduce((map, row) => { const key = row.month; if (!map[key]) map[key] = []; map[key].push(row); return map; }, {});
+        Object.keys(grouped).map(Number).sort((a, b) => a - b).forEach(m => { content.appendChild(renderMonthSection(m, grouped[m], searchTerm)); });
+    }
+
+    /* ── PRINT: blank popup — NO URL, NO title ── */
+    function openPrintDialog() { document.getElementById('printDialogOverlay').classList.add('open'); }
+    function closePrintDialog() { document.getElementById('printDialogOverlay').classList.remove('open'); }
+
+    function triggerPrint() {
+        const preparedBy = document.getElementById('printPreparedBy').value.trim() || '-';
+        const year = document.getElementById('filterYearLabel').textContent || '-';
+        const type = document.getElementById('filterTypeLabel').textContent || '-';
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        const typeFilter = document.getElementById('typeFilter').value.toLowerCase();
+        const filtered = allRows.filter(row => {
+            if (!matchesSearch(row, searchTerm)) return false;
+            if (typeFilter && row.type !== typeFilter) return false;
+            if (activeMonth !== 'all' && row.month != activeMonth) return false;
+            return true;
+        });
+        const totalPO = filtered.reduce((sum, r) => sum + (parseFloat(r.poValue) || 0), 0);
+        const contentHTML = document.getElementById('detailContent').innerHTML;
+        closePrintDialog();
+
+        const printWin = window.open('', '_blank', 'width=1200,height=800');
+        if (!printWin) { window.print(); return; }
+
+        printWin.document.write(`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title></title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',Arial,sans-serif;background:white;color:#0f172a;padding:14mm 12mm;}
+.print-report-header{display:flex;align-items:flex-start;justify-content:space-between;padding:0 0 16px 0;margin-bottom:18px;border-bottom:2px solid #1e3a8a;}
+.print-header-left{display:flex;align-items:flex-start;gap:14px;}
+.print-logo{height:56px;width:auto;object-fit:contain;}
+.print-logo-placeholder{width:56px;height:56px;background:#eff6ff;border:1px solid #dbeafe;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.print-company-name{font-size:18px;font-weight:800;color:#1e3a8a;letter-spacing:-0.4px;line-height:1.1;}
+.print-report-title{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-top:4px;}
+.print-report-subtitle{font-size:11px;color:#94a3b8;margin-top:2px;}
+.print-header-right{text-align:right;}
+.print-meta-item{font-size:11px;color:#475569;margin-bottom:3px;}
+.print-meta-label{font-weight:700;color:#1e3a8a;}
+.print-meta-sep{width:40px;height:2px;background:#1e3a8a;margin-left:auto;margin-top:8px;margin-bottom:8px;}
+.month-section{margin-bottom:20px;page-break-inside:avoid;}
+.month-section-header{font-size:12px;font-weight:800;background:#eff6ff;padding:6px 10px;border-left:3px solid #2563eb;color:#0f172a;}
+.table-card{border:1px solid #d1d5db;overflow:hidden;page-break-inside:avoid;}
+.dispatch-table{width:100%;border-collapse:collapse;}
+.dispatch-table thead th{padding:7px 8px;text-align:left;font-size:9px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.04em;background:#1e3a8a !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;white-space:nowrap;}
+.dispatch-table thead th:first-child{padding-left:10px;}
+.dispatch-table tbody tr{border-bottom:1px solid #f1f5f9;}
+.dispatch-table tbody tr:last-child{border-bottom:none;}
+.dispatch-table tbody tr:nth-child(even) td{background:#f8fafc !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.dispatch-table tbody td{padding:7px 8px;font-size:10px;color:#0f172a;vertical-align:middle;}
+.dispatch-table tbody td:first-child{padding-left:10px;}
+.row-name-cell{display:flex;align-items:center;}
+.row-name{font-weight:600;font-size:10px;}
+.badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:99px;font-size:9px;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.badge-live{background:#d1fae5 !important;color:#166534 !important;}
+.badge-closed{background:#f8d7da !important;color:#9f1239 !important;}
+.badge-gray{background:#f1f5f9 !important;color:#475569 !important;}
+.toggle{width:34px;height:16px;border-radius:999px;background:#22c55e;position:relative;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.toggle::after{content:'';position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:999px;background:#fff;}
+.toggle.off{background:#e2e8f0 !important;}
+.toggle.off::after{right:auto;left:2px;}
+.highlight-row td{background:#fefce8 !important;}
+@page{size:A4 landscape;margin:0;}
+</style></head><body>
+<div class="print-report-header">
+  <div class="print-header-left">
+    <div><img class="print-logo" src="/images/IMA.JPG" alt="Logo" onerror="this.parentElement.innerHTML='<div class=\\'print-logo-placeholder\\'>🚚</div>'" /></div>
+    <div>
+      <div class="print-company-name">Commercial Dispatch Report</div>
+      <div class="print-report-title">Commercial Dispatch Details</div>
+      <div class="print-report-subtitle">Year ${year} · ${type}</div>
+    </div>
+  </div>
+  <div class="print-header-right">
+    <div class="print-meta-sep"></div>
+    <div class="print-meta-item"><span class="print-meta-label">Generated:</span> ${getNow()}</div>
+    <div class="print-meta-item"><span class="print-meta-label">Prepared By:</span> ${preparedBy}</div>
+    <div class="print-meta-item"><span class="print-meta-label">Total Records:</span> ${filtered.length} entries</div>
+    <div class="print-meta-item"><span class="print-meta-label">Total PO Value:</span> ₹${formatNumber(totalPO)} Lacs</div>
+  </div>
+</div>
+${contentHTML}
+<script>
+window.onload=function(){window.print();window.onafterprint=function(){window.close();};setTimeout(function(){window.close();},3000);};
+<\/script></body></html>`);
+        printWin.document.close();
+    }
+
+    async function loadCrossTypePOValues(year) {
+        try {
+            const planRes = await fetch(`/api/machineccnproject/commercial-dispatch-details?year=${encodeURIComponent(year)}&type=plan`);
+            if (planRes.ok) {
+                const planData = await planRes.json();
+                let planRecords = 0, planPO = 0;
+                if (planData && Array.isArray(planData.monthData)) {
+                    planData.monthData.forEach(me => { const recs = Array.isArray(me.records) ? me.records : []; planRecords += recs.length; recs.forEach(r => { planPO += parseFloat(r.poValue) || 0; }); });
+                }
+                planPOData = { records: planRecords, poValue: planPO };
+            }
+        } catch(e) { console.error('Error fetching plan PO data:', e); }
+        try {
+            const actualRes = await fetch(`/api/machineccnproject/commercial-dispatch-details?year=${encodeURIComponent(year)}&type=actual`);
+            if (actualRes.ok) {
+                const actualData = await actualRes.json();
+                let actualRecords = 0, actualPO = 0;
+                if (actualData && Array.isArray(actualData.monthData)) {
+                    actualData.monthData.forEach(me => { const recs = Array.isArray(me.records) ? me.records : []; actualRecords += recs.length; recs.forEach(r => { actualPO += parseFloat(r.poValue) || 0; }); });
+                }
+                actualPOData = { records: actualRecords, poValue: actualPO };
+            }
+        } catch(e) { console.error('Error fetching actual PO data:', e); }
+    }
+
+    async function loadDetails() {
+        const type = getQueryParam('type') || 'plan';
+        const year = parseInt(getQueryParam('year'), 10);
+        const validYear = Number.isFinite(year) ? year : new Date().getFullYear();
+        document.getElementById('pageTitle').textContent = formatTypeLabel(type);
+        document.getElementById('pageSubtitle').textContent = `Year ${validYear} · Commercial Dispatch`;
+        document.getElementById('filterYearLabel').textContent = validYear;
+        document.getElementById('filterTypeLabel').textContent = formatTypeLabel(type);
+        const tf = document.getElementById('typeFilter');
+        if (type && ['plan','dynamic','actual'].includes(type)) tf.value = type;
+        document.getElementById('loadingState').style.display = 'block';
+        const isPlanOrActual = type === 'plan' || type === 'actual';
+        if (isPlanOrActual) await loadCrossTypePOValues(validYear);
+        try {
+            const url = `/api/machineccnproject/commercial-dispatch-details?year=${encodeURIComponent(validYear)}&type=${encodeURIComponent(type)}`;
+            const res = await fetch(url);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            document.getElementById('loadingState').style.display = 'none';
+            allRows = [];
+            if (data && Array.isArray(data.monthData)) {
+                data.monthData.forEach(monthEntry => {
+                    const records = Array.isArray(monthEntry.records) ? monthEntry.records : [];
+                    records.forEach(r => { allRows.push({ ...r, month: monthEntry.month, type: type }); });
+                });
+            }
+            const monthIndexes = [...new Set(allRows.map(r => r.month))].sort((a,b) => a - b);
+            const monthParam = parseInt(getQueryParam('month'), 10);
+            activeMonth = Number.isFinite(monthParam) && monthParam >= 1 && monthParam <= 12 ? String(monthParam) : 'all';
+            buildSidebar(monthIndexes);
+            applyFilters();
+        } catch (err) {
+            document.getElementById('loadingState').style.display = 'none';
+            const e = document.getElementById('errorState');
+            e.style.display = 'block';
+            e.innerHTML = `<strong>Error:</strong> ${err.message}`;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
+        document.getElementById('printButton').addEventListener('click', openPrintDialog);
+        document.getElementById('dialogCancel').addEventListener('click', closePrintDialog);
+        document.getElementById('dialogPrint').addEventListener('click', triggerPrint);
+        document.getElementById('printDialogOverlay').addEventListener('click', e => { if (e.target === document.getElementById('printDialogOverlay')) closePrintDialog(); });
+        loadDetails();
+    });
+</script>
+</body>
+</html>

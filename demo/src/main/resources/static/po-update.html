@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PO Update</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f4ff;
+      --surface: #ffffff;
+      --surface2: #f8faff;
+      --border: rgba(37,99,235,0.13);
+      --border-light: rgba(37,99,235,0.25);
+      --accent: #2563eb;
+      --accent2: #0ea5e9;
+      --accent-soft: rgba(37,99,235,0.08);
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --text-dim: #94a3b8;
+      --radius: 10px;
+      --radius-lg: 16px;
+      --shadow: 0 4px 24px rgba(37,99,235,0.08);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--surface2);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 14px;
+    }
+
+    /* Page */
+    .page-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 2rem;
+      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #0369a1 100%);
+      padding: 14px 20px;
+      border-radius: 14px;
+      color: white;
+    }
+    .header-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(255,255,255,0.15);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .header-text h1 { font-size: 22px; font-weight: 700; color: white; }
+    .header-text p { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px; }
+
+    /* CCN Search Banner */
+    .ccn-search-banner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .csb-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .csb-icon svg { width: 20px; height: 20px; stroke: var(--accent); fill: none; stroke-width: 2; }
+    .csb-content { flex: 1; }
+    .csb-content .csb-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .csb-input-wrap { position: relative; }
+    .csb-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 0 14px;
+      height: 46px;
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .csb-input:hover { border-color: var(--border-light); }
+    .csb-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+    .csb-input::placeholder { color: var(--text-dim); font-weight: 400; font-size: 14px; }
+    .csb-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 200;
+      display: none;
+      box-shadow: 0 8px 32px rgba(37,99,235,0.13);
+    }
+    .csb-dropdown.visible { display: block; }
+    .csb-dropdown::-webkit-scrollbar { width: 5px; }
+    .csb-dropdown::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+    .csb-dropdown .csb-dd-item {
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      color: var(--accent);
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .csb-dropdown .csb-dd-item:last-child { border-bottom: none; }
+    .csb-dropdown .csb-dd-item:hover { background: var(--accent-soft); }
+    .csb-dropdown .csb-dd-empty { padding: 12px 14px; font-size: 13px; color: var(--text-dim); }
+    .csb-hint { margin-top: 6px; font-size: 12px; color: var(--text-dim); }
+
+    /* Form Card */
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .form-card.disabled { opacity: 0.45; pointer-events: none; }
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* Field Grid */
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.25rem; }
+    .field-grid .full { grid-column: 1 / -1; }
+
+    /* Field */
+    .field { display: flex; flex-direction: column; gap: 6px; position: relative; }
+    .field label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* Inputs */
+    .field input[type="text"],
+    .field input[type="number"],
+    .field input[type="date"],
+    .field input[type="datetime-local"],
+    .field textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 0 14px;
+      height: 42px;
+      border-radius: var(--radius);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    .field textarea { height: auto; padding: 10px 14px; resize: vertical; }
+    .field input:hover, .field textarea:hover { border-color: var(--border-light); }
+    .field input:focus, .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+    .field input[readonly] { background: rgba(245,248,255,0.8); color: var(--text-dim); cursor: default; }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text-dim); }
+    .field input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.5; }
+
+    /* Custom dropdowns */
+    .custom-select-wrap { position: relative; }
+    .custom-select-input {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 0 40px 0 14px;
+      height: 42px;
+      border-radius: var(--radius);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    .custom-select-input:hover { border-color: var(--border-light); }
+    .custom-select-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+    .custom-select-input::placeholder { color: var(--text-dim); }
+    .custom-select-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-dim); font-size: 16px; transition: transform 0.2s; }
+    .custom-select-wrap.open .custom-select-arrow { transform: translateY(-50%) rotate(180deg); color: var(--accent); }
+
+    /* Dropdown list */
+    .dropdown-list {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 200;
+      display: none;
+      box-shadow: 0 8px 32px rgba(37,99,235,0.13);
+    }
+    .dropdown-list.visible { display: block; }
+    .dropdown-list::-webkit-scrollbar { width: 5px; }
+    .dropdown-list::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+    .dropdown-list .dl-item {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.1s;
+      border-bottom: 1px solid var(--border);
+    }
+    .dropdown-list .dl-item:last-child { border-bottom: none; }
+    .dropdown-list .dl-item:hover, .dropdown-list .dl-item.focused { background: var(--accent-soft); color: var(--accent); }
+    .dropdown-list .dl-empty { padding: 12px 14px; font-size: 13px; color: var(--text-dim); font-style: italic; }
+
+    /* Radio chips */
+    .radio-group-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .radio-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .radio-chip { position: relative; }
+    .radio-chip input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .radio-chip label {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 16px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .radio-chip input[type="radio"]:checked + label { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .radio-chip input[type="radio"]:disabled + label { opacity: 0.35; cursor: not-allowed; }
+    .radio-chip label:hover { border-color: var(--border-light); color: var(--text); }
+    .radio-chip input[type="radio"]:checked + label:hover { border-color: var(--accent); }
+
+    /* Address */
+    .addr-selects { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .addr-selects select {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 0 36px 0 14px;
+      height: 42px;
+      border-radius: var(--radius);
+      outline: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .addr-selects select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+    .addr-selects select option { background: var(--surface); }
+
+    /* Remark */
+    .remark-card {
+      background: rgba(245,158,11,0.05);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .remark-card .remark-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--warning);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .remark-card textarea {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid rgba(245,158,11,0.2);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      padding: 10px 14px;
+      border-radius: var(--radius);
+      outline: none;
+      resize: vertical;
+      min-height: 80px;
+      transition: border-color 0.2s;
+    }
+    .remark-card textarea:focus { border-color: var(--warning); box-shadow: 0 0 0 3px rgba(245,158,11,0.08); }
+    .remark-card textarea::placeholder { color: var(--text-dim); }
+
+    /* Submit */
+    .submit-wrap { margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem; }
+    .btn-update {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #fff;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 0 32px;
+      height: 46px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(245,158,11,0.28);
+    }
+    .btn-update:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); }
+    .btn-update:active:not(:disabled) { transform: scale(0.98); }
+    .btn-update:disabled { background: var(--bg); color: var(--text-dim); cursor: not-allowed; border: 1.5px solid var(--border); box-shadow: none; }
+
+    /* Footer */
+    .site-footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 1rem 2rem;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    /* Responsive */
+    @media (max-width: 620px) {
+      .field-grid { grid-template-columns: 1fr; }
+      .addr-selects { grid-template-columns: 1fr; }
+      .page-wrap { padding: 1.5rem 1rem 5rem; }
+      .ccn-search-banner { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="header-include"></div>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="header-icon">✏️</div>
+    <div class="header-text">
+      <h1>Update Purchase Order</h1>
+      <p>Search a CCN to load an existing order and modify its details.</p>
+    </div>
+  </div>
+
+  <!-- CCN Search -->
+  <div class="ccn-search-banner">
+    <div class="csb-icon">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <div class="csb-content">
+      <div class="csb-label">Search by CCN</div>
+      <div class="csb-input-wrap">
+        <input type="text" class="csb-input" id="ccnInput" placeholder="Type a CCN to find the order…" autocomplete="off" />
+        <div class="csb-dropdown" id="ccnDropdown"></div>
+      </div>
+      <div class="csb-hint" id="ccnHint">Start typing or click to see all existing CCNs.</div>
+    </div>
+  </div>
+
+  <form id="updateForm" autocomplete="off" novalidate>
+    <!-- Meta -->
+    <div class="form-card disabled" id="card-meta">
+      <div class="section-label">Order Identity</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>Timestamp</label>
+          <input type="datetime-local" id="timestamp" readonly />
+        </div>
+        <div class="field">
+          <label>Record No</label>
+          <input type="text" id="recordNo" readonly />
+        </div>
+      </div>
+    </div>
+
+    <!-- PO Details -->
+    <div class="form-card disabled" id="card-po">
+      <div class="section-label">PO Details</div>
+      <div class="field-grid">
+        <div class="field full">
+          <label>PO Reference Number</label>
+          <input type="text" id="poReferenceNumber" placeholder="PO Reference Number" />
+        </div>
+        <div class="field">
+          <label>PO Date</label>
+          <input type="date" id="poDate" />
+        </div>
+        <div class="field">
+          <label>PO Delivery Date</label>
+          <input type="date" id="poDeliveryDate" />
+        </div>
+        <div class="field">
+          <label>PO Value (Lacs)</label>
+          <input type="number" step="0.01" id="poValueLacs" placeholder="0.00" />
+        </div>
+        <div class="field">
+          <label>Sales Person</label>
+          <div class="custom-select-wrap" id="salesWrap">
+            <input type="text" class="custom-select-input" id="salesPersonInput" placeholder="Search or type…" autocomplete="off" />
+            <span class="custom-select-arrow">&#8964;</span>
+            <div class="dropdown-list" id="salesPersonDropdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Machine & Customer -->
+    <div class="form-card disabled" id="card-machine">
+      <div class="section-label">Machine &amp; Customer</div>
+      <div class="field-grid">
+        <div class="field full">
+          <label>Customer Name</label>
+          <div class="custom-select-wrap">
+            <input type="text" class="custom-select-input" id="customerNameInput" placeholder="Search or type…" autocomplete="off" />
+            <span class="custom-select-arrow">&#8964;</span>
+            <div class="dropdown-list" id="customerNameDropdown"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Machine Name</label>
+          <div class="custom-select-wrap">
+            <input type="text" class="custom-select-input" id="machineNameInput" placeholder="Search or type…" autocomplete="off" />
+            <span class="custom-select-arrow">&#8964;</span>
+            <div class="dropdown-list" id="machineNameDropdown"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Model</label>
+          <div class="custom-select-wrap">
+            <input type="text" class="custom-select-input" id="modelNameInput" placeholder="Search or type…" autocomplete="off" />
+            <span class="custom-select-arrow">&#8964;</span>
+            <div class="dropdown-list" id="modelNameDropdown"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Classification -->
+    <div class="form-card disabled" id="card-class">
+      <div class="section-label">Classification</div>
+      <div class="field-grid">
+        <div class="field full">
+          <div class="radio-group-label">Order Type</div>
+          <div class="radio-chips">
+            <div class="radio-chip"><input type="radio" id="check-inhouse" name="orderType" value="Inhouse" /><label for="check-inhouse">Inhouse</label></div>
+            <div class="radio-chip"><input type="radio" id="check-export" name="orderType" value="Export" /><label for="check-export">Export</label></div>
+            <div class="radio-chip"><input type="radio" id="check-domestic" name="orderType" value="Domestic" /><label for="check-domestic">Domestic</label></div>
+          </div>
+        </div>
+        <div class="field full">
+          <div class="radio-group-label">Machine Category</div>
+          <div class="radio-chips">
+            <div class="radio-chip"><input type="radio" id="cat-customized" name="machineCategory" value="customized" /><label for="cat-customized">Customized</label></div>
+            <div class="radio-chip"><input type="radio" id="cat-stock" name="machineCategory" value="stock" /><label for="cat-stock">Stock</label></div>
+            <div class="radio-chip"><input type="radio" id="cat-rnd" name="machineCategory" value="rnd" /><label for="cat-rnd">R&amp;D</label></div>
+            <div class="radio-chip"><input type="radio" id="cat-retrofit" name="machineCategory" value="retrofit" /><label for="cat-retrofit">Retrofit</label></div>
+            <div class="radio-chip"><input type="radio" id="cat-expected" name="machineCategory" value="expected" /><label for="cat-expected">Expected</label></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="form-card disabled" id="card-addr">
+      <div class="section-label">Delivery Address</div>
+      <div class="addr-selects">
+        <select id="country"><option value="">Select Country</option></select>
+        <select id="state"><option value="">Select State</option></select>
+        <select id="city"><option value="">Select City</option></select>
+      </div>
+      <div class="field-grid">
+        <div class="field full">
+          <label>Street Address</label>
+          <input type="text" id="addressLine1" placeholder="Enter Street Address" />
+        </div>
+        <div class="field full">
+          <label>Address Line 2</label>
+          <input type="text" id="addressLine2" placeholder="Apartment, suite, building (optional)" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Remark -->
+    <div class="remark-card">
+      <div class="remark-label">&#9888; Remark (mandatory for update)</div>
+      <textarea id="remark" rows="3" placeholder="Describe what was changed and why…" required></textarea>
+    </div>
+
+    <div class="submit-wrap">
+      <button type="submit" class="btn-update" id="updateBtn" disabled>Save Changes &#8594;</button>
+    </div>
+  </form>
+</div>
+
+<div id="footer-include"></div>
+
+<script type="module">
+  import { Country, State, City } from "https://jspm.dev/country-state-city";
+
+  function pad(n) { return n<10?'0'+n:n; }
+  function isoToLocalDT(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+  function getCurrentDTL() {
+    const now = new Date();
+    return now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+'T'+pad(now.getHours())+':'+pad(now.getMinutes());
+  }
+
+  document.getElementById('timestamp').value = getCurrentDTL();
+
+  const cards = ['card-meta','card-po','card-machine','card-class','card-addr'];
+  function setFormEnabled(enabled) {
+    cards.forEach(id => {
+      const el = document.getElementById(id);
+      if (enabled) el.classList.remove('disabled'); else el.classList.add('disabled');
+    });
+    document.getElementById('updateBtn').disabled = !enabled;
+  }
+
+  const countrySelect = document.getElementById('country');
+  const stateSelect = document.getElementById('state');
+  const citySelect = document.getElementById('city');
+  Country.getAllCountries().forEach(c => { countrySelect.innerHTML += `<option value="${c.isoCode}">${c.name}</option>`; });
+  countrySelect.addEventListener('change', function() {
+    stateSelect.innerHTML = '<option value="">Select State</option>';
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    if (this.value) State.getStatesOfCountry(this.value).forEach(s => { stateSelect.innerHTML += `<option value="${s.isoCode}">${s.name}</option>`; });
+  });
+  stateSelect.addEventListener('change', function() {
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    if (this.value) City.getCitiesOfState(countrySelect.value, this.value).forEach(c => { citySelect.innerHTML += `<option value="${c.name}">${c.name}</option>`; });
+  });
+
+  const ccnInput = document.getElementById('ccnInput');
+  const ccnDropdown = document.getElementById('ccnDropdown');
+  const ccnHint = document.getElementById('ccnHint');
+  let allCcns = [];
+
+  async function loadCcns() {
+    try {
+      const res = await fetch('/api/po/all');
+      if (!res.ok) return;
+      const arr = await res.json();
+      const set = new Set();
+      arr.forEach(p => { if (p.ccn) set.add(p.ccn); });
+      allCcns = Array.from(set).sort();
+    } catch {}
+  }
+
+  function showCcnDropdown(q) {
+    const ql = (q||'').toLowerCase().trim();
+    const matches = ql ? allCcns.filter(c => c.toLowerCase().includes(ql)) : allCcns;
+    if (!matches.length) {
+      ccnDropdown.innerHTML = '<div class="csb-dd-empty">No matching CCNs</div>';
+    } else {
+      ccnDropdown.innerHTML = matches.map(m => `<div class="csb-dd-item" data-ccn="${m}">${m}</div>`).join('');
+    }
+    ccnDropdown.classList.add('visible');
+  }
+
+  ccnInput.addEventListener('focus', () => showCcnDropdown(ccnInput.value));
+  ccnInput.addEventListener('input', function() { setFormEnabled(false); showCcnDropdown(this.value); });
+  ccnInput.addEventListener('blur', () => setTimeout(() => ccnDropdown.classList.remove('visible'), 200));
+
+  ccnDropdown.addEventListener('mousedown', function(e) {
+    const item = e.target.closest('.csb-dd-item');
+    if (!item) return;
+    e.preventDefault();
+    selectCcn(item.dataset.ccn);
+    ccnDropdown.classList.remove('visible');
+  });
+
+  async function selectCcn(ccn) {
+    ccnInput.value = ccn;
+    // Show only a simple loading hint, no status badge
+    ccnHint.textContent = 'Loading order data…';
+    setFormEnabled(false);
+    document.getElementById('updateBtn').disabled = true;
+    try {
+      const res = await fetch(`/api/po/by-ccn?ccn=${encodeURIComponent(ccn)}`);
+      if (!res.ok) throw new Error();
+      const po = await res.json() || {};
+      document.getElementById('timestamp').value = isoToLocalDT(po.timestamp||po.timeStamp||po.createdAt||'');
+      document.getElementById('recordNo').value = po.recordNo || '';
+      document.getElementById('salesPersonInput').value = po.salesPerson || '';
+      document.getElementById('poReferenceNumber').value = po.poReferenceNumber || '';
+      document.getElementById('poDate').value = po.poDate || '';
+      document.getElementById('poDeliveryDate').value = po.poDeliveryDate || '';
+      document.getElementById('poValueLacs').value = (po.poValueLacs !== undefined && po.poValueLacs !== null) ? po.poValueLacs : '';
+      document.getElementById('customerNameInput').value = po.customerName || '';
+      document.getElementById('machineNameInput').value = po.machineName || '';
+      document.getElementById('modelNameInput').value = po.modelName || '';
+      if (po.machineCategory) { const el = document.querySelector(`input[name="machineCategory"][value="${po.machineCategory}"]`); if (el) el.checked = true; }
+      if (po.orderType) { const el = document.querySelector(`input[name="orderType"][value="${po.orderType}"]`); if (el) el.checked = true; }
+      if (po.country) {
+        countrySelect.value = po.country;
+        stateSelect.innerHTML = '<option value="">Select State</option>';
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        State.getStatesOfCountry(po.country).forEach(s => { stateSelect.innerHTML += `<option value="${s.isoCode}">${s.name}</option>`; });
+        if (po.state) {
+          stateSelect.value = po.state;
+          City.getCitiesOfState(po.country, po.state).forEach(c => { citySelect.innerHTML += `<option value="${c.name}">${c.name}</option>`; });
+          if (po.city) citySelect.value = po.city;
+        }
+      }
+      document.getElementById('addressLine1').value = po.addressLine1 || '';
+      document.getElementById('addressLine2').value = po.addressLine2 || '';
+      document.getElementById('remark').value = '';
+      setFormEnabled(true);
+      // Only show plain hint text — no green badge
+      ccnHint.textContent = 'Order data loaded. Edit the fields below and add a remark to save changes.';
+    } catch {
+      ccnHint.textContent = 'Error fetching order data. Check the CCN.';
+      setFormEnabled(false);
+    }
+  }
+
+  ['ccnInput','salesPersonInput','customerNameInput','machineNameInput','modelNameInput'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', function() { const c = this.selectionStart; this.value = this.value.toUpperCase(); this.setSelectionRange(c,c); });
+  });
+  document.querySelectorAll('.field input[type="text"]').forEach(inp => {
+    if (!['ccnInput','salesPersonInput','customerNameInput','machineNameInput','modelNameInput','recordNo'].includes(inp.id))
+      inp.addEventListener('input', function() { const c = this.selectionStart; this.value = this.value.toUpperCase(); this.setSelectionRange(c,c); });
+  });
+
+  async function fetchSuggestions(field, q) {
+    const isMachine = ['machineName','machineModel','modelName'].includes(field);
+    const ep = isMachine ? '/api/machine-model/suggestions' : '/api/po/suggestions';
+    try {
+      const res = await fetch(`${ep}?field=${field}&q=${encodeURIComponent(q||'')}`);
+      return res.ok ? await res.json() : [];
+    } catch { return []; }
+  }
+
+  function setupDropdown(inputId, dropdownId, field) {
+    const input = document.getElementById(inputId);
+    const list = document.getElementById(dropdownId);
+    const wrap = input.closest('.custom-select-wrap');
+    let opts = [], focusedIdx = -1;
+
+    function render(options) {
+      opts = options; focusedIdx = -1;
+      list.innerHTML = opts.length
+        ? opts.map((o,i) => `<div class="dl-item${input.value===o?' selected':''}" data-idx="${i}" data-val="${o}">${o}</div>`).join('')
+        : '<div class="dl-empty">No options</div>';
+      list.classList.add('visible');
+      wrap.classList.add('open');
+    }
+    function close() { list.classList.remove('visible'); wrap.classList.remove('open'); }
+
+    input.addEventListener('focus', async () => render(await fetchSuggestions(field, input.value)));
+    input.addEventListener('input', async () => {
+      const q = input.value.toLowerCase();
+      const all = await fetchSuggestions(field, '');
+      render(q ? [...all.filter(o => o.toLowerCase().startsWith(q)), ...all.filter(o => !o.toLowerCase().startsWith(q) && o.toLowerCase().includes(q))] : all);
+    });
+    input.addEventListener('blur', () => setTimeout(close, 200));
+    list.addEventListener('mousedown', function(e) {
+      const item = e.target.closest('.dl-item');
+      if (!item) return;
+      e.preventDefault();
+      input.value = item.dataset.val;
+      close(); input.focus();
+    });
+    input.addEventListener('keydown', function(e) {
+      const items = [...list.querySelectorAll('.dl-item')];
+      if (!list.classList.contains('visible')) return;
+      if (e.key==='ArrowDown') { e.preventDefault(); focusedIdx=Math.min(focusedIdx+1,items.length-1); items.forEach((it,i)=>it.classList.toggle('focused',i===focusedIdx)); items[focusedIdx]?.scrollIntoView({block:'nearest'}); }
+      else if (e.key==='ArrowUp') { e.preventDefault(); focusedIdx=Math.max(focusedIdx-1,0); items.forEach((it,i)=>it.classList.toggle('focused',i===focusedIdx)); items[focusedIdx]?.scrollIntoView({block:'nearest'}); }
+      else if (e.key==='Enter'&&focusedIdx>=0) { e.preventDefault(); input.value=items[focusedIdx].dataset.val; close(); }
+      else if (e.key==='Escape') close();
+    });
+  }
+
+  setupDropdown('salesPersonInput','salesPersonDropdown','salesPerson');
+  setupDropdown('customerNameInput','customerNameDropdown','customerName');
+  setupDropdown('machineNameInput','machineNameDropdown','machineName');
+  setupDropdown('modelNameInput','modelNameDropdown','machineModel');
+
+  document.getElementById('machineNameInput').addEventListener('change', async function() {
+    const m = this.value.trim();
+    if (!m) return;
+    try {
+      const res = await fetch(`/api/machine-model/models-by-machine?machineName=${encodeURIComponent(m)}`);
+      if (res.ok) document.getElementById('modelNameInput').value = '';
+    } catch {}
+  });
+
+  document.getElementById('updateForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const ccn = ccnInput.value.trim();
+    if (!ccn) { alert('Please select a CCN.'); return; }
+    const remark = document.getElementById('remark').value.trim();
+    if (!remark) { alert('Remark is mandatory.'); document.getElementById('remark').focus(); return; }
+    const updated = {
+      recordNo: document.getElementById('recordNo').value || null,
+      timestamp: document.getElementById('timestamp').value ? new Date(document.getElementById('timestamp').value).toISOString() : null,
+      salesPerson: document.getElementById('salesPersonInput').value || null,
+      poReferenceNumber: document.getElementById('poReferenceNumber').value || null,
+      poDate: document.getElementById('poDate').value || null,
+      poDeliveryDate: document.getElementById('poDeliveryDate').value || null,
+      poValueLacs: document.getElementById('poValueLacs').value ? parseFloat(document.getElementById('poValueLacs').value) : null,
+      customerName: document.getElementById('customerNameInput').value || null,
+      machineName: document.getElementById('machineNameInput').value || null,
+      modelName: document.getElementById('modelNameInput').value || null,
+      machineCategory: (document.querySelector('input[name="machineCategory"]:checked')||{}).value || null,
+      orderType: (document.querySelector('input[name="orderType"]:checked')||{}).value || null,
+      country: countrySelect.value || null,
+      state: stateSelect.value || null,
+      city: citySelect.value || null,
+      addressLine1: document.getElementById('addressLine1').value || null,
+      addressLine2: document.getElementById('addressLine2').value || null,
+    };
+    try {
+      const res = await fetch('/api/po/update-by-ccn', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ ccn, updated, remark })
+      });
+      if (res.ok) {
+        alert('Purchase Order updated successfully.');
+        document.getElementById('remark').value = '';
+        ccnHint.textContent = 'Start typing or click to see all existing CCNs.';
+        await loadCcns();
+      } else {
+        const txt = await res.text();
+        alert('Update failed: ' + (txt || res.statusText));
+      }
+    } catch { alert('Error updating record.'); }
+  });
+
+  await loadCcns();
+
+  fetch('/fragments/header.html').then(r=>r.text()).then(h=>{ document.getElementById('header-include').innerHTML = h; }).catch(()=>{});
+  fetch('/fragments/footer.html').then(r=>r.text()).then(h=>{ document.getElementById('footer-include').innerHTML = h; }).catch(()=>{});
+</script>
+</body>
+</html>

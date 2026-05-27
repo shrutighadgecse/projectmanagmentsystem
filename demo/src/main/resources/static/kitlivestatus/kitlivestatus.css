@@ -1,0 +1,190 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #35474d;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px; /* Adjusted padding */
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    position: fixed; /* Fix the header at the top */
+    width: 100%;
+    top: 0;
+    z-index: 1000; /* Ensure it stays above other content */
+}
+
+.logo img {
+    height: 40px; /* Adjust logo height */
+}
+
+.search-bar {
+    flex: 1; /* Allow search bar to take available space */
+    margin: 0 20px; /* Space between logo and search bar */
+}
+
+.search-bar input {
+    width: 100%; /* Full width for the search input */
+    padding: 5px; /* Padding for the input */
+    border: 1px solid #ccc; /* Border for the input */
+    border-radius: 4px; /* Rounded corners */
+}
+
+.avatar {
+    width: 30px; /* Adjusted width */
+    height: 30px; /* Adjusted height */
+    background-color: #ee1919; /* a nice orange color */
+    color: white;
+    border-radius: 50%; /* circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px; /* Adjusted font size */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    margin-left: 20px; /* Space from the right */
+}
+
+main {
+    flex: 1; /* Allow the main section to grow and fill the space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin-top: 60px; /* Space for fixed header */
+}
+
+section.container {
+    position: relative;
+    max-width: 500px;
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.container h1 {
+    font-size: 1.5rem;
+    color: #333;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 20px; /* Space below the title */
+}
+
+.form .input-box {
+    width: 100%;
+    margin-top: 20px;
+}
+
+.input-box label {
+    color: #333;
+}
+
+.form :where(.input-box input, .select-box) {
+    position: relative;
+    height: 50px;
+    width: 100%;
+    outline: none;
+    font-size: 1rem;
+    color: #707070;
+    margin-top: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0 15px;
+}
+
+.input-box input:focus {
+    box-shadow: 0 1px 0 rgba(0 , 0, 0.1);
+}
+
+footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    width: 100%;
+    margin-top: auto; /* Push footer to the bottom */
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px; /* Adjust padding as needed */
+    font-family: "Poppins", sans-serif;
+    font-size: 19px;
+    color: #1d1b1b;
+}
+
+.footer-left {
+    font-size: 19px;
+    color: #1d1b1b;
+}
+
+.footer-right {
+    font-size: 19px;
+    color: #111010;
+    margin-right: 10px;  /* Ensures no space from right edge */
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.footer-links li {
+    margin: 0 15px;
+}
+
+.footer-links a {
+    color: rgb(27, 25, 25);
+    text-decoration: none;
+}
+
+.footer-links a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .search-bar input {
+        width: 70%; /* Adjust width for smaller screens */
+    }
+
+    .avatar {
+        margin-right: 20px; /* Reduce margin for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align items to the start */
+        padding: 10px; /* Increase padding for touch targets */
+    }
+
+    .search-bar {
+        width: 100%; /* Full width for search bar */
+        margin: 10px 0; /* Margin for spacing */
+    }
+
+    .avatar {
+        margin-right: 0; /* Remove margin */
+    }
+}

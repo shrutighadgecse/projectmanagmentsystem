@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google" content="notranslate">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Kick-Off Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f0f4ff;
+            --surface: #ffffff;
+            --surface2: #f8faff;
+            --border: rgba(37,99,235,0.13);
+            --border-light: rgba(37,99,235,0.25);
+            --accent: #2563eb;
+            --accent2: #0ea5e9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #0f172a;
+            --text-muted: #475569;
+            --text-dim: #94a3b8;
+            --radius: 10px;
+            --radius-lg: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--surface2);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            font-size: 14px;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 20px 80px;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin: 20px 0 28px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 50%, #0369a1 100%);
+            padding: 14px 20px;
+            border-radius: 14px;
+            color: white;
+        }
+
+        #header-include { display: block; margin-bottom: 18px; }
+
+        .header-icon {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+            border-radius: var(--radius);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; flex-shrink: 0;
+            box-shadow: 0 8px 24px rgba(37,99,235,0.28);
+        }
+
+        .header-text h1 { font-family: 'DM Sans', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; color: white; }
+        .header-text p { color: rgba(255,255,255,0.75); font-size: 13px; margin-top: 2px; }
+
+        /* CCN Card */
+        .ccn-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 28px; position: relative; overflow: visible; }
+        .ccn-card-label { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .ccn-card-label::before { content: ''; width: 18px; height: 2px; background: var(--accent); border-radius: 2px; }
+        .ccn-search-wrapper { position: relative; }
+        .ccn-search-input { width: 100%; height: 48px; background: var(--bg); border: 1.5px solid var(--border-light); border-radius: var(--radius); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 0 48px 0 16px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+        .ccn-search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .ccn-search-input::placeholder { color: var(--text-dim); }
+        .ccn-search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; font-size: 18px; }
+        .ccn-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface2); border: 1px solid var(--border-light); border-radius: var(--radius); max-height: 220px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 16px rgba(37,99,235,0.13); }
+        .ccn-dropdown.open { display: block; }
+        .ccn-option { padding: 11px 16px; cursor: pointer; color: var(--text); font-size: 14px; transition: background 0.15s; border-radius: 6px; margin: 2px 4px; }
+        .ccn-option:hover, .ccn-option.active { background: rgba(37,99,235,0.1); color: var(--accent); }
+        .ccn-no-results { padding: 14px 16px; color: var(--text-muted); font-size: 13px; text-align: center; }
+        .ccn-dropdown::-webkit-scrollbar { width: 4px; }
+        .ccn-dropdown::-webkit-scrollbar-thumb { background: rgba(37,99,235,0.2); border-radius: 2px; }
+        .load-btn { margin-top: 14px; display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%); color: white; border: none; border-radius: var(--radius); height: 44px; padding: 0 24px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(37,99,235,0.28); }
+        .load-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,99,235,0.38); }
+
+        /* Progress */
+        .progress-bar { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+        .step { display: flex; align-items: center; gap: 10px; flex: 1; }
+        .step-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; border: 2px solid var(--border-light); background: var(--surface); color: var(--text-muted); transition: all 0.3s; flex-shrink: 0; }
+        .step.active .step-circle { border-color: var(--accent); background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%); color: white; box-shadow: 0 4px 12px rgba(37,99,235,0.3); }
+        .step.done .step-circle { border-color: var(--success); background: rgba(16,185,129,0.12); color: var(--success); }
+        .step-label { font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 600; color: var(--text-muted); }
+        .step.active .step-label { color: var(--text); }
+        .step.done .step-label { color: var(--success); }
+        .step-connector { flex: 1; height: 2px; background: var(--border); margin: 0 8px; border-radius: 1px; transition: background 0.3s; }
+        .step-connector.done { background: var(--success); }
+
+        /* Form Card */
+        .form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+        .form-page { display: none; }
+        .form-page.active { display: block; }
+        .section-head { padding: 20px 28px 0; margin-bottom: 4px; }
+        .section-title { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); }
+        .form-body { padding: 20px 28px 28px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+
+        label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+        .readonly-label { color: var(--text-dim); }
+
+        input[type="text"], input[type="date"], input[type="number"], select, textarea {
+            background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; color: var(--text);
+            font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 12px; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+        input[readonly], input[disabled], select[disabled] { background: rgba(245,248,255,0.8); border-color: var(--border); color: var(--text-dim); cursor: not-allowed; }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+        textarea { resize: vertical; min-height: 90px; }
+        .field-error { border-color: var(--danger) !important; box-shadow: 0 0 0 3px rgba(239,68,68,0.1) !important; }
+        .error-message { color: var(--danger); font-size: 11px; margin-top: 2px; }
+
+        /* Radio */
+        .radio-group { display: flex; gap: 12px; padding-top: 4px; }
+        .radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; font-weight: normal; text-transform: none; letter-spacing: 0; color: var(--text); }
+        .radio-label input[type="radio"] { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; padding: 0; border: none; background: none; }
+
+        /* Members */
+        .members-wrapper { position: relative; }
+        .members-box { background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px; min-height: 42px; padding: 10px 12px; cursor: pointer; color: var(--text); font-size: 14px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; transition: border-color 0.2s; }
+        .members-box:hover { border-color: var(--border-light); }
+        .member-chip { background: rgba(37,99,235,0.1); color: var(--accent); border-radius: 20px; padding: 2px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+        .members-options { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface2); border: 1px solid var(--border-light); border-radius: var(--radius); z-index: 50; display: none; box-shadow: 0 4px 16px rgba(37,99,235,0.13); padding: 8px; max-height: 200px; overflow-y: auto; }
+        .members-options.open { display: block; }
+        .member-opt-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: background 0.15s; }
+        .member-opt-item:hover { background: rgba(37,99,235,0.08); }
+        .member-opt-item input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; padding: 0; border: none; background: none; flex-shrink: 0; }
+        .add-member-row { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px; display: flex; gap: 8px; align-items: center; }
+        .add-member-row input { flex: 1; height: 34px; padding: 0 10px; font-size: 13px; }
+        .mini-btn { background: rgba(37,99,235,0.1); color: var(--accent); border: 1px solid rgba(37,99,235,0.28); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-family: 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }
+        .mini-btn:hover { background: rgba(37,99,235,0.18); }
+
+        /* Machine Family */
+        .mf-wrapper { position: relative; }
+        .suggestion-box { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface2); border: 1px solid var(--border-light); border-radius: var(--radius); z-index: 50; display: none; box-shadow: 0 4px 16px rgba(37,99,235,0.13); max-height: 180px; overflow-y: auto; }
+        .suggestion-item { padding: 9px 14px; font-size: 13px; cursor: pointer; border-radius: 6px; margin: 2px 4px; transition: background 0.15s; }
+        .suggestion-item:hover, .suggestion-item.highlight { background: rgba(37,99,235,0.1); color: var(--accent); }
+        .no-match { padding: 12px 14px; color: var(--text-muted); font-size: 13px; text-align: center; }
+        .add-mf-btn { display: none; margin-top: 6px; font-size: 12px; font-family: 'DM Sans', sans-serif; background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.3); border-radius: 6px; padding: 4px 12px; cursor: pointer; }
+        .add-mf-btn:hover { background: rgba(16,185,129,0.18); }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        thead tr { background: var(--surface2); }
+        th { padding: 10px 12px; text-align: left; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        td { padding: 6px 8px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-muted); vertical-align: middle; }
+        td.label-cell { width: 50%; padding: 8px 12px; color: var(--text-muted); font-size: 13px; }
+        td input { border-color: transparent; background: transparent; padding: 6px 8px; }
+        td input:focus { border-color: var(--accent); background: var(--bg); }
+
+        .divider { height: 1px; background: var(--border); margin: 24px 0; }
+        .section-sub-label { font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; margin-top: 20px; }
+
+        /* Workflow */
+        .workflow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px 28px 28px; }
+        .wf-section { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.3s; }
+        .wf-section.filled { border-color: rgba(16,185,129,0.35); }
+        .wf-head { padding: 12px 16px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .wf-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-light); flex-shrink: 0; transition: background 0.3s; }
+        .wf-section.filled .wf-dot { background: var(--success); box-shadow: 0 0 5px rgba(16,185,129,0.5); }
+        .wf-title { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--text); }
+        .wf-section.filled .wf-title { color: var(--success); }
+        .wf-body { padding: 14px 16px; }
+        .wf-body .form-group { margin-bottom: 10px; }
+        .wf-body .form-group:last-child { margin-bottom: 0; }
+
+        /* Nav Buttons */
+        .form-nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 28px; border-top: 1px solid var(--border); background: var(--surface2); }
+        .btn { display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 24px; border-radius: var(--radius); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-ghost { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border-light); }
+        .btn-ghost:hover { background: rgba(255,255,255,0.04); color: var(--text); border-color: var(--text-dim); }
+        .btn-primary { background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%); color: white; box-shadow: 0 4px 16px rgba(37,99,235,0.28); }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,99,235,0.38); }
+        .btn-success { background: linear-gradient(135deg, #34d399, #059669); color: white; box-shadow: 0 4px 16px rgba(16,185,129,0.25); }
+        .btn-success:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(3px); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal-box { background: var(--surface); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 32px; max-width: 460px; width: 92%; box-shadow: 0 8px 32px rgba(37,99,235,0.18); animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-icon { width: 56px; height: 56px; background: rgba(16,185,129,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; margin-bottom: 16px; }
+        .modal-box h3 { font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .modal-box p { color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+
+        @media (max-width: 640px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .workflow-grid { grid-template-columns: 1fr; }
+            .form-group.full { grid-column: 1; }
+            .container { padding: 20px 14px 60px; }
+            .form-body, .form-nav { padding-left: 16px; padding-right: 16px; }
+            .workflow-grid { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-include"></div>
+
+    <div class="container">
+
+        <div class="page-header">
+            <div class="header-icon">⚡</div>
+            <div class="header-text">
+                <h1>Update Kick-Off Form</h1>
+                <p>Search by CCN and update the kick-off details</p>
+            </div>
+        </div>
+
+        <!-- CCN Search Card -->
+        <div class="ccn-card">
+            <div class="ccn-card-label">Select CCN</div>
+            <div class="ccn-search-wrapper">
+                <input type="text" class="ccn-search-input" id="ccn-search-input" placeholder="Search or select a CCN..." autocomplete="off" />
+                <span class="ccn-search-icon">⌕</span>
+                <div class="ccn-dropdown" id="ccn-dropdown"></div>
+                <input type="hidden" id="ccn-selected-value" />
+            </div>
+            <button type="button" class="load-btn" translate="no" id="load-kickoff-btn">
+                <span>⊕</span> Load Kick-Off Form
+            </button>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-bar" id="progress-bar" style="display:none;">
+            <div class="step active" id="step1">
+                <div class="step-circle">1</div>
+                <div class="step-label">Machine Details</div>
+            </div>
+            <div class="step-connector" id="connector1"></div>
+            <div class="step" id="step2">
+                <div class="step-circle">2</div>
+                <div class="step-label">Workflow Dates</div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="kickoff-update-form" style="display:none;" novalidate>
+
+            <!-- ── PAGE 1 ── -->
+            <div class="form-page active" id="page1">
+                <div class="form-card">
+                    <div class="section-head">
+                        <div class="section-title">Basic Information</div>
+                    </div>
+                    <div class="form-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="readonly-label">KOM No (Read-only)</label>
+                                <input type="text" id="kom_no" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label class="readonly-label">Timestamp (Read-only)</label>
+                                <input type="date" id="timestamp" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label>Venue</label>
+                                <input type="text" name="venue" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="readonly-label">CCN (Read-only)</label>
+                                <input type="text" name="ccn" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label>Customer Name</label>
+                                <input type="text" name="customer_name" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Machine Name</label>
+                                <input type="text" name="machine_name" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Machine Model</label>
+                                <input type="text" name="machine_model" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" name="Address" required />
+                            </div>
+                            <div class="form-group">
+                                <label>PO Delivery Date</label>
+                                <input type="date" name="po_delivery_date" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="readonly-label">PO Date (Read-only)</label>
+                                <input type="date" name="poDate" readonly />
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- Members Present -->
+                        <div class="form-group" id="members-present-group">
+                            <label>Members Present</label>
+                            <div class="members-wrapper">
+                                <div class="members-box" id="members-box" onclick="toggleMembersDropdown()">
+                                    <span id="members-placeholder" style="color:var(--text-dim);">Select members...</span>
+                                </div>
+                                <div class="members-options" id="members-options"></div>
+                            </div>
+                            <input type="hidden" name="members_present" id="members_present_hidden" />
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Machine Category</label>
+                                <input type="text" name="machine_category" id="machine_category" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Order Type</label>
+                                <input type="text" name="order_type" id="order_type" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Inter Unit Change</label>
+                                <div class="radio-group">
+                                    <label class="radio-label"><input type="radio" name="inter_unit_change" value="Yes" id="inter_unit_change_yes" required /> Yes</label>
+                                    <label class="radio-label"><input type="radio" name="inter_unit_change" value="No" id="inter_unit_change_no" required /> No</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Machine Family</label>
+                                <div class="mf-wrapper">
+                                    <input type="text" name="machine_family" id="machine_family_input" placeholder="Type to search..." autocomplete="off" required />
+                                    <div class="suggestion-box" id="machine_family_suggestions"></div>
+                                </div>
+                                <button type="button" class="add-mf-btn" id="add_machine_family_btn">＋ Add new family</button>
+                            </div>
+                            <div class="form-group">
+                                <label>Machine CP Qty</label>
+                                <input type="number" name="machine_cp_qty" id="machine_cp_qty" min="0" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Machine Optional CP Qty</label>
+                                <input type="number" name="machine_optional_cp_qty" id="machine_optional_cp_qty" min="0" required />
+                            </div>
+                            <div class="form-group">
+                                <label>CCN Status</label>
+                                <select name="ccn_status" id="ccn_status" required>
+                                    <option value="">Select Status...</option>
+                                    <option value="Live">Live</option>
+                                    <option value="Close">Close</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Manufacturing Unit</label>
+                                <select name="unit" id="unit" required>
+                                    <option value="">Select Unit...</option>
+                                    <option value="Unit 1">Unit 1</option>
+                                    <option value="Unit 2">Unit 2</option>
+                                    <option value="Unit 3">Unit 3</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- Machine Basics Table — correct labels -->
+                        <div class="section-sub-label">Machine Basics</div>
+                        <table>
+                            <tbody>
+                                <tr><td class="label-cell">PLC</td><td><input type="text" name="machine_basics[1]" /></td></tr>
+                                <tr><td class="label-cell">HMI / IPC</td><td><input type="text" name="machine_basics[2]" /></td></tr>
+                                <tr><td class="label-cell">Language</td><td><input type="text" name="machine_basics[3]" /></td></tr>
+                                <tr><td class="label-cell">CE Certification</td><td><input type="text" name="machine_basics[4]" /></td></tr>
+                                <tr><td class="label-cell">Voltage (Power Connection)</td><td><input type="text" name="machine_basics[5]" /></td></tr>
+                                <tr><td class="label-cell">Compress Air Requirement</td><td><input type="text" name="machine_basics[6]" /></td></tr>
+                                <tr><td class="label-cell">Alarms & Messages Language</td><td><input type="text" name="machine_basics[7]" /></td></tr>
+                                <tr><td class="label-cell">Operation Manual Language</td><td><input type="text" name="machine_basics[8]" /></td></tr>
+                                <tr><td class="label-cell">URS</td><td><input type="text" name="machine_basics[9]" /></td></tr>
+                                <tr><td class="label-cell">Product Samples</td><td><input type="text" name="machine_basics[10]" /></td></tr>
+                                <tr><td class="label-cell">Machine Link Up</td><td><input type="text" name="machine_basics[11]" /></td></tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider"></div>
+
+                        <!-- Machine Features -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                            <div class="section-sub-label" style="margin:0;">Machine Features</div>
+                            <button type="button" class="mini-btn" onclick="addMachineFeature()">＋ Add Row</button>
+                        </div>
+                        <table id="machine-features-table">
+                            <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+
+                        <div class="divider"></div>
+
+                        <!-- Additional Options -->
+                        <div class="section-sub-label">Additional / Other Options</div>
+                        <table>
+                            <tbody>
+                                <tr><td class="label-cell">Installation & Commissioning</td><td><input type="text" name="additional_options[installation_commissioning]" /></td></tr>
+                                <tr><td class="label-cell">Incoterms</td><td><input type="text" name="additional_options[transportation]" /></td></tr>
+                                <tr><td class="label-cell">IQ/OQ/PQ/DQ</td><td><input type="text" name="additional_options[iq_oq_pq_dq]" /></td></tr>
+                                <tr><td class="label-cell">Operation Manual</td><td><input type="text" name="additional_options[operation_manual]" /></td></tr>
+                                <tr><td class="label-cell">Product & Packaging Material From</td><td><input type="text" name="additional_options[product_packaging_material]" /></td></tr>
+                            </tbody>
+                        </table>
+
+                        <div class="divider"></div>
+
+                        <div class="form-group">
+                            <label>Project Kick-off Details</label>
+                            <textarea name="project_kickoff_details" id="project_kickoff_details"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-nav">
+                        <div></div>
+                        <button type="button" class="btn btn-primary" translate="no" onclick="goToPage2()">
+                            Next Step <span>→</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── PAGE 2 ── -->
+            <div class="form-page" id="page2">
+                <div class="form-card">
+                    <div class="section-head">
+                        <div class="section-title">Workflow Dates</div>
+                    </div>
+
+                    <div class="workflow-grid">
+
+                        <!-- SALES -->
+                        <div class="wf-section" id="wf-sales">
+                            <div class="wf-head"><div class="wf-dot"></div><div class="wf-title">Sales</div></div>
+                            <div class="wf-body">
+                                <div class="form-group"><label>PO Receipt Date</label><input type="date" id="po_receipt_date" name="po_receipt_date" /></div>
+                                <div class="form-group"><label>OA Generation Date</label><input type="date" id="oa_generation_date" name="oa_generation_date" /></div>
+                                <div class="form-group"><label>KOM Date</label><input type="date" id="kom_date" name="kom_date" /></div>
+                                <div class="form-group"><label>Advance Payment Receipt Date</label><input type="date" id="advance_payment_receipt_date" name="advance_payment_receipt_date" /></div>
+                                <div class="form-group"><label>Balance Payment Receipt Date</label><input type="date" id="balance_payment_receipt_date" name="balance_payment_receipt_date" /></div>
+                                <div class="form-group"><label>CP Layout Approvals</label><input type="date" id="cp_layout_approvals" name="cp_layout_approvals" /></div>
+                                <div class="form-group"><label>Machine Layout Approvals</label><input type="date" id="machine_layout_approvals" name="machine_layout_approvals" /></div>
+                                <div class="form-group"><label>Room Layout Approvals</label><input type="date" id="room_layout_approvals" name="room_layout_approvals" /></div>
+                                <div class="form-group"><label>Dispatch Clearance</label><input type="date" id="dispatch_clearance" name="dispatch_clearance" /></div>
+                                <div class="form-group"><label>Commercial Clearance</label><input type="date" id="commercial_clearance" name="commercial_clearance" /></div>
+                            </div>
+                        </div>
+
+                        <!-- DESIGN -->
+                        <div class="wf-section" id="wf-design">
+                            <div class="wf-head"><div class="wf-dot"></div><div class="wf-title">Design</div></div>
+                            <div class="wf-body">
+                                <div class="form-group"><label>LOA Basic</label><input type="date" id="loa_basic" name="loa_basic" /></div>
+                                <div class="form-group"><label>LOA Optional</label><input type="date" id="loa_optional" name="loa_optional" /></div>
+                                <div class="form-group"><label>DQ Release</label><input type="date" id="dq_release" name="dq_release" /></div>
+                            </div>
+                        </div>
+
+                        <!-- PPC -->
+                        <div class="wf-section" id="wf-ppc">
+                            <div class="wf-head"><div class="wf-dot"></div><div class="wf-title">PPC</div></div>
+                            <div class="wf-body">
+                                <div class="form-group"><label>PPC Basic Date (As per Kickoff)</label><input type="date" id="ppc_basic_date" name="ppc_basic_date" /></div>
+                                <div class="form-group"><label>PPC Optional Date (As per Kickoff)</label><input type="date" id="ppc_optional_date" name="ppc_optional_date" /></div>
+                            </div>
+                        </div>
+
+                        <!-- STORE -->
+                        <div class="wf-section" id="wf-store">
+                            <div class="wf-head"><div class="wf-dot"></div><div class="wf-title">Store</div></div>
+                            <div class="wf-body">
+                                <div class="form-group"><label>Basic Matl Handed Over To Assy Date</label><input type="date" id="basic_matl_handed_over_Assy_date" name="basic_matl_handed_over_Assy_date" /></div>
+                                <div class="form-group"><label>Optional Matl Handed Over To Assy Date</label><input type="date" id="optional_matl_handed_over_Assy_date" name="optional_matl_handed_over_Assy_date" /></div>
+                            </div>
+                        </div>
+
+                        <!-- CP SECTION -->
+                        <div class="wf-section" id="wf-cp">
+                            <div class="wf-head"><div class="wf-dot"></div><div class="wf-title">CP Section</div></div>
+                            <div class="wf-body">
+                                <div class="form-group"><label>CP OA Generation Date</label><input type="date" id="cp_oa_genration_date" name="cp_oa_genration_date" /></div>
+                                <div class="form-group"><label>CP Design Release Date</label><input type="date" id="cp_design_release_date" name="cp_design_release_date" /></div>
+                                <div class="form-group"><label>CP Manufacturing Date</label><input type="date" id="cp_manufacturing_date" name="cp_manufacturing_date" /></div>
+                                <div class="form-group"><label>Optional CP Manufacturing Date</label><input type="date" id="optional_cp_manufacturing_date" name="optional_cp_manufacturing_date" /></div>
+                                <div class="form-group"><label>Optional CP Layout Approval Date</label><input type="date" id="optional_cp_layout_approval_date" name="optional_cp_layout_approval_date" /></div>
+                                <div class="form-group"><label>IFAT STD CP</label><input type="date" id="ifat_std_cp" name="ifat_std_cp" /></div>
+                                <div class="form-group"><label>IFAT Customer CP</label><input type="date" id="ifat_customer_cp" name="ifat_customer_cp" /></div>
+                            </div>
+                        </div>
+
+                        <!-- ASSEMBLY -->
+                        <div class="wf-section" id="wf-assembly">
+                            <div class="wf-head"><div class="wf-dot"></div><div class="wf-title">Assembly</div></div>
+                            <div class="wf-body">
+                                <div class="form-group"><label>Machine Manufacturing Basic</label><input type="date" id="machine_manufacturing_basic" name="machine_manufacturing_basic" /></div>
+                                <div class="form-group"><label>Machine Customization Completion</label><input type="date" id="machine_manufacturing_customisation" name="machine_manufacturing_customisation" /></div>
+                                <div class="form-group"><label>Assy Start Date</label><input type="date" id="assy_start_date" name="assy_start_date" /></div>
+                                <div class="form-group"><label>PMR Generation / Submission Date</label><input type="date" id="pmr_genration_submission_date" name="pmr_genration_submission_date" /></div>
+                            </div>
+                        </div>
+
+                        <!-- QA -->
+                        <div class="wf-section" id="wf-qa">
+                            <div class="wf-head"><div class="wf-dot"></div><div class="wf-title">QA</div></div>
+                            <div class="wf-body">
+                                <div class="form-group"><label>Products Receipt Date</label><input type="date" id="products_receipt_date" name="products_receipt_date" /></div>
+                                <div class="form-group"><label>Packaging Receipt Date</label><input type="date" id="packaging_receipt_date" name="packaging_receipt_date" /></div>
+                                <div class="form-group"><label>IFAT Protocol Release</label><input type="date" id="ifat_protocol_release" name="ifat_protocol_release" /></div>
+                                <div class="form-group"><label>CFAT</label><input type="date" id="cfat" name="cfat" /></div>
+                                <div class="form-group"><label>Compliance</label><input type="date" id="compliance" name="compliance" /></div>
+                            </div>
+                        </div>
+
+                        <!-- DISPATCH -->
+                        <div class="wf-section" id="wf-dispatch">
+                            <div class="wf-head"><div class="wf-dot"></div><div class="wf-title">Dispatch</div></div>
+                            <div class="wf-body">
+                                <div class="form-group"><label>Handed to Dispatch</label><input type="date" id="handed_dispatch_date" name="handed_dispatch_date" /></div>
+                                <div class="form-group"><label>Planned Dispatch Date</label><input type="date" id="planned_dispatch_date" name="planned_dispatch_date" /></div>
+                                <div class="form-group"><label>Packaging Clearance Received Date</label><input type="date" id="packaging_clearance_rec_date" name="packaging_clearance_rec_date" /></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="form-nav">
+                        <button type="button" class="btn btn-ghost" translate="no" onclick="goToPage1()">
+                            <span>←</span> Back
+                        </button>
+                        <button type="submit" class="btn btn-success" translate="no">
+                            ✓ Update Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="update-result-modal">
+        <div class="modal-box" translate="no">
+            <div class="modal-icon">✓</div>
+            <h3>Update Successful</h3>
+            <p id="update-result-message"></p>
+            <button type="button" class="btn btn-success" id="ur-ok" style="width:100%;justify-content:center;">Done</button>
+        </div>
+    </div>
+
+    <div id="footer-include"></div>
+
+    <script>
+        let membersPresentOptions = [];
+        let machineFamilyOptions = [];
+        let mfSelectedIndex = -1;
+        let currentKickoffId = null;
+        let allCCNs = [];
+
+        // ─── CCN Dropdown ───
+        const ccnInput = document.getElementById('ccn-search-input');
+        const ccnDropdown = document.getElementById('ccn-dropdown');
+        const ccnHidden = document.getElementById('ccn-selected-value');
+
+        function renderCCNDropdown(filter) {
+            const q = (filter || '').trim().toLowerCase();
+            const matches = allCCNs.filter(c => c.toLowerCase().includes(q));
+            ccnDropdown.innerHTML = matches.length
+                ? matches.map(c => `<div class="ccn-option" onclick="selectCCN('${escapeHtml(c)}')">${escapeHtml(c)}</div>`).join('')
+                : '<div class="ccn-no-results">No CCNs found</div>';
+            ccnDropdown.classList.add('open');
+        }
+
+        function selectCCN(val) {
+            ccnInput.value = val;
+            ccnHidden.value = val;
+            ccnDropdown.classList.remove('open');
+            loadKickoffForm();
+        }
+
+        ccnInput.addEventListener('focus', () => { if (allCCNs.length > 0) renderCCNDropdown(ccnInput.value); });
+        ccnInput.addEventListener('input', () => { ccnHidden.value = ''; renderCCNDropdown(ccnInput.value); });
+        document.addEventListener('click', e => { if (!e.target.closest('.ccn-search-wrapper')) ccnDropdown.classList.remove('open'); });
+
+        // ─── Page Navigation ───
+        function goToPage1() {
+            document.getElementById('page1').classList.add('active');
+            document.getElementById('page2').classList.remove('active');
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step1').classList.remove('done');
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('connector1').classList.remove('done');
+        }
+
+        function goToPage2() {
+            document.getElementById('page1').classList.remove('active');
+            document.getElementById('page2').classList.add('active');
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step1').classList.add('done');
+            document.getElementById('step2').classList.add('active');
+            document.getElementById('connector1').classList.add('done');
+        }
+
+        function addMachineFeature() {
+            const tbody = document.querySelector('#machine-features-table tbody');
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = '<input type="text" name="machine_features[feature]" />';
+            row.insertCell(1).innerHTML = '<input type="text" name="machine_features[description]" />';
+            row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', function() { this.value = this.value.toUpperCase(); }));
+        }
+
+        function checkWorkflowSections() {
+            const sections = [
+                { el: 'wf-sales', inputs: ['po_receipt_date','oa_generation_date','kom_date','advance_payment_receipt_date','balance_payment_receipt_date','cp_layout_approvals','machine_layout_approvals','room_layout_approvals','dispatch_clearance','commercial_clearance'] },
+                { el: 'wf-design', inputs: ['loa_basic','loa_optional','dq_release'] },
+                { el: 'wf-ppc', inputs: ['ppc_basic_date','ppc_optional_date'] },
+                { el: 'wf-store', inputs: ['basic_matl_handed_over_Assy_date','optional_matl_handed_over_Assy_date'] },
+                { el: 'wf-cp', inputs: ['cp_oa_genration_date','cp_design_release_date','cp_manufacturing_date','optional_cp_manufacturing_date','optional_cp_layout_approval_date','ifat_std_cp','ifat_customer_cp'] },
+                { el: 'wf-assembly', inputs: ['machine_manufacturing_basic','machine_manufacturing_customisation','assy_start_date','pmr_genration_submission_date'] },
+                { el: 'wf-qa', inputs: ['products_receipt_date','packaging_receipt_date','ifat_protocol_release','cfat','compliance'] },
+                { el: 'wf-dispatch', inputs: ['handed_dispatch_date','planned_dispatch_date','packaging_clearance_rec_date'] },
+            ];
+            sections.forEach(s => {
+                const allFilled = s.inputs.every(id => document.getElementById(id)?.value);
+                document.getElementById(s.el)?.classList.toggle('filled', allFilled);
+            });
+        }
+
+        // ─── Members Dropdown ───
+        function toggleMembersDropdown() {
+            const opts = document.getElementById('members-options');
+            opts.classList.toggle('open');
+            if (opts.classList.contains('open')) renderMembersOptions();
+        }
+
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#members-present-group')) document.getElementById('members-options').classList.remove('open');
+        });
+
+        function renderMembersOptions() {
+            const container = document.getElementById('members-options');
+            container.innerHTML = '';
+            const currentVal = document.getElementById('members_present_hidden').value;
+            const selected = currentVal ? currentVal.split(',').map(s => s.trim()).filter(Boolean) : [];
+            membersPresentOptions.forEach(opt => {
+                const checked = selected.includes(opt);
+                const div = document.createElement('div');
+                div.className = 'member-opt-item';
+                div.innerHTML = `<input type="checkbox" value="${escapeHtml(opt)}" ${checked ? 'checked' : ''} onchange="updateMembersSelected()"> <span>${escapeHtml(opt)}</span>`;
+                container.appendChild(div);
+            });
+            const addRow = document.createElement('div');
+            addRow.className = 'add-member-row';
+            addRow.innerHTML = `<input type="text" id="new-member-input" placeholder="Add new member..." /><button type="button" class="mini-btn" onclick="addNewMemberOption()">Add</button>`;
+            container.appendChild(addRow);
+        }
+
+        function updateMembersSelected() {
+            const checked = Array.from(document.querySelectorAll('#members-options input[type=checkbox]:checked')).map(cb => cb.value);
+            const box = document.getElementById('members-box');
+            const placeholder = document.getElementById('members-placeholder');
+            document.getElementById('members_present_hidden').value = checked.join(',');
+            box.querySelectorAll('.member-chip').forEach(c => c.remove());
+            if (checked.length) {
+                placeholder.style.display = 'none';
+                checked.forEach(c => { const chip = document.createElement('span'); chip.className = 'member-chip'; chip.textContent = c; box.insertBefore(chip, placeholder); });
+            } else {
+                placeholder.style.display = '';
+            }
+        }
+
+        function addNewMemberOption() {
+            const input = document.getElementById('new-member-input');
+            const val = input.value.trim();
+            if (val && !membersPresentOptions.includes(val)) { membersPresentOptions.push(val); renderMembersOptions(); input.value = ''; }
+        }
+
+        async function fetchMembersPresentOptions() {
+            try {
+                const res = await fetch('/api/kickoff/members-present-options');
+                if (res.ok) { const arr = await res.json(); if (Array.isArray(arr)) membersPresentOptions = arr; }
+            } catch {}
+        }
+
+        // ─── Machine Family ───
+        const mfInput = document.getElementById('machine_family_input');
+        const mfSuggestions = document.getElementById('machine_family_suggestions');
+        const addMfBtn = document.getElementById('add_machine_family_btn');
+
+        async function fetchMachineFamilyOptions() {
+            try {
+                const res = await fetch('/api/kickoff/machine-family-options');
+                if (res.ok) { const arr = await res.json(); if (Array.isArray(arr)) machineFamilyOptions = arr; }
+            } catch {}
+        }
+
+        function renderMFSuggestions(filter) {
+            const q = (filter || '').trim().toUpperCase();
+            const matches = machineFamilyOptions.filter(o => o.toUpperCase().includes(q)).slice(0, 10);
+            mfSuggestions.innerHTML = matches.length
+                ? matches.map((o, i) => `<div class="suggestion-item" data-idx="${i}">${escapeHtml(o)}</div>`).join('')
+                : '<div class="no-match">No matches</div>';
+            mfSuggestions.style.display = 'block';
+            mfSelectedIndex = -1;
+            updateAddMfBtnVisibility();
+        }
+
+        function updateAddMfBtnVisibility() {
+            const val = mfInput.value.trim();
+            const exists = machineFamilyOptions.some(o => o.toLowerCase() === val.toLowerCase());
+            addMfBtn.style.display = (val && !exists) ? 'inline-block' : 'none';
+        }
+
+        mfInput.addEventListener('focus', async () => { await fetchMachineFamilyOptions(); renderMFSuggestions(mfInput.value); });
+        mfInput.addEventListener('input', () => renderMFSuggestions(mfInput.value));
+        mfInput.addEventListener('keydown', e => {
+            const items = mfSuggestions.querySelectorAll('.suggestion-item');
+            if (mfSuggestions.style.display === 'block') {
+                if (e.key === 'ArrowDown') { e.preventDefault(); mfSelectedIndex = Math.min(mfSelectedIndex + 1, items.length - 1); items.forEach((it, i) => it.classList.toggle('highlight', i === mfSelectedIndex)); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); mfSelectedIndex = Math.max(mfSelectedIndex - 1, 0); items.forEach((it, i) => it.classList.toggle('highlight', i === mfSelectedIndex)); }
+                else if (e.key === 'Enter' && mfSelectedIndex >= 0) { e.preventDefault(); selectMF(items[mfSelectedIndex].innerText); }
+                else if (e.key === 'Escape') mfSuggestions.style.display = 'none';
+            }
+        });
+
+        function selectMF(val) { mfInput.value = val; mfSuggestions.style.display = 'none'; addMfBtn.style.display = 'none'; }
+        mfSuggestions.addEventListener('pointerdown', e => { const it = e.target.closest('.suggestion-item'); if (it) { e.preventDefault(); selectMF(it.innerText); } });
+        document.addEventListener('click', e => { if (!e.target.closest('.mf-wrapper') && !e.target.closest('#add_machine_family_btn')) mfSuggestions.style.display = 'none'; });
+        addMfBtn.addEventListener('click', async () => {
+            const val = mfInput.value.trim();
+            if (!val) return;
+            try {
+                const res = await fetch('/api/kickoff/add-machine-family', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({value: val}) });
+                if (res.ok) { machineFamilyOptions.push(val); selectMF(val); } else alert('Could not add machine family.');
+            } catch { alert('Error adding machine family.'); }
+        });
+
+        // ─── Validation ───
+        function markFieldError(el, msg) {
+            if (!el) return;
+            el.classList.add('field-error');
+            let em = el.parentElement.querySelector('.error-message');
+            if (!em) { em = document.createElement('div'); em.className = 'error-message'; el.parentElement.appendChild(em); }
+            em.textContent = msg;
+        }
+
+        function clearFieldError(el) {
+            if (!el) return;
+            el.classList.remove('field-error');
+            const em = el.parentElement.querySelector('.error-message');
+            if (em) em.textContent = '';
+        }
+
+        function validateForm() {
+            const form = document.getElementById('kickoff-update-form');
+            const mc = (document.getElementById('machine_category')?.value || '').trim().toUpperCase();
+            let mandatoryEls = [];
+            if (mc === 'CUSTOMIZED') {
+                const sels = ['#po_receipt_date','#oa_generation_date','#kom_date','#loa_optional','#loa_basic','#dq_release','#ppc_basic_date','#ppc_optional_date','#machine_manufacturing_basic','#machine_manufacturing_customisation','#assy_start_date','#ifat_std_cp','#ifat_customer_cp','#pmr_genration_submission_date','#products_receipt_date','#packaging_receipt_date','#ifat_protocol_release','#cfat','#compliance','#planned_dispatch_date','#handed_dispatch_date','#cp_oa_genration_date','#optional_matl_handed_over_Assy_date','#basic_matl_handed_over_Assy_date','#commercial_clearance','#packaging_clearance_rec_date','input[name="venue"]','textarea[name="project_kickoff_details"]','#machine_family_input','#machine_cp_qty','#machine_optional_cp_qty','#ccn_status','#unit'];
+                mandatoryEls = sels.map(s => form.querySelector(s)).filter(Boolean);
+            } else if (mc === 'STOCK') {
+                mandatoryEls = ['members_present_hidden','machine_family_input','unit','ccn_status','project_kickoff_details','machine_manufacturing_basic','machine_manufacturing_customisation'].map(id => document.getElementById(id)).filter(Boolean);
+            } else {
+                mandatoryEls = Array.from(form.querySelectorAll('[required]')).filter(el => !el.hasAttribute('readonly'));
+            }
+            let firstInvalid = null, invalidCount = 0;
+            mandatoryEls.forEach(el => {
+                const valid = String(el.value || '').trim().length > 0;
+                if (!valid) {
+                    const target = (el.type === 'hidden' && el.id === 'members_present_hidden') ? document.getElementById('members-box') : el;
+                    markFieldError(target, 'This field is required'); invalidCount++;
+                    if (!firstInvalid) firstInvalid = target;
+                } else {
+                    const target = (el.type === 'hidden' && el.id === 'members_present_hidden') ? document.getElementById('members-box') : el;
+                    clearFieldError(target);
+                }
+            });
+            if (firstInvalid) { try { firstInvalid.focus({preventScroll: true}); } catch(e) {} firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            return invalidCount === 0;
+        }
+
+        // ─── Load CCNs ───
+        async function loadCCNs() {
+            try {
+                const res = await fetch('/api/kickoff/get-all-ccns');
+                if (res.ok) { allCCNs = await res.json(); ccnInput.placeholder = `Search from ${allCCNs.length} CCNs...`; }
+            } catch { ccnInput.placeholder = 'Search CCN...'; }
+        }
+
+        // ─── Load Form ───
+        async function loadKickoffForm() {
+            const ccn = ccnHidden.value || ccnInput.value.trim();
+            if (!ccn) { alert('Please select a CCN'); return; }
+            try {
+                const res = await fetch(`/api/kickoff/by-ccn?ccn=${encodeURIComponent(ccn)}`);
+                if (res.ok) {
+                    const kickoff = await res.json();
+                    currentKickoffId = kickoff.id;
+                    populateForm(kickoff);
+                    document.getElementById('kickoff-update-form').style.display = 'block';
+                    document.getElementById('progress-bar').style.display = 'flex';
+                    goToPage1();
+                } else { alert('Kick-off form not found for this CCN'); }
+            } catch { alert('Error loading kick-off form'); }
+        }
+
+        function toDateInput(v) {
+            if (!v) return '';
+            const m = String(v).match(/^(\d{4}-\d{2}-\d{2})/);
+            if (m) return m[1];
+            const d = new Date(v);
+            return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+        }
+
+        function populateForm(k) {
+            const form = document.getElementById('kickoff-update-form');
+            document.getElementById('kom_no').value = k.komNo || '';
+            document.getElementById('timestamp').value = k.timestamp ? new Date(k.timestamp).toISOString().split('T')[0] : '';
+            form.querySelector('input[name="venue"]').value = k.venue || '';
+            form.querySelector('input[name="ccn"]').value = k.ccn || '';
+            form.querySelector('input[name="customer_name"]').value = k.customerName || '';
+            form.querySelector('input[name="machine_name"]').value = k.machineName || '';
+            form.querySelector('input[name="machine_model"]').value = k.machineModel || '';
+            form.querySelector('input[name="Address"]').value = k.address || '';
+            form.querySelector('input[name="po_delivery_date"]').value = toDateInput(k.poDeliveryDate);
+            form.querySelector('input[name="poDate"]').value = toDateInput(k.poDate);
+
+            if (k.membersPresent) {
+                document.getElementById('members_present_hidden').value = k.membersPresent;
+                const members = k.membersPresent.split(',').map(m => m.trim()).filter(Boolean);
+                const box = document.getElementById('members-box');
+                const placeholder = document.getElementById('members-placeholder');
+                box.querySelectorAll('.member-chip').forEach(c => c.remove());
+                if (members.length) {
+                    placeholder.style.display = 'none';
+                    members.forEach(m => { const chip = document.createElement('span'); chip.className = 'member-chip'; chip.textContent = m; box.insertBefore(chip, placeholder); });
+                    members.forEach(m => { if (!membersPresentOptions.includes(m)) membersPresentOptions.push(m); });
+                }
+            }
+
+            document.getElementById('machine_category').value = k.machineCategory || '';
+            document.getElementById('order_type').value = k.orderType || '';
+            if (k.interUnitChange) {
+                const rb = document.querySelector(`input[name="inter_unit_change"][value="${k.interUnitChange}"]`);
+                if (rb) rb.checked = true;
+            }
+            document.getElementById('machine_family_input').value = k.machineFamily || '';
+            document.getElementById('machine_cp_qty').value = k.machineCpQty || '';
+            document.getElementById('machine_optional_cp_qty').value = k.machineOptionalCpQty || '';
+            document.getElementById('ccn_status').value = k.ccnStatus || '';
+            document.getElementById('unit').value = k.unit || '';
+
+            try {
+                JSON.parse(k.machineBasics || '[]').forEach((v, i) => {
+                    const inp = form.querySelector(`input[name="machine_basics[${i+1}]"]`);
+                    if (inp) inp.value = v || '';
+                });
+            } catch {}
+
+            const tbody = document.querySelector('#machine-features-table tbody');
+            tbody.innerHTML = '';
+            try {
+                JSON.parse(k.machineFeatures || '[]').forEach(f => {
+                    const row = tbody.insertRow();
+                    row.insertCell(0).innerHTML = `<input type="text" name="machine_features[feature]" value="${escapeHtml(f.feature||'')}" />`;
+                    row.insertCell(1).innerHTML = `<input type="text" name="machine_features[description]" value="${escapeHtml(f.description||'')}" />`;
+                    row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', function() { this.value = this.value.toUpperCase(); }));
+                });
+            } catch {}
+
+            try {
+                const ao = JSON.parse(k.additionalOptions || '{}');
+                form.querySelector('input[name="additional_options[installation_commissioning]"]').value = ao.installationCommissioning || '';
+                form.querySelector('input[name="additional_options[transportation]"]').value = ao.transportation || '';
+                form.querySelector('input[name="additional_options[iq_oq_pq_dq]"]').value = ao.iqOqPqDq || '';
+                form.querySelector('input[name="additional_options[operation_manual]"]').value = ao.operationManual || '';
+                form.querySelector('input[name="additional_options[product_packaging_material]"]').value = ao.productPackagingMaterial || '';
+            } catch {}
+
+            form.querySelector('textarea[name="project_kickoff_details"]').value = k.projectKickoffDetails || '';
+
+            // All workflow date fields
+            [
+                'po_receipt_date','oa_generation_date','kom_date','advance_payment_receipt_date','balance_payment_receipt_date',
+                'cp_layout_approvals','machine_layout_approvals','room_layout_approvals','dispatch_clearance','commercial_clearance',
+                'loa_basic','loa_optional','dq_release',
+                'ppc_basic_date','ppc_optional_date',
+                'basic_matl_handed_over_Assy_date','optional_matl_handed_over_Assy_date',
+                'cp_oa_genration_date','cp_design_release_date','cp_manufacturing_date','optional_cp_manufacturing_date','optional_cp_layout_approval_date',
+                'ifat_std_cp','ifat_customer_cp',
+                'machine_manufacturing_basic','machine_manufacturing_customisation','assy_start_date','pmr_genration_submission_date',
+                'products_receipt_date','packaging_receipt_date','ifat_protocol_release','cfat','compliance',
+                'handed_dispatch_date','planned_dispatch_date','packaging_clearance_rec_date'
+            ].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && k[id]) el.value = toDateInput(k[id]);
+            });
+
+            // Uppercase listeners
+            ['input[name="venue"]','input[name="customer_name"]','input[name="machine_name"]','input[name="machine_model"]','input[name="Address"]','#machine_category','#order_type','#machine_family_input']
+                .forEach(s => { const el = form.querySelector(s); if (el) el.addEventListener('input', function() { this.value = this.value.toUpperCase(); }); });
+            form.querySelectorAll('input[name^="machine_basics"], input[name^="additional_options"]').forEach(el => el.addEventListener('input', function() { this.value = this.value.toUpperCase(); }));
+
+            document.querySelectorAll('.wf-section input').forEach(inp => inp.addEventListener('input', checkWorkflowSections));
+            checkWorkflowSections();
+        }
+
+        // ─── Submit ───
+        document.getElementById('kickoff-update-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (!validateForm()) { alert('Please fill all required fields highlighted in red.'); return; }
+
+            const form = document.getElementById('kickoff-update-form');
+            const data = { id: currentKickoffId };
+            data.timestamp = document.getElementById('timestamp').value;
+            data.komNo = document.getElementById('kom_no').value;
+            data.venue = form.querySelector('input[name="venue"]').value;
+            data.ccn = form.querySelector('input[name="ccn"]').value;
+            data.customerName = form.querySelector('input[name="customer_name"]').value;
+            data.machineName = form.querySelector('input[name="machine_name"]').value;
+            data.machineModel = form.querySelector('input[name="machine_model"]').value;
+            data.address = form.querySelector('input[name="Address"]').value;
+            data.poDeliveryDate = form.querySelector('input[name="po_delivery_date"]').value;
+            data.membersPresent = document.getElementById('members_present_hidden').value;
+            data.machineCategory = document.getElementById('machine_category').value;
+            data.orderType = document.getElementById('order_type').value;
+            const rb = document.querySelector('input[name="inter_unit_change"]:checked');
+            data.interUnitChange = rb ? rb.value : '';
+            data.machineCpQty = document.getElementById('machine_cp_qty').value;
+            data.machineOptionalCpQty = document.getElementById('machine_optional_cp_qty').value;
+            data.ccnStatus = document.getElementById('ccn_status').value;
+            data.unit = document.getElementById('unit').value;
+            data.machineFamily = document.getElementById('machine_family_input').value;
+
+            const basicsArr = [];
+            for (let i = 1; i <= 11; i++) basicsArr.push(form.querySelector(`input[name="machine_basics[${i}]"]`)?.value || '');
+            data.machineBasics = JSON.stringify(basicsArr);
+
+            const featuresArr = [];
+            document.querySelectorAll('#machine-features-table tbody tr').forEach(row => {
+                const feature = row.querySelector('input[name="machine_features[feature]"]')?.value || '';
+                const description = row.querySelector('input[name="machine_features[description]"]')?.value || '';
+                if (feature || description) featuresArr.push({ feature, description });
+            });
+            data.machineFeatures = JSON.stringify(featuresArr);
+
+            data.additionalOptions = JSON.stringify({
+                installationCommissioning: form.querySelector('input[name="additional_options[installation_commissioning]"]').value,
+                transportation: form.querySelector('input[name="additional_options[transportation]"]').value,
+                iqOqPqDq: form.querySelector('input[name="additional_options[iq_oq_pq_dq]"]').value,
+                operationManual: form.querySelector('input[name="additional_options[operation_manual]"]').value,
+                productPackagingMaterial: form.querySelector('input[name="additional_options[product_packaging_material]"]').value
+            });
+            data.projectKickoffDetails = form.querySelector('textarea[name="project_kickoff_details"]').value;
+
+            [
+                'po_receipt_date','oa_generation_date','kom_date','advance_payment_receipt_date','balance_payment_receipt_date',
+                'cp_layout_approvals','machine_layout_approvals','room_layout_approvals','dispatch_clearance','commercial_clearance',
+                'loa_basic','loa_optional','dq_release',
+                'ppc_basic_date','ppc_optional_date',
+                'basic_matl_handed_over_Assy_date','optional_matl_handed_over_Assy_date',
+                'cp_oa_genration_date','cp_design_release_date','cp_manufacturing_date','optional_cp_manufacturing_date','optional_cp_layout_approval_date',
+                'ifat_std_cp','ifat_customer_cp',
+                'machine_manufacturing_basic','machine_manufacturing_customisation','assy_start_date','pmr_genration_submission_date',
+                'products_receipt_date','packaging_receipt_date','ifat_protocol_release','cfat','compliance',
+                'handed_dispatch_date','planned_dispatch_date','packaging_clearance_rec_date'
+            ].forEach(id => { data[id] = document.getElementById(id)?.value || ''; });
+
+            if (data.timestamp) data.timestamp = new Date(data.timestamp).toISOString();
+
+            try {
+                const res = await fetch(`/api/kickoff/${currentKickoffId}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+                if (res.ok) {
+                    const modal = document.getElementById('update-result-modal');
+                    document.getElementById('update-result-message').innerText = `Kick-off form for CCN: ${data.ccn || '[unknown]'} has been updated successfully.`;
+                    document.getElementById('ur-ok').onclick = () => { modal.classList.remove('open'); window.location.replace('/home'); };
+                    modal.classList.add('open');
+                } else { alert('Error updating kick-off form'); }
+            } catch { alert('Error updating kick-off form'); }
+        });
+
+        document.getElementById('load-kickoff-btn').addEventListener('click', loadKickoffForm);
+
+        document.getElementById('inter_unit_change_yes').addEventListener('change', function() {
+            if (this.checked) {
+                if (!confirm('Are you sure you want to select "Yes" for Inter Unit Change?')) {
+                    document.getElementById('inter_unit_change_no').checked = true;
+                    this.checked = false;
+                }
+            }
+        });
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await fetchMembersPresentOptions();
+            await loadCCNs();
+        });
+
+        fetch('/fragments/header.html').then(r => r.text()).then(html => document.getElementById('header-include').innerHTML = html).catch(() => {});
+        fetch('/fragments/footer.html').then(r => r.text()).then(html => document.getElementById('footer-include').innerHTML = html).catch(() => {});
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]);
+        }
+    </script>
+</body>
+</html>

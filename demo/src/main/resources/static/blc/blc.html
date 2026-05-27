@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLC_PO Field</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        #suggestionBox {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 100%;
+        }
+        #suggestionBox div {
+            padding: 10px;
+            cursor: pointer;
+        }
+        #suggestionBox div:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>BLC_PO Input Field</h2>
+    <form id="blcpoForm">
+        <div class="form-group position-relative">
+            <label for="blcPoInput">BLC_PO</label>
+            <input type="text" id="blcPoInput" class="form-control" autocomplete="off">
+            <div id="suggestionBox"></div>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const suggestionBox = $("#suggestionBox");
+        const blcPoInput = $("#blcPoInput");
+        blcPoInput.on("input", function () {
+    const query = $(this).val().trim();
+    console.log("Query sent to backend: ", query);
+    if (query.length > 0) {
+        $.ajax({
+            url: `/api/blcpo/suggestions`,
+            type: "GET",
+            data: {query},
+            success: function (data) {
+                console.log("Suggestions received: ", data);
+                if (data.length > 0) {
+                    let suggestions = data.map(item => `<div>${item}</div>`).join("");
+                    suggestionBox.html(suggestions).show();
+                } else {
+                    suggestionBox.hide();
+                }
+            },
+            error: function (err) {
+                console.error("Error fetching suggestions: ", err);
+            }
+        });
+    } else {
+        suggestionBox.hide();
+    }
+});
+
+        $("#blcpoForm").on("submit", function (e) {
+            e.preventDefault();
+            const blcPoValue = blcPoInput.val().trim();
+
+            if (blcPoValue.length > 0) {
+                $.ajax({
+                    url: `/api/blcpo/save`,
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(blcPoValue),
+                    success: function () {
+                        alert("BLC_PO saved successfully!");
+                        blcPoInput.val("");
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 409) {
+                            alert("Duplicate value not allowed!");
+                        } else {
+                            alert("An error occurred!");
+                        }
+                    }
+                });
+            } else {
+                alert("Field cannot be empty!");
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - IMAPG</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; background:#f6f8fb }
+        .site-header { width:100%; background:rgba(255,255,255,0.96); position:fixed; top:0; left:0; border-bottom:1px solid #e6e9ef; z-index:1000 }
+        .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:12px}
+        .nav-links{list-style:none;display:flex;gap:18px;margin:0;padding:0}
+        .nav-links a{color:#333;text-decoration:none;font-weight:600;padding:8px 12px;border-radius:6px}
+        .nav-links a:hover{background:#eef2ff;color:#2a3aeb}
+        .logo-wrap img{height:44px}
+        .page { max-width:760px; margin:120px auto 60px; background:#fff; border-radius:10px; padding:28px; box-shadow:0 8px 30px rgba(20,30,60,0.06) }
+        h1{font-size:28px;margin-bottom:12px;color:#222}
+        p{color:#444;line-height:1.6;margin-bottom:12px}
+        .contact-list{margin-top:16px}
+        .contact-list li{margin-bottom:8px;color:#333}
+        .contact-form{margin-top:18px}
+        .contact-form input, .contact-form textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;margin-bottom:10px}
+        .btn{background:#2a3aeb;color:#fff;padding:10px 14px;border-radius:6px;border:none;cursor:pointer}
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/about">About</a></li>
+                    <li><a href="/mission">Our Mission</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="logo-wrap">
+                <a href="/"><img src="/images/ima.jpg" alt="IMAPG"></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <h1>Contact Us</h1>
+        <p>We would love to hear from you! If you have any questions, feedback, or would like to learn more about our Project Management System, please reach out. Drop us a line and we will get back to you within 24 hours.</p>
+
+        <ul class="contact-list">
+            <li><strong>Email:</strong> support@indore-assembly.local</li>
+            <li><strong>Phone:</strong> +91-XXXXXXXXXX</li>
+            <li><strong>Office:</strong> Indore Assembly, Indore, India</li>
+        </ul>
+
+        <div class="contact-form">
+            <form action="/contact" method="post">
+                <input type="text" name="name" placeholder="Your name" required>
+                <input type="email" name="email" placeholder="Your email" required>
+                <textarea name="message" rows="6" placeholder="Your message" required></textarea>
+                <button class="btn" type="submit">Send Message</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

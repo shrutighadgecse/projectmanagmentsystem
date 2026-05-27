@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="po.css" />
+    <title>PO Swap</title>
+    <style>
+      /* Improved global and form styling to add gaps and better responsiveness */
+      body{
+        margin:0;
+        background:#35474d;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        color:#10203a;
+        -webkit-font-smoothing:antialiased;
+      }
+
+      /* Centered form container with top/bottom gap so header and footer don't merge */
+      .po-form-container{
+        max-width:820px; /* reduced from 1160px */
+        margin:36px auto;
+        padding:18px; /* slightly reduced padding to match narrower width */
+        background: linear-gradient(180deg,#ffffff 0%, #fbfdff 100%);
+        border-radius:12px;
+        box-shadow: 0 8px 28px rgba(18,33,68,0.06);
+        border: 1px solid rgba(18,33,68,0.04);
+      }
+
+      .po-form-container > header{
+        font-weight:700;
+        font-size:20px;
+        color:#0f2136;
+        padding-bottom:10px;
+        margin-bottom:14px;
+        border-bottom:1px solid #e9eef6;
+      }
+
+      /* swap container and cards */
+      .swap-container { display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; margin-top:10px; } /* gap reduced */
+      .po-card { flex:1; min-width:240px; border-radius:10px; padding:12px; background:#fff; border:1px solid #e6eef8;
+                box-shadow: 0 6px 18px rgba(14,30,60,0.04); transition: transform .12s ease, box-shadow .12s ease; } /* min-width reduced, padding reduced */
+      .po-card:hover{ transform:translateY(-6px); box-shadow: 0 14px 34px rgba(14,30,60,0.08); }
+      .po-card header { font-weight:700; margin-bottom:10px; color:#0b60ae; font-size:15px; }
+
+      /* fields */
+      .field { display:flex; gap:12px; margin:8px 0; align-items:center; }
+      .field label { width:140px; font-weight:600; color:#2b3b4a; }
+      .field input, .field textarea { flex:1; padding:8px 10px; border:1px solid #d6e1ef; border-radius:8px; background:#fbfdff; color:#0f2136; }
+      .field input[readonly]{ background:#f7f9fc; color:#253243; }
+
+      /* suggestion box */
+      .ccn-suggest { position:relative; }
+      .suggest-box { position:absolute; left:0; right:0; background:#fff; border:1px solid #d6e1ef; max-height:180px; overflow:auto; z-index:50; display:none;
+                    box-shadow: 0 12px 30px rgba(12,30,60,0.06); border-radius:8px; }
+      .suggest-box div{ padding:8px 10px; cursor:pointer; }
+      .suggest-box div:hover{ background:#f1f6fc; }
+
+      /* remark and actions */
+      #swapRemark{ min-height:72px; border-radius:8px; border:1px solid #d6e1ef; background:#fff; }
+      .actions { margin-top:18px; display:flex; justify-content:center; }
+      .actions button { padding:12px 22px; border:none; border-radius:10px; background:linear-gradient(180deg,#1770c6,#0d57a3); color:#fff; cursor:pointer; font-weight:700;
+                        box-shadow: 0 10px 24px rgba(13,71,161,0.14); transition: transform .08s ease; }
+      .actions button:active{ transform: translateY(1px); }
+      .actions button[disabled]{ background:#c8d2df; cursor:not-allowed; box-shadow:none; color:#465a6f; }
+
+      /* responsive tweaks */
+      @media (max-width:900px){
+        .swap-container{ flex-direction:column; gap:14px; }
+        .po-form-container{ margin:16px; padding:14px; }
+        .field label{ width:110px; font-size:14px; }
+        .actions button{ width:100%; }
+      }
+
+      @media (max-width:480px){
+        .field label{ width:95px; font-size:13px; }
+        .po-form-container > header{ font-size:18px; }
+        .po-card{ min-width:200px; padding:10px; } /* extra small card on narrow screens */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header-include"></div>
+
+    <section class="container po-form-container">
+      <header>CCN Interchange Form</header>
+     
+
+      <div class="swap-container">
+        <div class="po-card" id="leftCard">
+          <header>CCN Last</header>
+
+          <div class="field ccn-suggest">
+            <label>CCN</label>
+            <div style="flex:1">
+              <input id="leftCcnInput" placeholder="Search CCN " autocomplete="off"/>
+              <div id="leftSuggest" class="suggest-box"></div>
+            </div>
+          </div>
+
+          <div class="field"><label>Record No</label><input id="leftRecordNo" readonly/></div>
+          <div class="field"><label>Time Stamp</label><input id="leftTimestamp" readonly/></div>
+          <div class="field"><label>Sales Person</label><input id="leftSalesPerson" readonly/></div>
+          <div class="field"><label>PO Ref No</label><input id="leftPoRef" readonly/></div>
+          <div class="field"><label>PO Date</label><input id="leftPoDate" readonly/></div>
+          <div class="field"><label>PO Delivery</label><input id="leftPoDelivery" readonly/></div>
+          <div class="field"><label>PO Value (Lacs)</label><input id="leftPoValue" readonly/></div>
+          <div class="field"><label>Customer</label><input id="leftCustomer" readonly/></div>
+          <div class="field"><label>Machine</label><input id="leftMachine" readonly/></div>
+          <div class="field"><label>Model</label><input id="leftModel" readonly/></div>
+          <div class="field"><label>Category</label><input id="leftCategory" readonly/></div>
+          <div class="field"><label>Order Type</label><input id="leftOrderType" readonly/></div>
+          <div class="field"><label>Country</label><input id="leftCountry" readonly/></div>
+          <div class="field"><label>State</label><input id="leftState" readonly/></div>
+          <div class="field"><label>City</label><input id="leftCity" readonly/></div>
+          <div class="field"><label>Address 1</label><input id="leftAddr1" readonly/></div>
+          <div class="field"><label>Address 2</label><input id="leftAddr2" readonly/></div>
+        </div>
+
+        <div class="po-card" id="rightCard">
+          <header> CCN First</header>
+
+          <div class="field ccn-suggest">
+            <label>CCN</label>
+            <div style="flex:1">
+              <input id="rightCcnInput" placeholder="Search CCN " autocomplete="off"/>
+              <div id="rightSuggest" class="suggest-box"></div>
+            </div>
+          </div>
+
+          <div class="field"><label>Record No</label><input id="rightRecordNo" readonly/></div>
+          <div class="field"><label>Time Stamp</label><input id="rightTimestamp" readonly/></div>
+          <div class="field"><label>Sales Person</label><input id="rightSalesPerson" readonly/></div>
+          <div class="field"><label>PO Ref No</label><input id="rightPoRef" readonly/></div>
+          <div class="field"><label>PO Date</label><input id="rightPoDate" readonly/></div>
+          <div class="field"><label>PO Delivery</label><input id="rightPoDelivery" readonly/></div>
+          <div class="field"><label>PO Value (Lacs)</label><input id="rightPoValue" readonly/></div>
+          <div class="field"><label>Customer</label><input id="rightCustomer" readonly/></div>
+          <div class="field"><label>Machine</label><input id="rightMachine" readonly/></div>
+          <div class="field"><label>Model</label><input id="rightModel" readonly/></div>
+          <div class="field"><label>Category</label><input id="rightCategory" readonly/></div>
+          <div class="field"><label>Order Type</label><input id="rightOrderType" readonly/></div>
+          <div class="field"><label>Country</label><input id="rightCountry" readonly/></div>
+          <div class="field"><label>State</label><input id="rightState" readonly/></div>
+          <div class="field"><label>City</label><input id="rightCity" readonly/></div>
+          <div class="field"><label>Address 1</label><input id="rightAddr1" readonly/></div>
+          <div class="field"><label>Address 2</label><input id="rightAddr2" readonly/></div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div style="display:flex; gap:12px; align-items:center; max-width:800px;">
+          <label style="width:120px; font-weight:700">Remark (mandatory)</label>
+          <textarea id="swapRemark" rows="3" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px;"></textarea>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="swapBtn" disabled>Swap PO Data</button>
+      </div>
+    </section>
+
+    <div id="footer-include"></div>
+
+    <script>
+      // --- reuse CCN list and suggestion logic ---
+      let allCcns = [];
+      async function loadCcns(){
+        try{
+          const res = await fetch('/api/po/all');
+           if(!res.ok) return;
+           const arr = await res.json();
+           const set = new Set();
+           arr.forEach(p => { if (p.ccn) set.add(p.ccn); });
+           allCcns = Array.from(set).sort();
+         }catch(e){}
+       }
+
+      const leftInput = document.getElementById('leftCcnInput');
+      const rightInput = document.getElementById('rightCcnInput');
+      const leftSuggest = document.getElementById('leftSuggest');
+      const rightSuggest = document.getElementById('rightSuggest');
+      const swapBtn = document.getElementById('swapBtn');
+      const remarkEl = document.getElementById('swapRemark');
+
+      function renderSuggest(box, matches){
+        if(!matches || matches.length===0){
+          box.innerHTML = '<div style="color:#888;padding:6px">No matches</div>';
+          box.style.display = 'block';
+          return;
+        }
+        box.innerHTML = matches.map(m => `<div data-ccn="${m}">${m}</div>`).join('');
+        box.style.display = 'block';
+      }
+      function showSuggestFor(box, q){
+        const ql = (q||'').trim().toLowerCase();
+        // show full list of CCNs when input empty
+        const matches = ql ? allCcns.filter(c => c.toLowerCase().includes(ql)) : allCcns;
+        renderSuggest(box, matches);
+      }
+
+      leftInput.addEventListener('input', ()=>{ leftSelected=null; clearLeftPreview(); showSuggestFor(leftSuggest, leftInput.value); updateState(); });
+      rightInput.addEventListener('input', ()=>{ rightSelected=null; clearRightPreview(); showSuggestFor(rightSuggest, rightInput.value); updateState(); });
+      leftInput.addEventListener('focus', ()=> showSuggestFor(leftSuggest, leftInput.value||''));
+      rightInput.addEventListener('focus', ()=> showSuggestFor(rightSuggest, rightInput.value||''));
+
+      leftSuggest.addEventListener('click', (e)=>{
+        const d = e.target.closest('div[data-ccn]'); if(!d) return;
+        selectLeftCcn(d.getAttribute('data-ccn')); leftSuggest.style.display='none';
+      });
+      rightSuggest.addEventListener('click', (e)=>{
+        const d = e.target.closest('div[data-ccn]'); if(!d) return;
+        selectRightCcn(d.getAttribute('data-ccn')); rightSuggest.style.display='none';
+      });
+      document.addEventListener('click', (e)=>{
+        if(!document.getElementById('leftCcnInput').contains(e.target)) leftSuggest.style.display='none';
+        if(!document.getElementById('rightCcnInput').contains(e.target)) rightSuggest.style.display='none';
+      });
+
+      // preview fields helpers
+      function setLeftField(id, val){ document.getElementById('left'+id).value = val || ''; }
+      function setRightField(id, val){ document.getElementById('right'+id).value = val || ''; }
+      function clearLeftPreview(){
+        ['RecordNo','Timestamp','SalesPerson','PoRef','PoDate','PoDelivery','PoValue','Customer','Machine','Model','Category','OrderType','Country','State','City','Addr1','Addr2']
+        .forEach(k=> setLeftField(k,''));
+      }
+      function clearRightPreview(){
+        ['RecordNo','Timestamp','SalesPerson','PoRef','PoDate','PoDelivery','PoValue','Customer','Machine','Model','Category','OrderType','Country','State','City','Addr1','Addr2']
+        .forEach(k=> setRightField(k,''));
+      }
+
+      // selected ccn state
+      let leftSelected = null; // object { ccn, po }
+      let rightSelected = null;
+
+      function isoToLocal(iso){
+        if(!iso) return '';
+        const d = new Date(iso);
+        if(isNaN(d)) return '';
+        const pad = n => n<10 ? '0'+n : n;
+        return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+      }
+
+      async function selectLeftCcn(ccn){
+        leftInput.value = ccn;
+        leftSelected = null;
+        try{
+          const res = await fetch(`/api/machine/by-ccn?ccn=${encodeURIComponent(ccn)}`);
+          if(!res.ok) throw new Error('fetch failed');
+          const data = await res.json();
+          const po = data.po || {};
+          leftSelected = { ccn, po };
+          setLeftField('RecordNo', po.recordNo || '');
+          setLeftField('Timestamp', isoToLocal(po.timestamp || po.timeStamp || po.createdAt || po.ts || po.poDate));
+          setLeftField('SalesPerson', po.salesPerson || '');
+          setLeftField('PoRef', po.poReferenceNumber || po.poReference || '');
+          setLeftField('PoDate', po.poDate || '');
+          setLeftField('PoDelivery', po.poDeliveryDate || '');
+          setLeftField('PoValue', (po.poValueLacs!==undefined && po.poValueLacs!==null) ? po.poValueLacs : '');
+          setLeftField('Customer', po.customerName || '');
+          setLeftField('Machine', po.machineName || '');
+          setLeftField('Model', po.modelName || '');
+          setLeftField('Category', po.machineCategory || '');
+          setLeftField('OrderType', po.orderType || '');
+          setLeftField('Country', po.country || '');
+          setLeftField('State', po.state || '');
+          setLeftField('City', po.city || '');
+          setLeftField('Addr1', po.addressLine1 || '');
+          setLeftField('Addr2', po.addressLine2 || '');
+        }catch(err){
+          alert('Error fetching left CCN data');
+          clearLeftPreview();
+        } finally { updateState(); }
+      }
+
+      async function selectRightCcn(ccn){
+        rightInput.value = ccn;
+        rightSelected = null;
+        try{
+          const res = await fetch(`/api/machine/by-ccn?ccn=${encodeURIComponent(ccn)}`);
+          if(!res.ok) throw new Error('fetch failed');
+          const data = await res.json();
+          const po = data.po || {};
+          rightSelected = { ccn, po };
+          setRightField('RecordNo', po.recordNo || '');
+          setRightField('Timestamp', isoToLocal(po.timestamp || po.timeStamp || po.createdAt || po.ts || po.poDate));
+          setRightField('SalesPerson', po.salesPerson || '');
+          setRightField('PoRef', po.poReferenceNumber || po.poReference || '');
+          setRightField('PoDate', po.poDate || '');
+          setRightField('PoDelivery', po.poDeliveryDate || '');
+          setRightField('PoValue', (po.poValueLacs!==undefined && po.poValueLacs!==null) ? po.poValueLacs : '');
+          setRightField('Customer', po.customerName || '');
+          setRightField('Machine', po.machineName || '');
+          setRightField('Model', po.modelName || '');
+          setRightField('Category', po.machineCategory || '');
+          setRightField('OrderType', po.orderType || '');
+          setRightField('Country', po.country || '');
+          setRightField('State', po.state || '');
+          setRightField('City', po.city || '');
+          setRightField('Addr1', po.addressLine1 || '');
+          setRightField('Addr2', po.addressLine2 || '');
+        }catch(err){
+          alert('Error fetching right CCN data');
+          clearRightPreview();
+        } finally { updateState(); }
+      }
+
+      // enable swap when both selected, different CCNs and remark present
+      function updateState(){
+        const remarkOk = remarkEl.value.trim().length > 0;
+        const bothSelected = leftSelected && rightSelected;
+        const different = bothSelected && leftSelected.ccn !== rightSelected.ccn;
+        swapBtn.disabled = !(remarkOk && bothSelected && different);
+      }
+      remarkEl.addEventListener('input', updateState);
+
+      // perform swap request
+      swapBtn.addEventListener('click', async ()=>{
+        if(!leftSelected || !rightSelected){ alert('Select both CCNs'); return; }
+        if(leftSelected.ccn === rightSelected.ccn){ alert('Please select two different CCNs'); return; }
+        const remark = remarkEl.value.trim();
+        if(!remark){ alert('Remark is mandatory'); return; }
+
+        // Build payload: include both recordNos and full PO objects. Server should swap all fields except recordNo.
+        const payload = {
+          leftCcn: leftSelected.ccn,
+          rightCcn: rightSelected.ccn,
+          leftRecordNo: leftSelected.po ? (leftSelected.po.recordNo || null) : null,
+          rightRecordNo: rightSelected.po ? (rightSelected.po.recordNo || null) : null,
+          leftPo: leftSelected.po || {},
+          rightPo: rightSelected.po || {},
+          remark: remark
+        };
+
+        if(!confirm(`Swap PO data between\nA: ${leftSelected.ccn}\nand\nB: ${rightSelected.ccn}\n\nRecord Nos will remain unchanged.\nProceed?`)) return;
+
+        try{
+          const res = await fetch('/api/po/swap', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(payload)
+          });
+          if(res.ok){
+            alert('Swap successful. Swap record stored.');
+            remarkEl.value = '';
+            // No localStorage usage anymore. SwapRecord is persisted on server.
+            // Optionally touch the server endpoint so other tabs/pages can poll DB for updates.
+            try { await fetch('/api/po/latest-swap'); } catch(e) {}
+            // refresh local CCN list so suggestions reflect new PO table
+            await loadCcns();
+            // refresh both previews from server to reflect swapped data
+            await selectLeftCcn(leftSelected.ccn);
+            await selectRightCcn(rightSelected.ccn);
+            updateState();
+          } else {
+            const txt = await res.text();
+            alert('Swap failed: ' + (txt || res.statusText));
+          }
+        }catch(err){
+          alert('Error performing swap.');
+        }
+      });
+
+      // load ccns on init and inject header/footer
+      (async function init(){
+        await loadCcns();
+        fetch('/fragments/header.html').then(r=>r.text()).then(html=>{ document.getElementById('header-include').innerHTML = html; });
+        fetch('/fragments/footer.html').then(r=>r.text()).then(html=>{ document.getElementById('footer-include').innerHTML = html; });
+      })();
+    </script>
+  </body>
+</html>

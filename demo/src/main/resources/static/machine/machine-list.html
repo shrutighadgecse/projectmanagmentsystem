@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Records Table</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f7f7; }
+        .container { max-width: 98vw; margin: 30px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 24px; }
+        table { border-collapse: collapse; width: 100%; font-size: 0.95em; }
+        th, td { border: 1px solid #e0e0e0; padding: 8px 6px; text-align: left; }
+        th { background: #1976d2; color: #fff; position: sticky; top: 0; z-index: 2; }
+        tr:nth-child(even) { background: #f5faff; }
+        .percent-bar {
+            background: #e3f2fd;
+            border-radius: 6px;
+            position: relative;
+            height: 28px;
+            width: 120px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+        }
+        .percent-fill {
+            background: #1976d2;
+            height: 100%;
+            border-radius: 6px 0 0 6px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1em;
+            transition: width 0.4s;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .percent-label {
+            position: absolute;
+            right: 8px;
+            color: #1976d2;
+            font-weight: bold;
+            font-size: 1em;
+            background: transparent;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .percent-bar.small .percent-label {
+            left: 8px;
+            right: auto;
+            color: #1976d2;
+        }
+        .scroll-x { overflow-x: auto; }
+        .ccn-cell { white-space: nowrap; }
+        .filter-btn {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #1976d2;
+            border-radius: 5px;
+            padding: 6px 18px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-bottom: 4px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .filter-btn.active, .filter-btn:focus {
+            background: #1976d2;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Machine Status Record</h2>
+    <div style="margin-bottom: 16px;">
+        <button id="filterAll" class="filter-btn" style="margin-right:8px;">All</button>
+        <button id="filterStock" class="filter-btn" style="margin-right:8px;">Stock</button>
+        <button id="filterCustomized" class="filter-btn">Customized</button>
+    </div>
+    <div class="scroll-x">
+        <table id="machineTable">
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+<script>
+async function fetchMachines() {
+    const res = await fetch('/api/machine/all');
+    if (!res.ok) return [];
+    return await res.json();
+}
+function createPercentBar(val) {
+    let percent = parseFloat(val);
+    if (isNaN(percent)) return '';
+    percent = Math.max(0, Math.min(100, percent));
+    let percentInt = Math.floor(percent); // Only integer part
+    // If percent < 18, show label outside bar
+    if (percent < 18) {
+        return `<div class='percent-bar small'><div class='percent-fill' style='width:${percent}%;'></div><span class='percent-label'>${percentInt}%</span></div>`;
+    } else {
+        return `<div class='percent-bar'><div class='percent-fill' style='width:${percent}%; justify-content:flex-end; padding-right:8px;'>${percentInt}%</div></div>`;
+    }
+}
+function escapeHtml(text) {
+    if (typeof text !== 'string') return text;
+    return text.replace(/[&<>"']/g, function(m) {
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'})[m];
+    });
+}
+function renderTable(data) {
+    if (!data.length) {
+        document.getElementById('tableHead').innerHTML = '<tr><th>No records found</th></tr>';
+        document.getElementById('tableBody').innerHTML = '';
+        return;
+    }
+    // Get all unique keys from all records
+    const allKeys = Array.from(new Set(data.flatMap(obj => Object.keys(obj))));
+    // Move machinePercentage and projectPercentage to the end
+    const keys = allKeys.filter(k => k !== 'machinePercentage' && k !== 'projectPercentage');
+    keys.push('machinePercentage', 'projectPercentage');
+    // Table head
+    document.getElementById('tableHead').innerHTML = '<tr>' + keys.map(k => `<th>${k}</th>`).join('') + '</tr>';
+    // Table body
+    document.getElementById('tableBody').innerHTML = data.map(row => {
+        return '<tr>' + keys.map(k => {
+            if (k === 'machinePercentage' || k === 'projectPercentage') {
+                return `<td>${createPercentBar(row[k])}</td>`;
+            }
+            if (k === 'ccn') {
+                return `<td class='ccn-cell'>${escapeHtml(row[k] == null ? '' : row[k])}</td>`;
+            }
+            return `<td>${escapeHtml(row[k] == null ? '' : row[k])}</td>`;
+        }).join('') + '</tr>';
+    }).join('');
+}
+let allData = [];
+window.addEventListener('DOMContentLoaded', async function() {
+    allData = await fetchMachines();
+    renderTable(allData);
+    // Filter logic
+    function setActive(btnId) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(btnId).classList.add('active');
+    }
+    document.getElementById('filterAll').addEventListener('click', function() {
+        renderTable(allData);
+        setActive('filterAll');
+    });
+    document.getElementById('filterStock').addEventListener('click', function() {
+        const filtered = allData.filter(row => (row.machineCategory||'').toLowerCase() === 'stock');
+        renderTable(filtered);
+        setActive('filterStock');
+    });
+    document.getElementById('filterCustomized').addEventListener('click', function() {
+        const filtered = allData.filter(row => (row.machineCategory||'').toLowerCase() === 'customized');
+        renderTable(filtered);
+        setActive('filterCustomized');
+    });
+    setActive('filterAll');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Update Record</title>
+    <link rel="stylesheet" href="kitlivestatus.css" />
+    <style>
+        /* Import Google font - Poppins */
+        @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background:#35474d;
+        }
+        #header {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        #footer {
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .container {
+            position: relative;
+            max-width: 500px;
+            width: 100%;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            margin: 90px auto 70px auto; /* Top margin for header, bottom for footer */
+            min-height: calc(100vh - 180px); /* Prevent overlap with header/footer */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container header {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 500;
+            text-align: center;
+        }
+        .form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 30px;
+            width: 100%;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select {
+            position: relative;
+            height: 50px;
+            width: 100%;
+            outline: none;
+            font-size: 1rem;
+            color: #332f2f;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 0 15px;
+        }
+        input:focus {
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+        }
+        .button {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            display: inline-block;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000; /* Ensure it appears above other content */
+        }
+        .modal .close {
+            cursor: pointer;
+            float: right;
+            font-size: 20px;
+        }
+        
+        .qr-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000; /* Ensure it appears above other content */
+}
+
+.qr-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    z-index: 1001; /* Ensure it appears above the overlay */
+}
+
+.qr-card img {
+    width: 100%; /* Make the image take the full width of its container */
+    max-width: 200px; /* Set a maximum width to prevent it from getting too large */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.qr-overlay .close {
+    cursor: pointer;
+    float: right;
+    font-size: 20px;
+}
+
+.search-bar input {
+            width: 80%; /* Full width for the search input */
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            height: 32px; /* Reduced height */
+            font-size: 15px; /* Slightly smaller font */
+        }
+
+        /* Responsive QR Overlay and Card */
+        @media (max-width: 900px) {
+            .qr-card {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 10px !important;
+                min-width: 0;
+                max-width: 95vw;
+                width: 95vw;
+            }
+            .qr-card > div:first-child {
+                padding-right: 0 !important;
+                margin-bottom: 15px;
+            }
+            .qr-card img {
+                max-width: 150px !important;
+                width: 100% !important;
+            }
+        }
+        @media (max-width: 600px) {
+            .qr-overlay {
+                align-items: flex-start !important;
+                padding-top: 10vw;
+            }
+            .qr-card {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                padding: 8px !important;
+                min-width: 0;
+                max-width: 99vw;
+                width: 99vw;
+                font-size: 0.9rem;
+            }
+            .qr-card > div:first-child {
+                padding-right: 0 !important;
+                margin-bottom: 10px;
+            }
+            .qr-card img {
+                max-width: 120px !important;
+                width: 100% !important;
+                height: auto !important;
+            }
+            #machineLabel {
+                font-size: 0.9rem !important;
+                padding: 4px !important;
+            }
+            .qr-card h2 {
+                font-size: 1rem !important;
+            }
+            #qrDetails {
+                font-size: 0.75rem !important;
+            }
+        }
+        @media (max-width: 400px) {
+            .qr-card {
+                padding: 4px !important;
+                font-size: 0.8rem;
+            }
+            .qr-card img {
+                max-width: 90px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div style="height:60px;"></div> <!-- Gap below header for all screens -->
+    <div class="container">
+        <h1>Update Record</h1>
+        <form id="multiStepForm" class="form">
+            <!-- Step 1 -->
+            <div class="step active" id="step1">
+                <h2>Step 1</h2>
+                <div class="form-group">
+                    <label>Current Date and Time (IST)</label>
+                    <input type="datetime-local" id="currentDateTime" required />
+                </div>
+                <div class="form-group">
+                    <label for="referenceId">Reference ID</label>
+                    <input type="text" id="referenceId" name="referenceId" required />
+                </div>
+                <div class="form-group">
+                    <label for="kitFormDate">Kit Form Date</label>
+                    <input type="date" id="kitFormDate" name="kitFormDate" required />
+                </div>
+                <div class="form-group">
+                    <label for="blcPo">BLC PO</label>
+                    <input type="text" id="blcPo" name="blcPo" />
+                </div>
+                <div class="form-group">
+                    <label for="blcPoDate">BLC PO Date</label>
+                    <input type="date" id="blcPoDate" name="blcPoDate" />
+                </div>
+                <div class="form-group">
+                    <label for="ccn">CCN</label>
+                    <input type="text" id="ccn" name="ccn" />
+                </div>
+                <div class="form-group">
+                    <label for="machineName">Machine Name</label>
+                    <input type="text" id="machineName" name="machineName" />
+                </div>
+                <div class="form-group">
+                    <label for="assemblyCode">Assembly Code</label>
+                    <input type="text" id="assemblyCode" name="assemblyCode" />
+                </div>
+                <div class="form-group">
+                <label for="stage">STAGE:</label>
+                <input type="text" id="stage"  name="stage"  />
+            </div>
+                <div class="form-group">
+                    <label for="inwardBy">Inward By</label>
+                    <input type="text" id="inwardBy" name="inwardBy" />
+                </div>
+                <div class="form-group">
+                    <label for="inwardQty">Inward Quantity</label>
+                    <input type="number" id="inwardQty" name="inwardQty" />
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" />
+                </div>
+                <div class="form-group">
+                    <label for="kmLocation"  style="display: none;">KM Location</label>
+                    <input type="text" id="kmLocation" name="kmLocation" disabled   style="display: none;"/>
+                </div>
+                <div class="form-group">
+                    <label for="limbodagriLocation">Limbodagri Location</label>
+                    <input type="text" id="limbodagriLocation" name="limbodagriLocation" disabled />
+                </div>
+                <button type="button" class="button" onclick="nextStep(1)">Next</button>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="step" id="step2">
+                <h2>Step 2</h2>
+                <div class="form-group">
+                    <label for="kitAcknowledgeBy">Kit Acknowledge By</label>
+                    <input type="text" id="kitAcknowledgeBy" placeholder="Kit Acknowledge By" required />
+                </div>
+                <div class="form-group">
+                    <label for="kitAcknowledgeDate">Kit Acknowledge Date</label>
+                    <input type="date" id="kitAcknowledgeDate" />
+                </div>
+                <div class="form-group">
+                    <label for="assyStartDate">Assy Start Date</label>
+                    <input type="date" id="assyStartDate" />
+                </div>
+                <div class="form-group">
+                    <label for="bhomikaEngineer">Bhomika Engineer</label>
+                    <input type="text" id="bhomikaEngineer" placeholder="Enter Bhomika Engineer" required disabled />
+                </div>
+                <div class="form-group">
+                    <label for="liveStatusDropdown">Live Status:</label>
+                    <select id="liveStatusDropdown" onchange="handleLiveStatusChange()" required disabled>
+                        <option value="inhand">Inhand</option>
+                        <option value="self_inspection">Self Inspection</option>
+                        <option value="wip">WIP</option>
+                        <option value="hold_wrongPart">Hold - Wrong Part</option>
+                        <option value="hold_qualityIssue">Hold - Quality Issue</option>
+                        <option value="hold_shortfall">Hold - Shortfall</option>
+                        <option value="hold-closure">Hold - Closure</option>
+                        <option value="readyForDispatch">Ready for Dispatch</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assyEndDate">Assy End-Date</label>
+                    <input type="date" id="assyEndDate" required disabled oninput="toggleLiveStatus()" />
+                </div>
+                <div class="form-group">
+                    <h3>BLC Status</h3>
+                    <div class="status-option">
+                        <div class="status">
+                            <input type="radio" id="Live" name="blcStatus" value="Live" checked onchange="toggleBLCPOFields()" />
+                            <label for="Live">Live</label>
+                        </div>
+                        <div class="status">
+                            <input type="radio" id="Closed" name="blcStatus" value="Closed" onchange="toggleBLCPOFields()" />
+                            <label for="Closed">Closed</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="invoiceNumber">Invoice Number</label>
+                    <input type="text" id="invoiceNumber" name="invoiceNumber" required disabled />
+                </div>
+                <div class="form-group">
+                    <label for="invoiceDate">Invoice Date</label>
+                    <input type="date" id="invoiceDate" name="invoiceDate" required disabled />
+                </div>
+                <div class="form-group">
+                    <label for="holdRemark">Hold Remark</label>
+                    <input type="text" id="holdRemark" placeholder="Enter Hold Remark" disabled />
+                </div>
+                <div class="form-group">
+                    <label for="holdDate">Hold Date</label>
+                    <input type="date" id="holdDate" disabled />
+                </div>
+                <div class="form-group" >
+                    <label for="closeRemark">Close Remark</label>
+                    <input type="text" id="closeRemark" placeholder="Enter Close Remark" disabled />
+                </div>
+
+                   <div class="form-group" >
+                    <label for="closeDate">Close Date</label>
+                    <input type="date" id="closeDate" disabled />
+                </div>
+                <button type="button" class="button" onclick="updateRecord()">Update</button>
+                <button type="button" class="button" onclick="prevStep(2)">Back</button>
+            </div>
+         
+        </form>
+        <div class="qr-overlay" id="qrOverlay" style="display: none;">
+            <div class="qr-card" style="display: flex; align-items: flex-start; padding: 20px;">
+                <div style="flex: 1; padding-right: 20px;">
+                    <h2 style="font-size: 1.2rem;">Assembly Details</h2>
+                    <div id="qrDetails" style="margin-top: 20px; font-size: 0.8rem;">
+                        <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <strong>Reference ID:</strong> <span id="qrReferenceId"></span>
+                        </div>
+                        <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <strong>Assembly Code:</strong> <span id="qrAssemblyCode"></span>
+                        </div>
+                        <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <strong>Machine Name:</strong> <span id="qrMachineName"></span>
+                        </div>
+                        <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <strong>Stage:</strong> <span id="qrStage"></span>
+                        </div>
+                        <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <strong>Limbodagri Location:</strong> <span id="qrLimbodagriLocation"></span>
+                        </div>
+                        
+                        <div style="margin-bottom: 10px; display: flex; justify-content: space-between;">
+                            <strong>Description:</strong> <span id="qrDescription"></span>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex: 0 0 200px; text-align: center;">
+                    <!-- Logo Image -->
+                    <div style="margin-bottom: 10px;">
+                        <img src="/images/IMA1.jpg"alt="Logo" style="width: 100px; height: auto;" />
+                    </div>
+                    <img id="qrCodeImage" src="" alt="QR Code" style="width: 100px; height: 100px;" />
+                    <div id="machineLabel" style="margin-top: 10px; padding: 5px; border-radius: 5px; color: white;"></div> <!-- Label for machine type -->
+
+                </div>
+                <span class="close" onclick="closeQRCodeOverlay()" style="cursor: pointer; font-size: 20px; position: absolute; top: 10px; right: 10px;">×</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="kitlivestatus.js"></script>
+    <script>
+    // Load header and footer
+    fetch('/fragments/header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading header:', error));
+
+    function setCurrentDateTime() { const now = new Date(); const currentTime = now.getTime(); const indiaTime = new Date(currentTime + (5.5 * 60 * 60 * 1000)); // IST is UTC +5:30 
+   
+   const localDateTime = indiaTime.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:MM 
+ document.getElementById('currentDateTime').value = localDateTime; }
+        function nextStep(step) {
+            if (step === 1) {
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+            }
+        }
+
+        function prevStep(step) {
+            if (step === 2) {
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step1').classList.add('active');
+            }
+        }
+
+        function populateForm() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const assemblyCode = urlParams.get('assemblyCode');
+
+            // Fetch locations based on assembly code
+            fetch(`/api/form/locations/${assemblyCode}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('kmLocation').value = data.kmLocation;
+                    document.getElementById('limbodagriLocation').value = data.limbodagriLocation;
+                })
+                .catch(error => console.error('Error fetching locations:', error));
+
+            document.getElementById('referenceId').value = urlParams.get('referenceId');
+            document.getElementById('kitFormDate').value = urlParams.get('dateTime');
+            document.getElementById('blcPo').value = urlParams.get('blcPo');
+            document.getElementById('blcPoDate').value = urlParams.get('blcPoDate');
+            document.getElementById('ccn').value = urlParams.get('ccn');
+            document.getElementById('machineName').value = urlParams.get('machineName');
+            document.getElementById('assemblyCode').value = urlParams.get('assemblyCode');
+            document.getElementById('stage').value = urlParams.get('stage');
+            document.getElementById('inwardBy').value = urlParams.get('inwardBy');
+            document.getElementById('inwardQty').value = urlParams.get('inwardQty');
+            document.getElementById('description').value = urlParams.get('description');
+            document.getElementById('kitAcknowledgeBy').value = urlParams.get('kitAcknowledgeBy');
+            document.getElementById('kitAcknowledgeDate').value = urlParams.get('kitAcknowledgeDate');
+            document.getElementById('assyStartDate').value = urlParams.get('assyStartDate');
+            document.getElementById('bhomikaEngineer').value = urlParams.get('bhomikaEngineer');
+            document.getElementById('liveStatusDropdown').value = urlParams.get('liveStatus');
+            document.getElementById('assyEndDate').value = urlParams.get('assyEndDate');
+            document.getElementById('invoiceNumber').value = urlParams.get('invoiceNumber');
+            document.getElementById('invoiceDate').value = urlParams.get('invoiceDate');
+            document.getElementById('holdDate').value = urlParams.get('holdDate');
+            document.getElementById('holdRemark').value = urlParams.get('holdRemark');
+            document.getElementById('closeDate').value = urlParams.get('closeDate');
+            document.getElementById('closeRemark').value = urlParams.get('closeRemark');
+ 
+
+            // Disable fields that have values
+            const fieldsToDisable = [
+                'referenceId', 'kitFormDate', 'blcPo', 'blcPoDate', 'ccn', 
+                'machineName', 'assemblyCode','stage', 'inwardBy', 'inwardQty', 
+                'description', 'kitAcknowledgeBy', 'kitAcknowledgeDate', 
+                'assyStartDate', 'bhomikaEngineer', 'assyEndDate', 
+                'invoiceNumber', 'invoiceDate'
+            ];
+
+            fieldsToDisable.forEach(field => {
+                const inputField = document.getElementById(field);
+                if (inputField.value) {
+                    inputField.disabled = true; // Disable if it has a value
+                }
+            });
+
+            // Disable Live Status and BLC Status if already set to "Ready for Dispatch"
+            if (document.getElementById('liveStatusDropdown').value === 'readyForDispatch') {
+                document.getElementById('liveStatusDropdown').disabled = true;
+            }
+
+            // Additional logic to enable fields based on other populated values
+            if (document.getElementById('assyStartDate').value) {
+                document.getElementById('bhomikaEngineer').disabled = false;
+            }
+
+            if (document.getElementById('bhomikaEngineer').value) {
+                document.getElementById('liveStatusDropdown').disabled = false;
+            }
+
+            if (document.getElementById('assyEndDate').value) {
+                document.getElementById('invoiceNumber').disabled = false;
+                document.getElementById('invoiceDate').disabled = false;
+            }
+
+            // Disable all other fields if needed
+            const inputs = document.querySelectorAll('.form-group input, .form-group textarea');
+            inputs.forEach(input => {
+                if (input.id !== 'kitAcknowledgeBy' && input.id !== 'kitAcknowledgeDate' && input.id !== 'assyStartDate') {
+                    input.disabled = true; 
+                }
+            });
+            handleLiveStatusChange();
+        }
+
+        // Ensure Assy Start Date is always enabled
+        document.getElementById('assyStartDate').onchange = function() {
+            const assyStartDate = document.getElementById('assyStartDate').value;
+            const bhomikaEngineer = document.getElementById('bhomikaEngineer');
+            const kitAcknowledgeDate = document.getElementById('kitAcknowledgeDate').value;
+            const liveStatusDropdown = document.getElementById('liveStatusDropdown');
+            const today = new Date().toISOString().split('T')[0];
+
+            if (assyStartDate) {
+                if (assyStartDate < kitAcknowledgeDate || assyStartDate > today) {
+                    alert('Assy Start Date should be greater than or equal to Kit Acknowledge Date.');
+                    document.getElementById('assyStartDate').value = '';
+                    return;
+                }
+                bhomikaEngineer.disabled = false; // Enable Bhomika Engineer
+                liveStatusDropdown.value = 'wip'; // Automatically update live status to WIP
+            } else {
+                bhomikaEngineer.disabled = true; // Disable Bhomika Engineer
+                bhomikaEngineer.value = ''; // Clear value
+            }
+        };
+
+        document.getElementById('bhomikaEngineer').oninput = function() {
+            const bhomikaEngineer = document.getElementById('bhomikaEngineer').value;
+            const liveStatusDropdown = document.getElementById('liveStatusDropdown');
+            if (bhomikaEngineer) {
+                liveStatusDropdown.disabled = false; // Enable Live Status
+            } else {
+                liveStatusDropdown.disabled = true; // Disable Live Status
+                liveStatusDropdown.value = 'inhand'; // Reset to default value
+            }
+        };
+
+        document.getElementById('assyEndDate').onchange = function() {
+            const assyEndDate = document.getElementById('assyEndDate').value;
+            const assyStartDate = document.getElementById('assyStartDate').value;
+            const today = new Date().toISOString().split('T')[0];
+
+            if (assyEndDate) {
+                if (assyEndDate < assyStartDate || assyEndDate > today) {
+                    alert('Assy End Date should be greater than or equal to Assy Start Date.');
+                    document.getElementById('assyEndDate').value = '';
+                    return;
+                }
+            }
+        };
+
+        document.getElementById('invoiceDate').onchange = function() {
+            const invoiceDate = document.getElementById('invoiceDate').value;
+            const assyEndDate = document.getElementById('assyEndDate').value;
+            const today = new Date().toISOString().split('T')[0];
+
+            if (invoiceDate) {
+                if (invoiceDate < assyEndDate || invoiceDate > today) {
+                    alert('Invoice Date should be greater than or equal to Assy End Date but not greater than today.');
+                    document.getElementById('invoiceDate').value = '';
+                    return;
+                }
+            }
+        };
+
+        document.getElementById('kitAcknowledgeDate').onchange = function() {
+            const kitAcknowledgeDate = document.getElementById('kitAcknowledgeDate').value;
+            const today = new Date().toISOString().split('T')[0];
+
+            if (kitAcknowledgeDate) {
+                if (kitAcknowledgeDate > today) {
+                    alert('Kit Acknowledge Date should not be greater than today.');
+                    document.getElementById('kitAcknowledgeDate').value = '';
+                    return;
+                }
+            }
+        };
+
+        let previousLiveStatus = ""; // Declare globally to store previous status  
+        let qcModalOpen = false; // Flag to check if QC modal is open
+        function handleLiveStatusChange() {
+            const liveStatus = document.getElementById('liveStatusDropdown').value;
+            console.log("Live Status Changed: ", liveStatus); // Debugging line
+            const blcPoField = document.getElementById('blcPo');
+            const blcStatusLive = document.getElementById('Live');
+            const assyStartDate = document.getElementById('assyStartDate');
+            const assyEndDate = document.getElementById('assyEndDate');
+        const holdRemarkField = document.getElementById('holdRemark');
+        const holdDateField = document.getElementById('holdDate');
+        const closeRemarkField = document.getElementById('closeRemark');
+        const closeDateField = document.getElementById('closeDate');
+
+        // Reset fields
+        holdRemarkField.required = false;
+        holdDateField.required = false;
+        closeRemarkField.required = false;
+        closeDateField.required = false;
+
+        // Enable/disable hold fields based on live status
+        if (['hold_qualityIssue', 'hold_shortfall', 'hold_wrongPart'].includes(liveStatus)) {
+            holdRemarkField.disabled = false;
+            holdDateField.disabled = false;
+            holdRemarkField.required = true;
+            holdDateField.required = true;
+        } else {
+            holdRemarkField.disabled = true;
+            holdDateField.disabled = true;
+        }
+
+        // Enable/disable close fields based on live status
+        if (liveStatus === 'hold-closure') {
+            closeRemarkField.required = true;
+            closeDateField.required = true;
+            closeRemarkField.disabled = false;
+            closeDateField.disabled = false;
+        } else {
+            closeRemarkField.disabled = true;
+            closeDateField.disabled = true;
+        }
+
+        // Retain hold remarks and dates if switching to hold closure
+        if (liveStatus === 'hold-closure') {
+            holdRemarkField.value = holdRemarkField.value; // Retain value
+            holdDateField.value = holdDateField.value; // Retain value
+        }
+
+    // Enable/disable close fields based on BLC Status
+    const blcStatus = document.querySelector('input[name="blcStatus"]:checked').value;
+    if (blcStatus === 'Closed') {
+        closeRemarkField.required = true;
+        closeDateField.required = true;
+    } else {
+        closeRemarkField.required = false;
+        closeDateField.required = false;
+    }
+
+
+       if (liveStatus === 'readyForDispatch') {
+                // Show confirmation alert for "Ready for Dispatch"
+                const confirmation = confirm("Are you sure you want to set the live status to Ready for Dispatch?");
+                if (confirmation) {
+                    // If confirmed, set the status
+                    document.getElementById('liveStatusDropdown').value = 'readyForDispatch';
+                    assyEndDate.value = new Date().toISOString().split('T')[0]; // Set Assy End-Date to today
+                    console.log("Assy End-Date set to: ", assyEndDate.value); // Debugging line
+                    
+                    // Disable all options except "Ready for Dispatch"
+                    disableAllOptionsExcept('readyForDispatch');
+                } else {
+                    // If canceled, revert to previous status
+                    document.getElementById('liveStatusDropdown').value = previousLiveStatus;
+                    return; // Exit the function to prevent further processing
+                }
+            } else {
+                enableAllFields();
+                qcCloseOption.disabled = true; // Disable QC Close for other statuses
+            }
+
+            blcPoField.disabled = (liveStatus !== 'readyForDispatch');
+
+            if (liveStatus !== 'readyForDispatch') {
+                blcStatusLive.checked = true;
+                blcStatusLive.disabled = true;
+            } else {
+                blcStatusLive.disabled = false;
+                document.querySelector('input[name="blcStatus"][value="Closed"]').disabled = false;
+            }
+
+            if (assyStartDate.value) {
+                assyEndDate.disabled = false;
+            } else {
+                assyEndDate.disabled = true;
+                assyEndDate.value = '';
+            }
+            toggleBLCPOFields();
+        }
+
+        function disableAllOptionsExcept(exceptValue) {
+            const dropdown = document.getElementById('liveStatusDropdown');
+            for (let i = 0; i < dropdown.options.length; i++) {
+                if (dropdown.options[i].value !== exceptValue) {
+                    dropdown.options[i].disabled = true; // Disable all options except the specified one
+                } else {
+                    dropdown.options[i].disabled = false; // Ensure the specified option is enabled
+                }
+            }
+        }
+        function disableOtherOptions() {
+            const dropdown = document.getElementById('liveStatusDropdown');
+            for (let i = 0; i < dropdown.options.length; i++) {
+                if (dropdown.options[i].value !== 'hold' && dropdown.options[i].value !== 'qc_close') {
+                    dropdown.options[i].disabled = true;
+                }
+            }
+        }
+
+        function enableAllFields() {
+            const dropdown = document.getElementById('liveStatusDropdown');
+            for (let i = 0; i < dropdown.options.length; i++) {
+                dropdown.options[i].disabled = false; // Enable all options
+            }
+        }
+
+        function enableAllFieldsExceptHold() {
+            const dropdown = document.getElementById('liveStatusDropdown');
+            for (let i = 0; i < dropdown.options.length; i++) {
+                if (dropdown.options[i].value === 'hold') {
+                    dropdown.options[i].disabled = true; // Disable hold option
+                } else {
+                    dropdown.options[i].disabled = false; // Enable other options
+                }
+            }
+        }
+
+      
+        function toggleBLCPOFields() {
+            const blcStatus = document.querySelector('input[name="blcStatus"]:checked').value;
+            const invoiceNumberField = document.getElementById('invoiceNumber');
+            const invoiceDateField = document.getElementById('invoiceDate');
+            const assyEndDate = document.getElementById('assyEndDate');
+
+            if (assyEndDate.value) {
+                invoiceNumberField.disabled = false;
+                invoiceDateField.disabled = false;
+            } else {
+                invoiceNumberField.disabled = true;
+                invoiceDateField.disabled = true;
+                invoiceNumberField.value = '';
+                invoiceDateField.value = '';
+            }
+
+            // Validation for BLC Status
+            if (blcStatus === 'Closed') {
+                if (!invoiceNumberField.value || !invoiceDateField.value) {
+                    alert('Invoice Number and Invoice Date are required to close the BLC Status.');
+                    document.querySelector('input[name="blcStatus"][value="Live"]').checked = true; // Reset to Live
+                }
+            }
+        }
+
+        function validateStep1() {
+            const requiredFields = [
+                'date', 'reference', 'blcPo', 'blcPoDate', 'ccn', 
+                'machineName', 'assemblyCode', 'inwardQty', 'inwardBy'
+            ];
+            return requiredFields.every(field => document.getElementById(field).value.trim() !== '');
+        }
+
+        function validateStep2() {
+            const kitAcknowledgeBy = document.getElementById('kitAcknowledgeBy').value.trim();
+            const kitAcknowledgeDate = document.getElementById('kitAcknowledgeDate').value.trim();
+            const assyStartDate = document.getElementById('assyStartDate').value.trim();
+            const bhomikaEngineer = document.getElementById('bhomikaEngineer').value.trim();
+
+            return kitAcknowledgeBy !== '' && kitAcknowledgeDate !== '' && assyStartDate !== '' && bhomikaEngineer !== '';
+        }
+
+        function updateRecord() {
+        setCurrentDateTime();
+
+        const qrCodeImage = document.getElementById('qrCodeImage').src; // Get QR code image source
+        const liveStatus = document.getElementById('liveStatusDropdown').value;
+        const blcStatus = document.querySelector('input[name="blcStatus"]:checked').value;
+
+        // Check if required fields are filled based on the current live status
+        if (['hold_qualityIssue', 'hold_shortfall', 'hold_wrongPart'].includes(liveStatus)) {
+            if (!document.getElementById('holdRemark').value || !document.getElementById('holdDate').value) {
+                alert('Hold Remark and Hold Date are required for the selected live status.');
+                return;
+            }
+        }
+
+        if (liveStatus === 'hold-closure') {
+            // Do not clear holdRemark and holdDate when updating to hold-closure
+            if (!document.getElementById('closeRemark').value || !document.getElementById('closeDate').value) {
+                alert('Close Remark and Close Date are required for the selected live status.');
+                return;
+            }
+        }
+
+        if (blcStatus === 'Closed') {
+            if (!document.getElementById('invoiceNumber').value || !document.getElementById('invoiceDate').value) {
+                alert('Invoice Number and Invoice Date are required for closing the BLC status.');
+                return;
+            }
+        }
+
+        // Proceed with the update if all validations pass
+        const referenceId = document.getElementById('referenceId').value;
+
+        const updatedData = {
+            kitFormDate: document.getElementById('kitFormDate').value,
+            referenceId: document.getElementById('referenceId').value,
+            blcPo: document.getElementById('blcPo').value,
+            blcPoDate: document.getElementById('blcPoDate').value,
+            ccn: document.getElementById('ccn').value,
+            machineName: document.getElementById('machineName').value,
+            assemblyCode: document.getElementById('assemblyCode').value,
+            stage: document.getElementById('stage').value,
+            inwardBy: document.getElementById('inwardBy').value,
+            inwardQty: document.getElementById('inwardQty').value,
+            description: document.getElementById('description').value,
+            limbodagriLocation: document.getElementById('limbodagriLocation').value,
+            kmLocation: document.getElementById('kmLocation').value,
+            kitAcknowledgeBy: document.getElementById('kitAcknowledgeBy').value,
+            kitAcknowledgeDate: document.getElementById('kitAcknowledgeDate').value,
+            assyStartDate: document.getElementById('assyStartDate').value,
+            bhomikaEngineer: document.getElementById('bhomikaEngineer').value,
+            liveStatus: document.getElementById('liveStatusDropdown').value,
+            assyEndDate: document.getElementById('assyEndDate').value,
+            invoiceNumber: document.getElementById('invoiceNumber').value,
+            invoiceDate: document.getElementById('invoiceDate').value,
+            currentDateTime: document.getElementById('currentDateTime').value,
+            holdRemark: document.getElementById('holdRemark').value,
+            holdDate: document.getElementById('holdDate').value,
+            closeRemark: document.getElementById('closeRemark').value,
+            closeDate: document.getElementById('closeDate').value,
+            blcStatus: blcStatus, // Add BLC Status
+            qrCode: qrCodeImage, // Add QR code data
+        };
+
+        // Check if the Live Status is "Ready for Dispatch" and disable it
+        if (updatedData.liveStatus === 'readyForDispatch') {
+            document.getElementById('liveStatusDropdown').disabled = true;
+        }
+
+        fetch(`/api/form/update/${referenceId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        })
+        .then(response => {
+            console.log('Response Status:', response.status); // Log the response status
+            return response.json().then(data => {
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to update record');
+                }
+                return data;
+            });
+        })
+        .then(data => {
+            if (updatedData.blcStatus === 'Closed') { // Check if BLC Status is Closed
+                alert('Record updated successfully!');
+                generateQRCode(updatedData); // Generate QR code after successful update
+                saveQRCodeData(updatedData); // Save QR code data to the backend
+            } else {
+                alert('Record updated successfully!'); // Notify user of successful update
+            }
+        })
+        .catch(error => {
+            console.error('Error updating record:', error);
+            alert('Error updating record: ' + error.message);
+        });
+    }
+function saveQRCodeData(data) {
+    fetch('/api/qr-cards', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('QR Code data saved:', data);
+    })
+    .catch(error => {
+        console.error('Error saving QR Code data:', error);
+    });
+}
+
+function generateQRCode(data) {
+    // Create a new object with only the required fields
+    const qrData = {
+        referenceId: data.referenceId,
+        assemblyCode: data.assemblyCode,
+    };
+
+    // Convert the object to a JSON string
+    const qrDataString = JSON.stringify(qrData);
+    const qrCodeImage = document.getElementById('qrCodeImage');
+    
+    // Set the QR code image source with the specified size
+    qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrDataString)}`;    
+    // Populate the QR code details
+    document.getElementById('qrReferenceId').innerText = data.referenceId;
+    document.getElementById('qrAssemblyCode').innerText = data.assemblyCode;
+    document.getElementById('qrDescription').innerText = data.description;
+    document.getElementById('qrMachineName').innerText = data.machineName;
+    document.getElementById('qrStage').innerText = data.stage; // Assuming 'liveStatus' is the stage
+    document.getElementById('qrLimbodagriLocation').innerText = data.limbodagriLocation || 'N/A'; // Use 'N/A' if not available
+
+    // Set the machine label color based on the machine type
+    const machineLabel = document.getElementById('machineLabel');
+    const machineName = data.machineName.toLowerCase(); // Convert to lowercase for comparison
+    let labelColor = '';
+
+    switch (machineName) {
+        case 'express n':
+            labelColor = 'green';
+            break;
+        case 'rotovac':
+            labelColor = 'yellow';
+            break;
+        case 'excel smart':
+            labelColor = 'blue';
+            break;
+        case 'cartnator':
+            labelColor = 'red';
+            break;
+        default:
+            labelColor = 'gray'; // Default color if machine type is unknown
+    }
+
+    machineLabel.innerText = machineName.charAt(0).toUpperCase() + machineName.slice(1); // Capitalize the first letter
+    machineLabel.style.backgroundColor = labelColor; // Set the background color
+    machineLabel.style.color = 'white'; // Set text color to white
+    machineLabel.style.padding = '5px'; // Add some padding
+    machineLabel.style.borderRadius = '5px'; // Round the corners
+
+    // Show the QR code overlay without blurring the background
+    document.getElementById('qrOverlay').style.display = 'flex'; // Show overlay
+}
+    // Call the function when the window loads
+    window.onload = function() {
+        setCurrentDateTime(); // Set the current date and time
+        populateForm(); // Call your existing populateForm function
+    }
+    </script>
+</body>
+</html>

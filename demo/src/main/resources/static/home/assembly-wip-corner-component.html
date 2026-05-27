@@ -1,0 +1,52 @@
+<!-- Assembly WIP Corner Component - Compact version for embedding in home page -->
+<!-- 
+    Usage: Include this component in your main page (home.html) by:
+    1. Adding the stylesheet link in head:
+       <link rel="stylesheet" href="/home/assembly-wip-corner.css">
+    2. Adding the HTML component in the appropriate section (left sidebar or main content):
+       (This HTML below)
+    3. Adding the script link before </body>:
+       <script src="/home/assembly-wip-corner.js"></script>
+-->
+
+<div class="assembly-wip-corner">
+    <!-- Header -->
+    <div class="assembly-wip-header">
+        <h3>Assembly WIP Corner</h3>
+        <p>Machine-wise WIP Analysis - As of Today</p>
+    </div>
+
+    <!-- Body -->
+    <div class="assembly-wip-body">
+        <!-- Error Message -->
+        <div id="wipErrorContainer" class="wip-error-state" style="display: none;"></div>
+
+        <!-- Loading State -->
+        <div id="wipLoadingState" class="wip-loading-state" style="display: none;">
+            <p>Loading WIP data...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="wipEmptyState" class="wip-empty-state" style="display: none;">
+            <p>No WIP data available</p>
+        </div>
+
+        <!-- Table -->
+        <div id="wipTableContainer" style="display: none; overflow-x: auto;">
+            <table class="wip-table-compact">
+                <thead>
+                    <tr>
+                        <th>Machine</th>
+                        <th>C/F</th>
+                        <th>In Build</th>
+                        <th>Dispatch</th>
+                        <th>Balance WIP</th>
+                    </tr>
+                </thead>
+                <tbody id="wipTableBodyCompact">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

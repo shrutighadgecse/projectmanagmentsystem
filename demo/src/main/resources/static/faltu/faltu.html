@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Dropdown</title>
+    <style>
+        /* Basic styling for the input and dropdown list */
+        #dropdownInput {
+            width: 200px;
+            padding: 8px;
+            border: 1px solid #ccc;
+        }
+
+        #optionsList {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            border: 1px solid #ccc;
+            background-color: white;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 200px;
+            position: absolute;
+        }
+
+        #optionsList li {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        #optionsList li:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Input field for dropdown -->
+    <input type="text" id="dropdownInput" placeholder="Type or select an option" 
+           onkeyup="fetchOptions()" onclick="fetchOptions()">
+
+    <!-- Dropdown list for displaying available options -->
+    <ul id="optionsList" style="display:none;"></ul>
+
+    <button onclick="submitOption()">Submit</button>
+
+    <script>
+        // Fetch options from the server or filter based on user input
+        async function fetchOptions() {
+            const input = document.getElementById('dropdownInput').value;
+            const response = await fetch(`/options/search?name=${input}`);
+            const options = await response.json();
+            const optionsList = document.getElementById('optionsList');
+
+            optionsList.innerHTML = ''; // Clear previous options
+
+            if (options.length > 0) {
+                options.forEach(option => {
+                    const li = document.createElement('li');
+                    li.textContent = option.name;
+                    li.onclick = () => {
+                        document.getElementById('dropdownInput').value = option.name;
+                        optionsList.style.display = 'none'; // Hide options after selection
+                    };
+                    optionsList.appendChild(li);
+                });
+                optionsList.style.display = 'block'; // Show options if available
+            } else {
+                // If no matching options, show "Add option" link
+                const li = document.createElement('li');
+                li.textContent = `Add "${input}"`;
+                li.onclick = () => createOption(input);
+                optionsList.appendChild(li);
+                optionsList.style.display = 'block'; // Show the add option
+            }
+        }
+
+        // Create a new option and store it in the database
+        async function createOption(name) {
+            const response = await fetch('/options/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name }),
+            });
+
+            if (response.ok) {
+                const newOption = await response.json();
+                document.getElementById('dropdownInput').value = newOption.name;
+                document.getElementById('optionsList').style.display = 'none'; // Hide options
+                alert('Option created: ' + newOption.name);
+            } else {
+                const errorMessage = await response.text();
+                alert('Error creating option: ' + errorMessage);
+            }
+        }
+
+        // Handle submit logic
+        async function submitOption() {
+            const selectedOption = document.getElementById('dropdownInput').value;
+            // Implement logic to submit the selected option to your table
+            console.log('Selected option:', selectedOption);
+            // You can also send it to the backend for storage if needed
+        }
+
+        // Close the dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const input = document.getElementById('dropdownInput');
+            const optionsList = document.getElementById('optionsList');
+            
+            if (!input.contains(event.target) && !optionsList.contains(event.target)) {
+                optionsList.style.display = 'none'; // Close the dropdown if clicked outside
+            }
+        });
+    </script>
+</body>
+</html>

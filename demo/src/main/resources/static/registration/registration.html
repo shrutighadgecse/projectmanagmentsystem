@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registration Form</title>
+  <link rel="stylesheet" href="registration.css" />
+</head>
+<body>
+  <!-- Header include -->
+  <div id="header-include"></div>
+  <section class="container ">
+    <header>Registration Form</header>
+    <form action="/register" method="post">
+      <div class="input-box">
+        <label>Employee Name</label>
+        <input type="text" name="employeename" placeholder="Enter Name" required />
+      </div>
+      <div class="input-box">
+        <label>Email ID</label>
+        <input type="email" name="emailid" placeholder="Enter Email Address" required />
+      </div>
+      <div class="input-box">
+        <label>Employee Contact</label>
+        <input type="text" name="employeecontact" placeholder="Enter Contact Number" required />
+      </div>
+      <div class="input-box">
+        <label for="department">Department</label>
+        <select id="department" name="department">
+          <option value="assembly">Assembly</option>
+          <option value="sales">Sales</option>
+          <option value="ppc">Purchase</option>
+          <option value="store">Stores</option>
+          <option value="design">Design</option>
+          <option value="kanban">Kanban</option>
+          <option value="electrical">Electrical</option>
+          <option value="qa/qc">QA/QC</option>
+          <option value="admin">Admin</option>
+          <option value="superuser">Super User</option>
+          <option value="bhoomika">Bhoomika</option>
+        </select><br>
+      </div>
+      <div class="input-box">
+        <label>Create Password</label>
+        <input type="password" name="createpassword" placeholder="Create Password" required />
+      </div>
+      <div class="input-box">
+        <label>Confirm Password</label>
+        <input type="password" name="confirmpassword" placeholder="Confirm Password" required />
+      </div>
+      <button type="submit">Register</button>
+    </form>
+    <p style="color:red;"></p>
+  </section>
+  <!-- Footer include -->
+  <div id="footer-include"></div>
+  <script>
+    // Dynamically load header and footer fragments
+    fetch('/fragments/header.html').then(r=>r.text()).then(html=>{
+      document.getElementById('header-include').innerHTML = html;
+    });
+    fetch('/fragments/footer.html').then(r=>r.text()).then(html=>{
+      document.getElementById('footer-include').innerHTML = html;
+    });
+  </script>
+</body>
+</html>

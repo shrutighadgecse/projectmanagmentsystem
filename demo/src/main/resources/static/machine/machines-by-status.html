@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Machines — By Live Status</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f5f7fa; margin:0; padding:24px; color:#1a3a4a; }
+    .topbar { display:flex; align-items:center; gap:16px; margin-bottom:18px; position:relative; z-index:50; } /* increased z-index, position */
+    .back { color:#1976d2; cursor:pointer; text-decoration:underline; }
+    .status-title { font-weight:700; font-size:1.2em; }
+    .cards { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
+    .card { background:#fff; border-radius:8px; padding:12px; min-width:220px; max-width:300px; box-shadow:0 2px 8px rgba(0,0,0,0.06); cursor:pointer; }
+    .card h4{ margin:0 0 6px 0; font-size:1em; color:#0b2b38; }
+    .card .meta { font-size:0.9em; color:#556; }
+    .empty { color:#666; padding:18px; }
+    .unit-select { padding:6px 8px; border-radius:6px; border:1px solid #cbd6df; background:#fff; color:#1a3a4a; z-index:60; }
+    .unit-select-container { margin-left:auto; display:flex; align-items:center; gap:10px; z-index:60; position:relative; }
+    /* New: row under header/topbar to place the dropdown above cards */
+    .unit-row { margin-top:12px; display:flex; justify-content:flex-end; align-items:center; gap:10px; }
+    .filter-row { margin-top:10px; display:flex; justify-content:flex-end; align-items:center; gap:12px; flex-wrap:wrap; }
+    .filter-row label { font-weight:600; color:#1a3a4a; margin-right:6px; }
+    .filter-button { padding:6px 10px; border-radius:6px; border:1px solid #cbd6df; background:#1976d2; color:#fff; cursor:pointer; }
+    .print-button { padding:6px 10px; border-radius:6px; border:1px solid #cbd6df; background:#2e7d32; color:#fff; cursor:pointer; margin-left:8px; }
+
+    /* Hide UI controls when printing the page */
+    @media print {
+      .unit-row,
+      .filter-row,
+      .filter-button,
+      .print-button,
+      .unit-select,
+      /* hide back/summary navigation if printing the page */
+      .topbar .back,
+      /* hide footer/header includes when printing the page */
+      #header-include,
+      #footer-include {
+        display: none !important;
+      }
+      /* make cards full-width for print */
+      .cards { gap:6px; }
+      .card { min-width:100%; max-width:100%; box-shadow:none; border:1px solid #ccc; page-break-inside:avoid; }
+      body { background: #fff !important; padding: 8mm !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="header-include"></div>
+
+  <div class="topbar">
+    <span class="back" onclick="window.location.href='/machine/machine-status-summary.html'">&larr; Back to summary</span>
+    <div class="status-title" id="statusTitle">Machines</div>
+  </div>
+
+  <!-- Filters: Unit / Month / Year / Actions (below header, above cards) -->
+  <div class="unit-row">
+    <label for="unitSelect" style="font-weight:600; color:#1a3a4a;">Unit</label>
+    <select id="unitSelect" class="unit-select" aria-label="Select Unit">
+      <option value="Unit 1">Unit 1</option>
+      <option value="Unit 2">Unit 2</option>
+      <option value="Unit 3">Unit 3</option>
+    </select>
+  </div>
+
+  <!-- Machine Name Filter -->
+  <div class="filter-row">
+    <div>
+      <label for="machineNameFilter">Machine Name</label>
+      <select id="machineNameFilter" class="unit-select" aria-label="Select Machine Name">
+        <option value="">-- All Machines --</option>
+        <!-- options populated dynamically -->
+      </select>
+    </div>
+  </div>
+
+  <div class="filter-row">
+    <div>
+      <label for="monthSelect">Month</label>
+      <select id="monthSelect" class="unit-select" aria-label="Select Month">
+        <option value="ALL">All</option>
+        <option value="1">January</option>
+        <option value="2">February</option>
+        <option value="3">March</option>
+        <option value="4">April</option>
+        <option value="5">May</option>
+        <option value="6">June</option>
+        <option value="7">July</option>
+        <option value="8">August</option>
+        <option value="9">September</option>
+        <option value="10">October</option>
+        <option value="11">November</option>
+        <option value="12">December</option>
+      </select>
+    </div>
+    <div>
+      <label for="yearSelect">Year</label>
+      <select id="yearSelect" class="unit-select" aria-label="Select Year">
+        <option value="ALL">All</option>
+        <!-- year options populated dynamically -->
+      </select>
+    </div>
+    <div>
+      <button id="applyFiltersBtn" class="filter-button">Apply Filters</button>
+      <button id="downloadCsvBtn" class="filter-button" style="background:#0b2b38; margin-left:8px;">Download CSV</button>
+      <button id="printReportBtn" class="print-button">Print Report</button>
+    </div>
+  </div>
+
+  <div id="cardsWrap" class="cards">
+    <div class="empty">Loading...</div>
+  </div>
+
+  <div id="footer-include"></div>
+
+  <script>
+    fetch('/fragments/header.html').then(r=>r.text()).then(html=>{ document.getElementById('header-include').innerHTML = html; });
+    fetch('/fragments/footer.html').then(r=>r.text()).then(html=>{ document.getElementById('footer-include').innerHTML = html; });
+    let lastFetchedMachines = []; // cache of machines fetched for current status (before client filters)
+    let currentlyDisplayedMachines = []; // after unit/month/year filters
+
+    function getStatusFromQuery() {
+      const p = new URLSearchParams(window.location.search);
+      // return status exactly as present in URL (do not alter case)
+      const s = p.get('status');
+      return s ? decodeURIComponent(s) : '';
+    }
+    function getMonthFromQuery() {
+      const p = new URLSearchParams(window.location.search);
+      return p.get('month') || 'ALL';
+    }
+    function getYearFromQuery() {
+      const p = new URLSearchParams(window.location.search);
+      return p.get('year') || 'ALL';
+    }
+    function getUnitFromQuery() {
+      const p = new URLSearchParams(window.location.search);
+      return p.get('unit') || 'Unit 2'; // default Unit 2
+    }
+    function getMachineNameFromQuery() {
+      const p = new URLSearchParams(window.location.search);
+      return p.get('machineName') || '';
+    }
+    function updateQueryParam(key, value) {
+      const p = new URLSearchParams(window.location.search);
+      if (value) p.set(key, value); else p.delete(key);
+      const newUrl = window.location.pathname + '?' + p.toString();
+      window.history.replaceState({}, '', newUrl);
+    }
+
+    async function loadMachines() {
+      const status = getStatusFromQuery();
+      // detect the "ccn-status aggregate" flows (LIVE TOTAL / CLOSE TOTAL / live / close)
+      const statusNorm = (status || '').toString().trim().toLowerCase();
+      const isCcnAggregate = (statusNorm === 'live total' || statusNorm === 'close total' || statusNorm === 'live' || statusNorm === 'close');
+      let unit = (document.getElementById('unitSelect').value || '').trim();
+      const monthSel = document.getElementById('monthSelect');
+      const yearSel = document.getElementById('yearSelect');
+      const machineNameSel = document.getElementById('machineNameFilter');
+      const selectedMonth = monthSel ? monthSel.value : 'ALL';
+      const selectedYear = yearSel ? yearSel.value : 'ALL';
+      const selectedMachineName = machineNameSel ? machineNameSel.value : '';
+      // When showing CCN aggregates, avoid showing/forcing a single unit in the title
+      // if (isCcnAggregate) {
+      //   document.getElementById('statusTitle').textContent = `Status: ${status}`;
+      // } else {
+      //   document.getElementById('statusTitle').textContent = status ? `Status: ${status} — ${unit}` : `All Machines — ${unit}`;
+      // }
+      // Always show selected unit in the title so results are clearly unit-scoped
+      const titleSuffix = selectedMachineName ? ` — ${selectedMachineName}` : '';
+      document.getElementById('statusTitle').textContent = status ? `Status: ${status} — ${unit}${titleSuffix}` : `All Machines — ${unit}${titleSuffix}`;
+      const wrap = document.getElementById('cardsWrap');
+      wrap.innerHTML = '<div class="empty">Loading...</div>';
+      try {
+        // If the requested status is the aggregate CCN counts, use the ccn-status endpoint.
+        let url;
+        if (statusNorm === 'live total' || statusNorm === 'live') {
+          url = '/api/machine/by-ccn-status?ccnStatus=live';
+        } else if (statusNorm === 'close total' || statusNorm === 'close') {
+          url = '/api/machine/by-ccn-status?ccnStatus=close';
+        } else {
+          url = '/api/machine/by-live-status' + (status ? ('?status=' + encodeURIComponent(status)) : '');
+        }
+        const res = await fetch(url);
+        if (!res.ok) {
+          wrap.innerHTML = `<div class="empty">Error fetching machines (${res.status})</div>`;
+          return;
+        }
+        let machines = await res.json();
+        lastFetchedMachines = Array.isArray(machines) ? machines.slice() : [];
+        // populate year select from fetched lastUpdated/timestamp fields
+        populateYearOptions(lastFetchedMachines);
+        // populate machine name select
+        populateMachineNameOptions(lastFetchedMachines);
+        // ensure month/year selects reflect query params (if any)
+        const qMonth = getMonthFromQuery();
+        const qYear = getYearFromQuery();
+        if (document.getElementById('monthSelect')) document.getElementById('monthSelect').value = qMonth;
+        if (document.getElementById('yearSelect')) {
+          // if qYear is not present or not in options it remains as default
+          const ySel = document.getElementById('yearSelect');
+          if (Array.from(ySel.options).some(o => o.value === qYear)) ySel.value = qYear;
+        }
+
+        // Apply unit filter first (unit selection always applies). If "ALL" is selected, show all units.
+        if (unit && unit.toLowerCase() !== 'all') {
+          const unitLower = unit.toLowerCase();
+          machines = machines.filter(m => (m.unit || '').toString().toLowerCase() === unitLower);
+        }
+
+        // Apply machine name filter
+        if (selectedMachineName && selectedMachineName.trim() !== '') {
+          machines = machines.filter(m => {
+            const mName = (m.machineName || '').toString().trim();
+            return mName === selectedMachineName.trim();
+          });
+        }
+
+        // Apply month/year filters using lastUpdatedData (fallback to timestamp)
+        const month = selectedMonth || getMonthFromQuery();
+        const year = selectedYear || getYearFromQuery();
+        if ((month && month !== 'ALL') || (year && year !== 'ALL')) {
+          machines = machines.filter(m => {
+            const dStr = (m.lastUpdatedData || m.timestamp || m.actualAssyStartDate || m.invoiceDate || '').toString();
+            if (!dStr) return false;
+            const d = new Date(dStr);
+            if (isNaN(d.getTime())) {
+              // try ISO extraction (if timestamp contains date part)
+              const part = (dStr.split('T')[0] || '').trim();
+              if (!part) return false;
+              const alt = new Date(part);
+              if (isNaN(alt.getTime())) return false;
+              return ((month === 'ALL') || (String(alt.getMonth()+1) === String(month))) &&
+                     ((year === 'ALL') || (String(alt.getFullYear()) === String(year)));
+            }
+            return ((month === 'ALL') || (String(d.getMonth()+1) === String(month))) &&
+                   ((year === 'ALL') || (String(d.getFullYear()) === String(year)));
+          });
+        }
+
+        // cache currently displayed machines for CSV/report
+        currentlyDisplayedMachines = machines.slice();
+
+        if (!Array.isArray(machines) || machines.length === 0) {
+          wrap.innerHTML = `<div class="empty">No machines found for status "${status}" and ${unit}.${selectedMachineName ? ' (Machine: ' + selectedMachineName + ')' : ''}</div>`;
+          return;
+        }
+
+        wrap.innerHTML = '';
+        machines.forEach(m => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          const cust = m.customerName || '-';
+          const ccn = m.ccn || '-';
+          const model = m.model || m.machineModel || '-';
+          const live = m.liveStatus || '';
+          const unitText = m.unit || '';
+          const machName = m.machineName || '-';
+          card.innerHTML = `<h4>${cust}</h4>
+                            <div class="meta">Machine: ${machName}</div>
+                            <div class="meta">Model: ${model}</div>
+                            <div class="meta">CCN: ${ccn}</div>
+                            <div class="meta">Live status: ${live}</div>
+                            <div class="meta">Unit: ${unitText}</div>`;
+          card.addEventListener('click', () => {
+            if (!m.ccn) return;
+            // Preserve source and current filter context so machine form can return here after update
+            const params = new URLSearchParams();
+            params.set('ccn', m.ccn);
+            params.set('from', 'machines-by-status');
+            const status = getStatusFromQuery();
+            if (status) params.set('status', status);
+            const unit = (document.getElementById('unitSelect') || { value: '' }).value;
+            if (unit) params.set('unit', unit);
+            const month = (document.getElementById('monthSelect') || { value: 'ALL' }).value;
+            if (month) params.set('month', month);
+            const year = (document.getElementById('yearSelect') || { value: 'ALL' }).value;
+            if (year) params.set('year', year);
+            const machineName = (document.getElementById('machineNameFilter') || { value: '' }).value;
+            if (machineName) params.set('machineName', machineName);
+            window.location.href = `/machine-project.html?${params.toString()}`;
+          });
+          wrap.appendChild(card);
+        });
+      } catch (err) {
+        wrap.innerHTML = `<div class="empty">Error: ${err}</div>`;
+      }
+    }
+
+    function populateYearOptions(machines) {
+      const years = new Set();
+      machines.forEach(m => {
+        const dStr = (m.lastUpdatedData || m.timestamp || '').toString();
+        if (!dStr) return;
+        const d = new Date(dStr);
+        if (!isNaN(d.getTime())) years.add(d.getFullYear());
+        else {
+          const p = (dStr.split('T')[0]||'').trim();
+          const alt = new Date(p);
+          if (!isNaN(alt.getTime())) years.add(alt.getFullYear());
+        }
+      });
+      const yArr = Array.from(years).sort((a,b)=>b-a);
+      const yearSel = document.getElementById('yearSelect');
+      if (!yearSel) return;
+      // keep 'ALL' and then add years
+      const prev = yearSel.value || 'ALL';
+      yearSel.innerHTML = '<option value="ALL">All</option>';
+      const currentYear = new Date().getFullYear();
+      if (yArr.length === 0) {
+        // if no year data, offer current year
+        yearSel.innerHTML += `<option value="${currentYear}">${currentYear}</option>`;
+      } else {
+        yArr.forEach(y => { yearSel.innerHTML += `<option value="${y}">${y}</option>`; });
+      }
+      // restore query param choice if present
+      const qYear = getYearFromQuery();
+      if (qYear && Array.from(yearSel.options).some(o=>o.value===qYear)) yearSel.value = qYear;
+      else if (prev && Array.from(yearSel.options).some(o=>o.value===prev)) yearSel.value = prev;
+      else {
+        // default to current year if available
+        if (Array.from(yearSel.options).some(o => o.value == currentYear)) yearSel.value = String(currentYear);
+      }
+    }
+
+    // Populate machine name filter dropdown
+    function populateMachineNameOptions(machines) {
+      const machineNames = new Set();
+      machines.forEach(m => {
+        const name = m.machineName || '';
+        if (name && name.trim()) {
+          machineNames.add(name.trim());
+        }
+      });
+      const mArr = Array.from(machineNames).sort();
+      const machineNameSel = document.getElementById('machineNameFilter');
+      if (!machineNameSel) return;
+      
+      const prev = machineNameSel.value || '';
+      machineNameSel.innerHTML = '<option value="">-- All Machines --</option>';
+      
+      mArr.forEach(name => {
+        machineNameSel.innerHTML += `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
+      });
+      
+      // restore query param choice if present
+      const qMachineName = getMachineNameFromQuery();
+      if (qMachineName && Array.from(machineNameSel.options).some(o=>o.value===qMachineName)) {
+        machineNameSel.value = qMachineName;
+      } else if (prev && Array.from(machineNameSel.options).some(o=>o.value===prev)) {
+        machineNameSel.value = prev;
+      }
+    }
+
+    // CSV export of currentlyDisplayedMachines (headers + values)
+    function downloadCsv() {
+      const rows = [];
+      // Added machineName and machineCategory columns
+      const headers = ['ccn','customerName','machineName','machineCategory','model','machineModel','liveStatus','unit','lastUpdatedData','timestamp'];
+      rows.push(headers.join(','));
+      currentlyDisplayedMachines.forEach(m => {
+        const vals = headers.map(h => {
+          let v = m[h] !== undefined ? m[h] : (m[h.replace(/([A-Z])/g,'_$1').toLowerCase()] || '');
+          if (v === null || v === undefined) v = '';
+          // escape quotes
+          v = String(v).replace(/"/g,'""');
+          if (v.indexOf(',') !== -1 || v.indexOf('"') !== -1) v = `"${v}"`;
+          return v;
+        });
+        rows.push(vals.join(','));
+      });
+      const csv = rows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const status = getStatusFromQuery() || 'all';
+      const unit = (document.getElementById('unitSelect') || {value:'ALL'}).value.replace(/\s+/g,'-');
+      const month = (document.getElementById('monthSelect') || {value:'ALL'}).value;
+      const year = (document.getElementById('yearSelect') || {value:'ALL'}).value;
+      const filename = `machines-${status}-${unit}-${year}-${month}.csv`;
+      if (navigator.msSaveBlob) { navigator.msSaveBlob(blob, filename); }
+      else {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    // Print currentlyDisplayedMachines in a printable window
+    function printReport() {
+      if (!Array.isArray(currentlyDisplayedMachines) || currentlyDisplayedMachines.length === 0) {
+        alert('No records to print for current filters.');
+        return;
+      }
+      const status = getStatusFromQuery() || 'All';
+      const unit = (document.getElementById('unitSelect') || {value:'ALL'}).value;
+      // Note: month/year are used to filter data but intentionally NOT shown in the printable report
+      const month = (document.getElementById('monthSelect') || {value:'ALL'}).value;
+      const year = (document.getElementById('yearSelect') || {value:'ALL'}).value;
+      const generatedOn = new Date().toLocaleString();
+
+      // Build printable HTML
+      let html = `<!doctype html><html><head><meta charset="utf-8"><title>Machines Report</title>
+        <style>
+          @page { size: A4 portrait; margin: 20mm; }
+          body { font-family: Arial, sans-serif; color:#111; margin:0; padding:0; }
+          .report-container { padding:18px; }
+          .report-header { text-align:left; margin-bottom:12px; }
+          .report-header h1 { margin:0; font-size:18px; }
+          .report-meta { margin-top:6px; font-size:13px; color:#333; }
+          table { width:100%; border-collapse:collapse; margin-top:12px; font-size:13px; }
+          th, td { border:1px solid #ddd; padding:8px; text-align:left; vertical-align:top; }
+          th { background:#f1f1f1; font-weight:700; }
+          tr:nth-child(even) td { background:#fbfbfb; }
+          .footer { margin-top:16px; font-size:12px; color:#444; }
+          /* Ensure table breaks nicely across pages */
+          thead { display:table-header-group; }
+          tfoot { display:table-footer-group; }
+          tr { page-break-inside: avoid; }
+        </style>
+      </head><body><div class="report-container">`;
+
+      // NOTE: month/year are intentionally excluded from the printed header
+      html += `<div class="report-header"><h1>Machines Report</h1>
+                <div class="report-meta"><strong>Status:</strong> ${status} &nbsp;&nbsp; <strong>Unit:</strong> ${unit}</div>
+                <div class="report-meta"><strong>Generated:</strong> ${generatedOn}</div></div>`;
+
+      // Added Machine Name and Machine Category columns to printable report
+      html += `<table><thead><tr>
+                <th>#</th><th>CCN</th><th>Customer</th><th>Machine Name</th><th>Machine Category</th><th>Model</th><th>Live Status</th><th>Unit</th><th>Last Updated</th>
+               </tr></thead><tbody>`;
+
+      currentlyDisplayedMachines.forEach((m, idx) => {
+        const ccn = m.ccn || '';
+        const cust = m.customerName || '';
+        const machineName = m.machineName || '';
+        const machineCategory = m.machineCategory || '';
+        const model = m.model || m.machineModel || '';
+        const live = m.liveStatus || '';
+        const unitText = m.unit || '';
+        const lastUpd = m.lastUpdatedData || m.timestamp || m.actualAssyStartDate || m.invoiceDate || '';
+        html += `<tr>
+                   <td>${idx+1}</td>
+                   <td>${ccn}</td>
+                   <td>${escapeHtml(cust)}</td>
+                   <td>${escapeHtml(machineName)}</td>
+                   <td>${escapeHtml(machineCategory)}</td>
+                   <td>${escapeHtml(model)}</td>
+                   <td>${escapeHtml(live)}</td>
+                   <td>${escapeHtml(unitText)}</td>
+                   <td>${escapeHtml(lastUpd)}</td>
+                 </tr>`;
+      });
+
+      html += `</tbody></table><div class="footer">Total records: ${currentlyDisplayedMachines.length}</div></div>
+        <script>
+          // Auto print and close window after printing
+          window.onload = function() {
+            setTimeout(function(){ window.print(); }, 300);
+          };
+          window.onafterprint = function() {
+            setTimeout(function(){ window.close(); }, 200);
+          };
+        <\/script></body></html>`;
+
+      // Open new window and write content
+      const w = window.open('', '_blank', 'toolbar=0,location=0,menubar=0');
+      if (!w) { alert('Popup blocked. Allow popups to print.'); return; }
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
+      w.focus();
+    }
+
+    // small helper to escape HTML in table cells
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Initialize after DOM is ready to avoid timing/layout issues
+    window.addEventListener('DOMContentLoaded', function() {
+      // wire Print button
+      const printBtn = document.getElementById('printReportBtn');
+      if (printBtn) printBtn.addEventListener('click', printReport);
+      const select = document.getElementById('unitSelect');
+      const currentUnit = getUnitFromQuery();
+      // set selected option if matches; default to Unit 2 if none
+      let found = false;
+      for (let i=0;i<select.options.length;i++) {
+        if (select.options[i].value.toLowerCase() === currentUnit.toLowerCase()) {
+          select.selectedIndex = i; found = true; break;
+        }
+      }
+      if (!found) {
+        for (let i=0;i<select.options.length;i++) {
+          if (select.options[i].value.toLowerCase() === 'unit 2') { select.selectedIndex = i; break; }
+        }
+        updateQueryParam('unit', 'Unit 2');
+      } else {
+        updateQueryParam('unit', currentUnit);
+      }
+      select.addEventListener('change', function() {
+        const v = this.value;
+        updateQueryParam('unit', v);
+        loadMachines();
+      });
+
+      // Machine Name Filter change listener
+      const machineNameFilter = document.getElementById('machineNameFilter');
+      if (machineNameFilter) {
+        const currentMachineName = getMachineNameFromQuery();
+        if (currentMachineName) machineNameFilter.value = currentMachineName;
+        machineNameFilter.addEventListener('change', function() {
+          const v = this.value;
+          if (v && v.trim() !== '') {
+            updateQueryParam('machineName', v);
+          } else {
+            updateQueryParam('machineName', '');
+          }
+          loadMachines();
+        });
+      }
+
+      // apply / download buttons
+      const applyBtn = document.getElementById('applyFiltersBtn');
+      const downloadBtn = document.getElementById('downloadCsvBtn');
+      if (applyBtn) {
+        applyBtn.addEventListener('click', function() {
+          // persist month/year selection to URL then reload view
+          const m = (document.getElementById('monthSelect') || {value:'ALL'}).value;
+          const y = (document.getElementById('yearSelect') || {value:'ALL'}).value;
+          updateQueryParam('month', m);
+          updateQueryParam('year', y);
+          loadMachines();
+        });
+      }
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', function() { downloadCsv(); });
+      }
+ 
+      // load machines after initialization
+      loadMachines();
+    });
+  </script>
+</body>
+</html>

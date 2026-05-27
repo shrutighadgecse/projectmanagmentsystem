@@ -1,0 +1,111 @@
+/* Responsive Table CSS - pure CSS version */
+
+.responstable {
+  margin: 1em 0;
+  width: 100%;
+  overflow: hidden;
+  background: #FFF;
+  color: #024457;
+  border-radius: 10px;
+  border: 1px solid #167F92;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.responstable tr {
+  border: 1px solid #D9E4E6;
+}
+
+.responstable tr:nth-child(odd) {
+  background-color: #EAF3F3;
+}
+
+.responstable th,
+.responstable td {
+  text-align: left;
+  margin: .5em 1em;
+  padding: 1em;
+  border: 1px solid #D9E4E6;
+}
+
+.responstable th {
+  background-color: #167F92;
+  color: #FFF;
+  border: 1px solid #FFF;
+}
+
+@media (max-width: 480px) {
+  .responstable thead {
+    display: none;
+  }
+  .responstable tr {
+    display: block;
+    margin-bottom: 1em;
+    border: none;
+  }
+  .responstable td {
+    display: block;
+    border: none;
+    border-bottom: 1px solid #D9E4E6;
+    max-width: 100%;
+    word-wrap: break-word;
+    padding: 0.5em 1em;
+    position: relative;
+  }
+  .responstable td:before {
+    content: attr(data-th) ": ";
+    font-weight: bold;
+    display: block;
+    color: #167F92;
+    margin-bottom: 0.3em;
+  }
+}
+
+body {
+  padding: 0 2em;
+  font-family: Arial, sans-serif;
+  color: #024457;
+  background: #f2f2f2;
+}
+
+h1 {
+  font-family: Verdana;
+  font-weight: normal;
+  color: #024457;
+}
+
+h1 span {
+  color: #167F92;
+}
+/* Removed invalid SCSS/Sass code and replaced with valid CSS for responsive tables */
+
+@media (min-width: 768px) {
+  .responstable td,
+  .responstable th {
+    display: table-cell;
+    padding: 1em;
+    border: 1px solid #D9E4E6;
+    text-align: left;
+    margin: .5em 1em;
+  }
+  .responstable td:first-child {
+    display: table-cell;
+    text-align: center;
+    border-right: 1px solid #D9E4E6;
+  }
+}
+
+
+body {
+  padding: 0 2em;
+  font-family: Arial, sans-serif;
+  color: #024457;
+  background: #f2f2f2;
+}
+
+h1 {
+  font-family: Verdana;
+  font-weight: normal;
+  color: #024457;
+  span {color: #167F92;}
+}

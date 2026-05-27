@@ -1,0 +1,268 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Form Data</title>
+    <link rel="stylesheet" href="masterkanban.css">
+    <style>
+    
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+html, body {
+height: 100%;
+margin: 0;
+padding: 0;
+display: flex;
+flex-direction: column;
+font-size: clamp(14px, 2vw, 16px); /* Responsive font */
+
+}
+
+.page-wrapper {
+flex: 1;
+display: flex;
+flex-direction: column;
+}
+
+
+/* Header */
+header {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+height: 60px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 5px 20px;
+background-color: #f8f9fa;
+border-bottom: 1px solid #dee2e6;
+z-index: 1000;
+}
+
+
+
+
+
+.logo {
+margin-right: auto; 
+}
+
+.search-bar {
+flex: 1; 
+margin-left: 20px; 
+}
+
+.search-bar input {
+width: 80%; 
+padding: 5px; 
+border: 1px solid #ccc; 
+border-radius: 4px; 
+}
+
+.avatar {
+width: 30px; 
+height: 30px; 
+background-color: #ee1919; 
+color: white;
+border-radius: 50%; 
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+font-size: 16px; 
+box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+margin-left: 20px;
+}
+
+
+
+
+
+.container {
+flex: 1;
+background: rgba(255, 255, 255, 0.1);
+border-radius: 10px;
+padding: 30px;
+box-shadow: 0 4px 10px rgba(252, 247, 247, 0.3);
+margin-top: 150px; 
+margin-bottom: 80px; /* Increased space from footer */
+}
+
+
+table {
+width: 100%;
+border-collapse: collapse;
+overflow: hidden;
+border-radius: 10px;
+}
+
+thead {
+background: rgba(255, 255, 255, 0.2);
+}
+
+th, td {
+padding: 12px 15px;
+text-align: left;
+font-size: 14px;
+}
+
+th {
+font-weight: 600;
+text-transform: uppercase;
+color: #fff;
+}
+
+tbody tr {
+background: rgba(255, 255, 255, 0.1);
+transition: background 0.3s ease;
+}
+
+tbody tr:hover {
+background: rgba(255, 255, 255, 0.2);
+}
+
+tbody td {
+color: #fff;
+font-weight: 300;
+}
+
+.scrollable {
+max-height: 400px;
+overflow-y: auto;
+border: 1px solid rgba(255, 255, 255, 0.2);
+border-radius: 10px;
+}
+
+::-webkit-scrollbar {
+width: 8px;
+}   
+
+::-webkit-scrollbar-thumb {
+background: rgba(255, 255, 255, 0.3);
+border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+background: rgba(255, 255, 255, 0.5);
+}
+@media (max-width: 768px) {
+.scrollable {
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+}
+
+table {
+width: 1000px; /* or min-width */
+}
+
+th, td {
+font-size: 12px; /* slightly smaller on small screens */
+}
+}
+
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div id="header"></div>
+    <div style="height:60px;"></div> <!-- Gap below header for all screens -->
+
+<div class="container">
+    <div class="scrollable">
+        <table>
+            <thead>
+                <tr>
+                    <th>Serial No.</th>
+                    <th>Assembly Code</th>
+                    <th>Description</th>
+                    <th>Machine Name</th>
+                    <th>Stage</th>
+                    <th>Opening Stock KM</th>
+                    <th>Stock Inward</th>
+                    <th>Stock-In-Transit</th>
+                    <th>Stock Release</th>
+                    <th>Closing Stock</th>
+                </tr>
+            </thead>
+            <tbody id="outputTableBody">
+                <!-- Data will be dynamically populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="footer"></div>
+    <script>
+    fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</div>
+
+<script>
+
+                // Load header and footer
+ fetch('/fragments/header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading header:', error));
+
+      
+// Updated the fetchAndDisplayFormData function to ensure stockRelease is displayed correctly.
+async function fetchAndDisplayFormData() {
+    try {
+        const response = await fetch('/api/getKilaMaidanData');
+        const data = await response.json();
+
+        const tableBody = document.getElementById('outputTableBody');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        data.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            const closingStock = row.closingStock;
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${row.assemblyCode}</td>
+                <td>${row.description}</td>
+                <td>${row.machineName}</td>
+                <td>${row.stage}</td>
+                <td>${row.openingStockKM}</td>
+                <td>${row.stockInward}</td>
+                <td>${row.stockTransit}</td>
+                <td>${row.stockRelease}</td>
+        <td style="color: ${closingStock < 2 ? 'red' : 'white'};">${closingStock}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
+
+        // Add click event listener to table rows
+        document.querySelectorAll('#outputTableBody tr').forEach(row => {
+            row.addEventListener('click', async () => {
+                const assemblyCode = row.cells[1].textContent; // Assuming assembly code is in the second column
+
+                try {
+                    const response = await fetch(`/api/getAssemblyCodeDetails?assemblyCode=${assemblyCode}`);
+                    const data = await response.json();
+
+                    // Redirect to a new page or open a modal to display the data
+                    localStorage.setItem('assemblyCodeDetails', JSON.stringify(data));
+                    window.location.href = '/assemblyCodeDetails.html';
+                } catch (error) {
+                    console.error('Error fetching assembly code details:', error);
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error fetching Kila Maidan data:', error);
+    }
+}
+
+// Call fetchAndDisplayFormData to populate the table
+fetchAndDisplayFormData();
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<!---Coding By CodingLab | www.codinglabweb.com--->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!--<title>Registration Form in HTML CSS</title>-->
+    <!---Custom CSS File--->
+    <link rel="stylesheet" href="employee.css" />
+  </head>
+  <body>
+    <section class="container">
+      <header>New Employee Form</header>
+      <form action="/api/employees" method="POST" enctype="multipart/form-data" class="form">
+        <!-- Personal Information Section -->
+        <div class="section personal">
+          <h3>Personal Information</h3>
+          <div class="row">
+            <div class="input-box">
+              <label>Employee Name</label>
+              <input type="text" placeholder="Enter Name" required />
+            </div>
+            <div class="input-box">
+              <label>Employee Contact</label>
+              <input type="number" placeholder="Enter Contact Number" required />
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-box">
+              <label>Email</label>
+              <input type="email" placeholder="Enter Email" required />
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-box">
+              <label>Date of Birth</label>
+              <input type="date" placeholder="Enter Date of Birth" required />
+            </div>
+            <div class="input-box">
+              <label>Education Qualification</label>
+              <input type="text" placeholder="Enter Education Qualification" required />
+            </div>
+          </div>
+          <div class="input-box full-width">
+            <label for="image">Upload Image:</label>
+            <input type="file" id="image" name="image" accept="image/*">
+          </div>
+        </div>
+        <!-- Professional Information Section -->
+        <div class="section professional">
+          <h3>Professional Information</h3>
+          <div class="row">
+            <div class="input-box">
+              <label>Employee Code</label>
+              <input type="number" placeholder="" required />
+            </div>
+            <div class="input-box">
+              <label for="department">Department</label>
+              <select id="department" name="department">
+                <option value="assembly">Assembly</option>
+                <option value="sales">Sales</option>
+                <option value="ppc">Purchase</option>
+                <option value="store">Stores</option>
+                <option value="design">Design</option>
+                <option value="kanban">Kanban</option>
+                <option value="electrical">Electrical</option>
+                <option value="qa/qc">QA/QC</option>
+                <option value="admin">Admin</option>
+                <option value="superuser">Super User</option>
+                <option value="bhoomika">Bhoomika</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-box">
+              <label>Designation</label>
+              <select id="designation" name="designation">
+                <option value="assistant manager">Assistant Manager</option>
+                <option value="asst general manager">Asst.General Manager</option>
+                <option value="dy.general manager">Dy.General Manager</option>
+                <option value="get">GET</option>
+                <option value="helper">Helper</option>
+                <option value="jr engineer">Jr.Engineer</option>
+                <option value="Manager">Manager</option>
+                <option value="sr engineer">Sr.Engineer</option>
+                <option value="sr manager">Sr.Manager</option>
+                <option value="sr fitter">Sr.Fitter</option>
+                <option value="technician">Technician</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-box">
+              <label>Grade</label>
+              <select id="grade" name="grade">
+                <option value="aa">AA</option>
+                <option value="c">C</option>
+                <option value="o">O</option>
+                <option value="p">P</option>
+                <option value="t">T</option>
+                <option value="e">E</option>
+              </select>
+            </div>
+            <div class="input-box">
+              <label>Category</label>
+              <select id="category" name="category">
+                <option value="casual">Casual</option>
+                <option value="managment">Managment</option>
+                <option value="worker">Worker</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-box">
+              <label>Machine Division</label>
+              <select id="machine division" name="machine division">
+                <option value="case packer">Case Packer</option>
+                <option value="tubefilling">TubeFilling</option>
+                <option value="machine">Banding Machine</option>
+                <option value="cartnator">Cartnator</option>
+                <option value="spares">Spares</option>
+                <option value="tcl">TCL</option>
+                <option value="rotory">Rotory</option>
+                <option value="flat bed">Flat Bed</option>
+              </select>
+            </div>
+            <div class="input-box">
+              <label>Company Join Date</label>
+              <input type="date" placeholder="Enter company join date" required />
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-box">
+              <label>Reporting Boss</label>
+              <select id="reporting boss" name="reporting boss">
+                <option value="pankaj vasant gadkari">Pankaj Vasant Gadkari</option>
+                <option value="sanjay kulkarni">Sanjay Kulkarni</option>
+              </select>
+            </div>
+            <div class="input-box">
+              <label>Employee Status</label>
+              <select id="employee status" name="employee status">
+                <option value="present">Present</option>
+                <option value="left">Left</option>
+                <option value="transferred">Transferred</option>
+                <option value="retired">Retired</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-box full-width">
+            <label>Status Date</label>
+            <input type="date" placeholder="Enter Status Date" required />
+          </div>
+        </div>
+        <button>Submit</button>
+      </form>
+    </section>
+  </body>
+</html>

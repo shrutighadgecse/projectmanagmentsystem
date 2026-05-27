@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Project Form</title>
+<link rel="stylesheet" href="mac.css">
+</head>
+<body>
+
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+<div><b>Record No:</b> 2025-12-04T15:09:14</div>
+<button class="project-btn">Project Form</button>
+</div>
+
+<!-- Progress -->
+<div class="progress">
+  <div class="progress-line"></div>
+  <div class="progress-step active" data-step="po">Purchase Order</div>
+  <div class="progress-step" data-step="sales">Sales</div>
+  <div class="progress-step" data-step="design">Design</div>
+  <div class="progress-step" data-step="qa">QA-QC</div>
+  <div class="progress-step active" data-step="ppc">PPC</div>
+  <div class="progress-step" data-step="cp-cell">CP Cell</div>
+  <div class="progress-step" data-step="stores">Stores</div>
+  <div class="progress-step" data-step="assembly1">Assembly P1</div>
+    <div class="progress-step" data-step="assembly2">Assembly P2</div>
+  <div class="progress-step" data-step="dispatch">Invoice/Dispatch</div>
+
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+<button class="tab active" onclick="showTab('po')">Purchase Order</button>
+<button class="tab" onclick="showTab('sales')">Sales</button>
+<button class="tab" onclick="showTab('design')">Design</button>
+<button class="tab" onclick="showTab('qa')">QA-QC</button>
+<button class="tab" onclick="showTab('ppc')">PPC</button>
+<button class="tab" onclick="showTab('cp-cell')">CP Cell</button>
+<button class="tab" onclick="showTab('stores')">Stores</button>
+<button class="tab" onclick="showTab('assembly1')">Assembly P1</button>
+<button class="tab" onclick="showTab('assembly2')">Assembly P2</button>
+<button class="tab" onclick="showTab('dispatch')">Invoice/Dispatch</button>
+
+<!-- COMMON -->
+<div class="card">
+<div class="grid-5">
+<div><label>CCN</label><input></div>
+<div><label>Machine Family</label><input></div>
+<div><label>Machine Name</label><input></div>
+<div><label>Model</label><input></div>
+<div><label>Customer Name</label><input></div>
+</div>
+
+<div class="grid-2">
+<div><label>Sales Engineer</label><input></div>
+</div>
+</div>
+
+<!-- ================= PURCHASE ORDER ================= -->
+<div id="po" class="tab-content active">
+
+<div class="grid-3">
+<div><label>PO No</label><input></div>
+<div><label>PO Date</label><input type="date"></div>
+<div><label>PO Delivery Date</label><input type="date"></div>
+</div>
+
+<div class="grid-3">
+<div><label>PO Receipt Date</label><input type="date"></div>
+<div><label>Order Type</label><input></div>
+<div><label>PO Value (INR)</label><input></div>
+</div>
+
+<label>Address</label>
+<textarea class="big-box"></textarea>
+
+</div>
+
+<!-- ================= SALES ================= -->
+<div id="sales" class="tab-content">
+
+<div class="grid-2">
+<div><label>Machine Layout Approval</label><input type="date"></div>
+<div><label>PO No</label><input></div>
+</div>
+
+<div class="grid-2">
+<div><label>Room Layout Approval</label><input type="date"></div>
+<div><label>PO Date</label><input type="date"></div>
+</div>
+
+<div class="grid-2">
+<div><label>OA Generation Date</label><input type="date"></div>
+<div><label>PO Receipt Date</label><input type="date"></div>
+</div>
+
+<div class="grid-2">
+<div><label>Change Part Layout Approval</label><input type="date"></div>
+</div>
+
+<label>Remarks</label>
+<textarea></textarea>
+
+<label>MCN Remarks (For Shortfall)</label>
+<textarea></textarea>
+
+</div>
+
+<!-- ================= DESIGN ================= -->
+<div id="design" class="tab-content">
+
+<div class="grid-2">
+<div><label>LOA Basic Release Date</label><input type="date"></div>
+<div><label>Machine Layout Approval</label><input type="date"></div>
+</div>
+
+<div class="grid-2">
+<div><label>LOA Optional Release Date</label><input type="date"></div>
+<div><label>Change Part Layout Approval</label><input type="date"></div>
+</div>
+
+<div class="grid-2">
+<div><label>DQ Release Date</label><input type="date"></div>
+<div><label>Room Layout Approval</label><input type="date"></div>
+</div>
+
+<div class="grid-2">
+<div><label>IFAT Protocol Release Date</label><input type="date"></div>
+<div><label>OA Generation Date</label><input type="date"></div>
+</div>
+
+<div class="grid-3">
+<div><label>Total Basic Assembly</label><input></div>
+<div><label>Total Optional Assembly</label><input></div>
+<div><label>Total New Assembly</label><input></div>
+</div>
+
+<div class="grid-2">
+<div><label>New Assembly Date</label><input type="date"></div>
+<div><label>Assemblies Released By</label><input></div>
+</div>
+
+<label>Remarks</label>
+<textarea></textarea>
+
+</div>
+
+<!-- ================= QA/QC ================= -->
+<div id="qa" class="tab-content">
+
+<div class="grid-2">
+<div><label>PMR Submission Date</label><input type="date"></div>
+<div><label>IFAT Date</label><input type="date"></div>
+</div>
+
+<div class="grid-2">
+<div><label>Product Receipt Date</label><input type="date"></div>
+<div><label>CFAT Date</label><input type="date"></div>
+</div>
+
+<div class="grid-2">
+<div><label>Packaging Receipt Date</label><input type="date"></div>
+<div><label>Sales Order Number</label><input></div>
+</div>
+
+<div class="grid-2">
+<div><label>Compliance Date</label><input type="date"></div>
+<div><label>Machine CP Qty</label><input></div>
+</div>
+
+<div class="grid-2">
+<div><label>Optional CP Qty</label><input></div>
+<div><label>Trial Completed</label><input></div>
+</div>
+
+<div class="grid-2">
+<div><label>MCN Number</label><input></div>
+<div>
+<label><input type="checkbox"> MCN with Shortfall</label>
+</div>
+</div>
+
+<div class="grid-2">
+<div><label>MCN Closure Date</label><input type="date"></div>
+</div>
+
+<label>Product Remarks</label>
+<textarea></textarea>
+
+<h4>CP Trial Remarks</h4>
+<div class="grid-3">
+<div><label>CP Detail</label><input></div>
+<div><label>IFAT Done On</label><input type="date"></div>
+<div><label>QC Cleared On</label><input type="date"></div>
+</div>
+
+<label>Remarks</label>
+<textarea></textarea>
+
+<label>MCN Remarks (For Shortfall)</label>
+<textarea></textarea>
+
+</div>
+<div id="ppc" class="tab-content">
+<div class="grid-2">
+<div><label>Actual PPC Basic Material Date</label><input type="date"></div>
+<div><label>Actual LOA Basic Release Date</label><input type="date"></div>
+</div>
+<div class="grid-2">
+<div><label>Actual PPC Optional Material Date</label><input type="date"></div>
+<div><label>Actual LOA Optional Release Date</label><input type="date"></div>
+</div>
+<div class="grid-3">
+<div><label>Total Basic Assy Attached</label><input type="number"></div>
+<div><label>Total Optional Assy Attached</label><input type="number"></div>
+<div><label>Machine Completion %</label><input type="text" value="100%"></div>
+</div>
+<label>Material Progress Status</label>
+<textarea></textarea>
+</div>
+
+<div id="cp-cell" class="tab-content">
+<div class="grid-2">
+<div><label>Actual CP Design Release Date</label><input type="date"></div>
+<div><label>Machine CP Qty</label><input type="number"></div>
+</div>
+<div class="grid-2">
+<div><label>Actual Machine CP Manf. Date</label><input type="date"></div>
+<div><label>Machine Optional CP Qty</label><input type="number"></div>
+</div>
+<label>CP Progress Status</label>
+<textarea placeholder="Details about IFAT, QC, etc."></textarea>
+</div>
+
+<div id="stores" class="tab-content">
+<div class="grid-2">
+<div><label>Actual Basic Matl Handed Over</label><input type="date"></div>
+<div><label>Actual PPC Basic Material Date</label><input type="date"></div>
+</div>
+<div class="grid-2">
+<div><label>Actual Optional Matl Handed Over</label><input type="date"></div>
+<div><label>Actual PPC Optional Material Date</label><input type="date"></div>
+</div>
+<label>Material Progress Status</label>
+<textarea></textarea>
+</div>
+
+<div id="assembly1" class="tab-content">
+<h3>Assembly Details - Phase 1</h3>
+<div class="grid-3">
+<div><label>Matrl Receipt Date</label><input type="date"></div>
+<div><label>Assy Start Date</label><input type="date"></div>
+<div><label>Mc Basic Completion</label><input type="date"></div>
+</div>
+<div class="grid-3">
+<div><label>Actual IFAT Date</label><input type="date"></div>
+<div><label>Actual CFAT Date</label><input type="date"></div>
+<div><label>Handed to Dispatch</label><input type="date"></div>
+</div>
+<label>Assembly Progress Status</label>
+<textarea style="height: 120px;" placeholder="24/12/2025 - Kick off done..."></textarea>
+</div>
+
+<div id="assembly2" class="tab-content">
+<h3>Assembly Details - Phase 2</h3>
+<label>Machine Basics</label>
+<textarea></textarea>
+<label>Machine Features</label>
+<textarea></textarea>
+<label>Additional Options</label>
+<textarea></textarea>
+<label>Project Kick off Details</label>
+<textarea></textarea>
+</div>
+
+<div id="dispatch" class="tab-content">
+<div class="grid-2">
+<div><label>Invoice Number</label><input value="SDI4563896ST5"></div>
+<div><label>Customer PO Ref</label><input value="SDI4563896ST5"></div>
+</div>
+<div class="grid-2">
+<div><label>LR No</label><input value="LR4567890"></div>
+<div><label>LR Date</label><input type="date"></div>
+</div>
+<div class="grid-2">
+<div><label>Invoice Date</label><input type="date"></div>
+<div><label>POD Date</label><input type="date"></div>
+</div>
+<div class="grid-2">
+<div><label>CCN Status</label>
+<select style="width:100%; padding:8px;">
+<option>Closed</option>
+<option>Open</option>
+</select>
+</div>
+<div><label>MCN Shortfall Closure Date</label><input type="date"></div>
+</div>
+</div>
+
+
+<!-- Buttons -->
+<div class="btn-group">
+<button class="save">Save</button>
+<button class="discard">Discard</button>
+</div>
+
+<script src="mac.js"></script>
+</body>
+</html>

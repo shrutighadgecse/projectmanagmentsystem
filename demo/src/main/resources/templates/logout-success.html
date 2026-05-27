@@ -1,0 +1,213 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout Success - IMAPG Dashboard</title>
+    <!-- Cache-control headers to prevent caching -->
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Cache-Control" content="post-check=0, pre-check=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" type="text/css" href="/logout-success.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .navbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-logo img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            padding: 50px;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            background-color: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+        }
+
+        .container h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .container p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .login-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: transform 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+
+        .login-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .login-link:active {
+            transform: translateY(0);
+        }
+
+        .footer-text {
+            margin-top: 30px;
+            color: #999;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-logo">
+            <img src="/images/IMA.JPG" alt="IMAPG Logo">
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="success-icon">
+            <span>✓</span>
+        </div>
+        <h1 th:text="${message}">Logout Successfully</h1>
+        <p>You have been successfully logged out from IMAPG Dashboard.</p>
+       
+        <a href="/" class="login-link">Return to Login</a>
+        
+        <div class="footer-text">
+            <p>© 2026 IMAPG Dashboard. All rights reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Prevent going back to home page after logout
+         */
+        (function() {
+            'use strict';
+
+            /**
+             * Clear browser history and prevent back navigation
+             */
+            function preventBackNavigation() {
+                // Clear the session storage
+                try {
+                    sessionStorage.clear();
+                } catch (e) {
+                    console.log('Could not clear session storage');
+                }
+
+                // Clear local storage (optional)
+                try {
+                    // localStorage.clear(); // Uncomment if needed
+                } catch (e) {
+                    console.log('Could not clear local storage');
+                }
+
+                // Push new history state
+                window.history.pushState(null, "", window.location.href);
+
+                // Handle back button attempts
+                window.addEventListener('popstate', function() {
+                    // Redirect to login if user tries to go back
+                    window.location.href = '/';
+                });
+            }
+
+            /**
+             * Prevent caching of this page
+             */
+            function preventCaching() {
+                if (window.history.pushState) {
+                    window.history.pushState(null, null, window.location.href);
+                }
+            }
+
+            /**
+             * Initialize security measures
+             */
+            document.addEventListener('DOMContentLoaded', function() {
+                preventBackNavigation();
+                preventCaching();
+                
+                console.log('🔒 Logout security measures initialized');
+                
+                // Add click handler to login link
+                const loginLink = document.querySelector('.login-link');
+                if (loginLink) {
+                    loginLink.addEventListener('click', function(e) {
+                        // Clear any stored user data
+                        sessionStorage.clear();
+                    });
+                }
+            });
+
+            // Also handle browser/tab close
+            window.addEventListener('beforeunload', function(e) {
+                // Clear session
+                try {
+                    sessionStorage.clear();
+                } catch (e) {
+                    console.log('Could not clear session storage on unload');
+                }
+            });
+
+        })();
+    </script>
+</body>
+</html>

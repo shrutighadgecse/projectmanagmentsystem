@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Live Status Summary</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f5f5; }
+        .summary-container {
+            background: #e3f2fd;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            width: 250px;
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            padding: 0;
+            z-index: 100;
+            max-height: 95vh;
+            overflow-y: auto;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .summary-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #35474d;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px 10px 0 0;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+                  font-size: .85rem;
+
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+        .summary-table th, .summary-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #bbdefb;
+            text-align: left;
+                  font-size: 0.75rem;
+
+        }
+        .summary-table th {
+            background: #bbdefb;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        #summaryContent {
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+
+        .status-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            cursor: pointer;
+            min-width: 200px;
+        }
+        .status-cards-wrap { display:flex; flex-wrap:wrap; padding:12px; }
+        .year-filter-container {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-bottom: 1px solid #bbdefb;
+            text-align: center;
+        }
+        .year-filter-container select {
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #999;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-include"></div>
+    <div class="summary-container" id="summaryContainer">
+        <div class="summary-header">
+            <span>Machine Live Status Summary</span>
+        </div>
+        <div class="year-filter-container">
+            <label for="yearFilterSummary" style="font-size: 0.75rem; margin-right: 5px;">Year:</label>
+            <select id="yearFilterSummary" onchange="fetchSummaryForYear(this.value)">
+                <option value="">All Years</option>
+            </select>
+        </div>
+        <div id="summaryContent">
+            <table class="summary-table">
+                <thead>
+                    <tr><th>Live Status</th><th>Count</th></tr>
+                </thead>
+                <tbody id="statusTableBody">
+                    <!-- Data will be inserted here -->
+                </tbody>
+            </table>
+            <!-- container to render machine cards for a clicked status -->
+            <div id="statusCardsContainer" class="status-cards-wrap" style="display:none;"></div>
+        </div>
+    </div>
+    <div id="footer-include"></div>
+    <script>
+
+        // Canonical list & display casing/order for statuses (adjust as needed)
+        const canonicalStatuses = [
+            "NEW CCN FOR APPROVAL","DESIGN","IN MUMBAI","RECEIVED FROM MUMBAI","PPC",
+            "YET TO PLAN","WIP- KANBAN","WIP -BASIC","WIP- OPTIONALS","HOLD - AUTOMATION PENDING",
+            "HOLD","STD CP TRIALS","IFAT IN PROGRESS","IFAT DONE","POST IFAT - POINT CLOSURE",
+            "READY","AWAITED PRODUCT","AWAITED PACKAGING","AWAITED CP","STOCK MC - READY",
+            "CUSTOMER CP TRIALS","AWAITED CFAT","CFAT IN PROGRESS","CFAT DONE","RE-CFAT","POST CFAT - POINT CLOSURE",
+            "COMPLIANCE - SENT TO CUSTOMER","AWAITING PACKING CLEARLANCE","FOR DISPATCH","AWAITING COMMERCIAL CLEARLANCE"," HOLD AWAITING MATERIAL",
+            "CLOSE TOTAL", "LIVE TOTAL"    // include lower/alt variants if needed
+        ];
+        
+        // Load available years and populate the dropdown
+        async function loadAvailableYears() {
+            try {
+                const res = await fetch('/api/machine/available-years');
+                if (!res.ok) return;
+                const years = await res.json();
+                const yearSelect = document.getElementById('yearFilterSummary');
+                years.forEach(year => {
+                    const opt = document.createElement('option');
+                    opt.value = year;
+                    opt.textContent = year;
+                    yearSelect.appendChild(opt);
+                });
+                // Set current year as default if available
+                const currentYear = new Date().getFullYear().toString();
+                if (years.includes(parseInt(currentYear))) {
+                    yearSelect.value = currentYear;
+                }
+            } catch(e) { console.log('Error loading years:', e); }
+        }
+         
+        async function fetchSummary() {
+            // Get the selected year from dropdown
+            const yearSelect = document.getElementById('yearFilterSummary');
+            const selectedYear = yearSelect.value;
+            
+            // Call the API with year parameter
+            let url = '/api/machine/live-status-summary';
+            if (selectedYear && selectedYear !== '') {
+                url += '?year=' + selectedYear;
+            }
+            
+            const res = await fetch(url);
+            if (!res.ok) return;
+            const data = await res.json();
+            const tbody = document.getElementById('statusTableBody');
+            tbody.innerHTML = '';
+
+            // Build case-insensitive map of counts returned by server
+            const serverMap = new Map(); // key: lower-case status -> count
+            const statusOriginalMap = new Map(); // Store original status text for display
+            if (Array.isArray(data)) {
+                data.forEach(item => {
+                    const raw = (item.liveStatus || '').toString();
+                    const k = raw.trim().toLowerCase();
+                    serverMap.set(k, (serverMap.get(k) || 0) + 1);
+                    if (!statusOriginalMap.has(k)) {
+                        statusOriginalMap.set(k, raw.trim());
+                    }
+                });
+            } else if (data && typeof data === 'object') {
+                Object.entries(data).forEach(([status, cnt]) => {
+                    const raw = (status || '').toString();
+                    const k = raw.trim().toLowerCase();
+                    serverMap.set(k, (serverMap.get(k) || 0) + (Number(cnt) || 0));
+                    if (!statusOriginalMap.has(k)) {
+                        statusOriginalMap.set(k, raw.trim());
+                    }
+                });
+            }
+
+            // Render every canonical status in defined order, using server count if available
+                canonicalStatuses.forEach(display => {
+                const key = (display || '').toString().trim().toLowerCase();
+                const count = serverMap.get(key) || 0;
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                    tr.innerHTML = `<td>${escapeHtml(display)}</td><td>${count}</td>`;
+                    tr.dataset.statusKey = key;
+                tr.addEventListener('click', () => {
+                    window.location.href = '/machine/machines-by-status.html?status=' + encodeURIComponent(display);
+                });
+                tbody.appendChild(tr);
+            });
+
+            // If server provided any extra statuses not in canonical list, append them afterwards
+            serverMap.forEach((cnt, k) => {
+                if (!canonicalStatuses.some(s => s.toString().trim().toLowerCase() === k)) {
+                    const display = statusOriginalMap.get(k) || k; // Use original casing
+                    const tr = document.createElement('tr');
+                    tr.style.cursor = 'pointer';
+                    tr.innerHTML = `<td>${escapeHtml(display)}</td><td>${cnt}</td>`;
+                    tr.dataset.statusKey = k;
+                    tr.addEventListener('click', () => {
+                        window.location.href = '/machine/machines-by-status.html?status=' + encodeURIComponent(display);
+                    });
+                    tbody.appendChild(tr);
+                }
+            });
+
+            // Ensure certain aggregate rows always appear at the very end
+            function moveRowsToEnd(tbodyElem, labels) {
+                labels.forEach(lbl => {
+                    const key = (lbl || '').toString().trim().toLowerCase();
+                    const rows = Array.from(tbodyElem.querySelectorAll('tr')).filter(r => ((r.dataset.statusKey||'').toString().trim().toLowerCase() === key));
+                    rows.forEach(r => tbodyElem.appendChild(r));
+                });
+            }
+
+            // Move 'CLOSE TOTAL' then 'LIVE TOTAL' to the end (order preserved)
+            moveRowsToEnd(tbody, ['CLOSE TOTAL', 'LIVE TOTAL']);
+        }
+        
+        // Call this function from the year filter dropdown
+        async function fetchSummaryForYear(year) {
+            await fetchSummary();
+        }
+
+        // small helper to escape text into HTML (prevent accidental HTML injection)
+        function escapeHtml(s) {
+            if (s === null || s === undefined) return '';
+            return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,"&#39;");
+        }
+         // remove inline load usage - keep legacy function if needed (no-op here)
+         async function loadMachinesForStatus(status) {
+             // left intentionally empty: summary now navigates to dedicated page
+         }
+ 
+         // load summary on page load and optionally open a status from query param
+         loadAvailableYears().then(() => {
+             // Load with current year by default
+             const currentYearForLoad = new Date().getFullYear();
+             const yearSelectElem = document.getElementById('yearFilterSummary');
+             if (yearSelectElem && yearSelectElem.value) {
+                 fetchSummary();
+             } else {
+                 fetchSummary(currentYearForLoad);
+             }
+         });
+         const params = new URLSearchParams(window.location.search);
+         const openStatus = params.get('status');
+         if (openStatus) {
+             // if someone landed here with status, navigate to the dedicated page
+             setTimeout(() => {
+                 window.location.href = '/machine/machines-by-status.html?status=' + encodeURIComponent(openStatus);
+             }, 200);
+         }
+ 
+         fetch('/fragments/header.html').then(r=>r.text()).then(html=>{
+           document.getElementById('header-include').innerHTML = html;
+         });
+         fetch('/fragments/footer.html').then(r=>r.text()).then(html=>{
+           document.getElementById('footer-include').innerHTML = html;
+         });
+     </script>
+</body>
+</html>

@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue: #2563eb;
+            --blue-light: #eff6ff;
+            --blue-mid: #dbeafe;
+            --sidebar-bg: #ffffff;
+            --sidebar-border: #e5e9f0;
+            --sidebar-w: 220px;
+            --header-h: 64px;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-400: #94a3b8;
+            --gray-600: #475569;
+            --gray-900: #0f172a;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+            --radius: 10px;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--gray-50);
+            color: var(--gray-900);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            width: var(--sidebar-w);
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+            z-index: 100;
+        }
+        .sidebar-brand {
+            height: var(--header-h);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--sidebar-border);
+        }
+        .brand-icon {
+            width: 34px; height: 34px;
+            background: var(--blue);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+        .brand-name {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--blue);
+            letter-spacing: -0.3px;
+        }
+        .sidebar-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gray-400);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            padding: 18px 20px 6px;
+        }
+        .sidebar-menu { list-style: none; padding: 0 10px; }
+        .sidebar-menu li { margin-bottom: 2px; }
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--gray-600);
+            transition: all .15s;
+        }
+        .sidebar-menu a:hover { background: var(--gray-100); color: var(--gray-900); }
+        .sidebar-menu a.active { background: var(--blue-light); color: var(--blue); font-weight: 700; }
+        .sidebar-menu .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            flex-shrink: 0;
+        }
+        .sidebar-menu a.active .dot { background: var(--blue); }
+        .machine-list { flex: 1; overflow-y: auto; }
+        .back-btn {
+            margin: 12px 10px;
+            padding: 10px 14px;
+            display: flex; align-items: center; gap: 8px;
+            background: var(--blue);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .back-btn:hover { background: #1d4ed8; }
+
+        /* ── MAIN ── */
+        .main {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .top-header {
+            height: var(--header-h);
+            background: white;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            position: sticky;
+            top: 0; z-index: 50;
+        }
+        .page-title-area h1 { font-size: 18px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.4px; }
+        .page-title-area p { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gray-100);
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            padding: 8px 14px;
+            width: 260px;
+        }
+        .search-bar svg { color: var(--gray-400); flex-shrink: 0; }
+        .search-bar input {
+            border: none; background: transparent; outline: none;
+            font-size: 13px; font-family: inherit; color: var(--gray-900); width: 100%;
+        }
+        .search-bar input::placeholder { color: var(--gray-400); }
+        .icon-btn {
+            width: 38px; height: 38px;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+            background: white;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gray-600);
+            transition: all .15s;
+            position: relative;
+        }
+        .icon-btn:hover { background: var(--gray-100); color: var(--gray-900); }
+        .filter-select-wrap { position: relative; }
+        .filter-select-wrap select {
+            appearance: none;
+            background: var(--blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 30px 9px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+        }
+        .filter-select-wrap::after {
+            content: '▾';
+            position: absolute;
+            right: 10px; top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            pointer-events: none;
+            font-size: 11px;
+        }
+
+        /* ── STATS ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            padding: 24px 28px 0;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-label { font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+        .stat-value { font-size: 30px; font-weight: 800; color: var(--gray-900); letter-spacing: -1px; line-height: 1; }
+        .stat-sub { font-size: 11px; color: var(--gray-400); margin-top: 6px; }
+
+        /* ── FILTERS ── */
+        .table-filters { display: flex; align-items: center; gap: 10px; padding: 20px 28px 0; flex-wrap: wrap; }
+        .filter-pill {
+            display: flex; align-items: center; gap: 6px;
+            background: white; border: 1px solid var(--gray-200);
+            border-radius: 7px; padding: 7px 12px;
+            font-size: 12px; font-weight: 600; color: var(--gray-600); cursor: pointer;
+        }
+        .filter-pill select { border: none; background: transparent; font-size: 12px; font-family: inherit; font-weight: 600; color: var(--gray-600); outline: none; cursor: pointer; }
+
+        .content-area { padding: 20px 28px 40px; }
+        .machine-section { margin-bottom: 30px; }
+        .machine-section-header { font-size: 14px; font-weight: 800; color: var(--gray-900); margin-bottom: 10px; padding-left: 4px; letter-spacing: -.2px; }
+        .table-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .wip-table { width: 100%; border-collapse: collapse; }
+        .wip-table thead th {
+            padding: 11px 14px;
+            text-align: left;
+            font-size: 11px; font-weight: 700; color: var(--gray-400);
+            text-transform: uppercase; letter-spacing: .06em;
+            border-bottom: 1px solid var(--gray-100);
+            background: var(--gray-50);
+            white-space: nowrap;
+        }
+        .wip-table thead th:first-child { padding-left: 16px; }
+        .wip-table tbody tr { border-bottom: 1px solid var(--gray-100); transition: background .1s; }
+        .wip-table tbody tr:last-child { border-bottom: none; }
+        .wip-table tbody tr:hover { background: var(--gray-50); }
+        .wip-table tbody td { padding: 13px 14px; font-size: 13px; color: var(--gray-900); vertical-align: middle; }
+        .wip-table tbody td:first-child { padding-left: 16px; }
+        .row-name-cell { display: flex; align-items: center; gap: 10px; }
+        .row-icon { width: 34px; height: 34px; border-radius: 7px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .row-name { font-weight: 600; font-size: 13px; white-space: nowrap; max-width: 380px; display: inline-block; }
+        .row-sub { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+        .stock-bar-wrap { display: flex; align-items: center; gap: 8px; }
+        .stock-bar { width: 60px; height: 5px; background: var(--gray-200); border-radius: 99px; overflow: hidden; }
+        .stock-bar-fill { height: 100%; background: var(--blue); border-radius: 99px; }
+        .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+        .badge-stock { background: #dcfce7; color: #166534; }
+        .badge-custom { background: #dbeafe; color: #1e40af; }
+        .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+        .badge-live { background: #fef9c3; color: #854d0e; }
+        .badge-closed { background: #dcfce7; color: #166534; }
+        .highlight-row td { background: #fefce8 !important; }
+        .toggle { width: 34px; height: 18px; border-radius: 99px; background: var(--blue); position: relative; display: inline-block; border: 1px solid transparent; }
+        .toggle::after { content: ''; position: absolute; width: 13px; height: 13px; border-radius: 50%; background: white; top: 2.5px; right: 3px; }
+        .toggle.off { background: var(--gray-200); }
+        .toggle.off::after { right: auto; left: 3px; }
+        .state-box { padding: 40px; text-align: center; color: var(--gray-400); font-size: 14px; }
+        .error-box { margin: 20px 28px; padding: 16px 20px; background: #fff1f0; border: 1px solid #fca5a5; border-radius: var(--radius); color: #b91c1c; font-size: 13px; }
+
+        /* ── PRINT DIALOG ── */
+        .print-dialog-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        .print-dialog-overlay.open { display: flex; }
+        .print-dialog {
+            background: white;
+            border-radius: 14px;
+            padding: 28px;
+            width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .print-dialog h2 { font-size: 17px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .print-dialog p { font-size: 12px; color: var(--gray-400); margin-bottom: 22px; }
+        .dialog-field { margin-bottom: 14px; }
+        .dialog-field label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+        .dialog-field input, .dialog-field textarea {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            color: var(--gray-900);
+            outline: none;
+            transition: border .15s;
+        }
+        .dialog-field input:focus, .dialog-field textarea:focus { border-color: var(--blue); }
+        .dialog-field textarea { resize: none; height: 60px; }
+
+        .logo-upload-area {
+            border: 2px dashed var(--gray-200);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            position: relative;
+        }
+        .logo-upload-area:hover { border-color: var(--blue); background: var(--blue-light); }
+        .logo-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .logo-upload-area .upload-icon { font-size: 22px; margin-bottom: 6px; }
+        .logo-upload-area .upload-text { font-size: 12px; color: var(--gray-600); font-weight: 500; }
+        .logo-upload-area .upload-sub { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+        .logo-preview { display: none; align-items: center; gap: 10px; margin-top: 10px; }
+        .logo-preview img { height: 36px; border-radius: 4px; border: 1px solid var(--gray-200); }
+        .logo-preview .remove-logo { font-size: 11px; color: #ef4444; cursor: pointer; font-weight: 600; text-decoration: underline; margin-left: auto; }
+
+        .dialog-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel {
+            flex: 1; padding: 10px; border: 1px solid var(--gray-200); background: white;
+            border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--gray-600);
+            cursor: pointer; transition: background .15s;
+        }
+        .btn-cancel:hover { background: var(--gray-100); }
+        .btn-print {
+            flex: 2; padding: 10px; background: var(--blue); border: none;
+            border-radius: 8px; font-size: 13px; font-weight: 700; color: white;
+            cursor: pointer; transition: background .15s;
+        }
+        .btn-print:hover { background: #1d4ed8; }
+
+        /* ── PRINT STYLES ── */
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+            /* FIX 1: Hide browser's URL / page address from header/footer */
+            @page {
+                margin: 14mm 12mm;
+                /* Blank out the default header/footer slots that show URL & page title */
+                /* Some browsers respect these, others need size only */
+            }
+
+            /* FIX 2: Hide the small "Manufacturing Details" title that browsers add */
+            html { /* reset any browser default header */ }
+
+            body { background: white !important; display: block !important; font-family: 'Plus Jakarta Sans', Arial, sans-serif; }
+            .sidebar, .top-header, .stats-grid, .table-filters, .print-dialog-overlay { display: none !important; }
+            .main { margin-left: 0 !important; }
+            .content-area { padding: 0 !important; }
+            .machine-section { page-break-inside: avoid; margin-bottom: 20px !important; }
+            .table-card { box-shadow: none !important; border: 1px solid #d1d5db !important; border-radius: 0 !important; page-break-inside: avoid; }
+
+            /* Print header – shown only when printing */
+            .print-report-header {
+                display: flex !important;
+                align-items: flex-start;
+                justify-content: space-between;
+                padding: 0 0 16px 0;
+                margin-bottom: 18px;
+                border-bottom: 2px solid #1e3a8a;
+            }
+            .print-header-left { display: flex; align-items: flex-start; gap: 14px; }
+            .print-logo { height: 56px; width: auto; object-fit: contain; }
+            .print-logo-placeholder {
+                width: 56px; height: 56px;
+                background: #eff6ff;
+                border: 1px solid #dbeafe;
+                border-radius: 8px;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 22px;
+            }
+            .print-company-info { }
+            .print-company-name { font-size: 18px; font-weight: 800; color: #1e3a8a; letter-spacing: -0.4px; line-height: 1.1; }
+            .print-report-title { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .08em; margin-top: 4px; }
+            .print-report-subtitle { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+            .print-header-right { text-align: right; }
+            .print-meta-item { font-size: 11px; color: #475569; margin-bottom: 3px; }
+            .print-meta-label { font-weight: 700; color: #1e3a8a; }
+            .print-meta-sep { width: 40px; height: 2px; background: #1e3a8a; margin-left: auto; margin-top: 8px; margin-bottom: 8px; }
+
+            /* FIX 3: Total PO Value row in print header */
+            .print-meta-item.po-value-row { margin-top: 2px; }
+
+            /* table overrides for print */
+            .wip-table thead th {
+                background: #1e3a8a !important;
+                color: white !important;
+                font-size: 9px !important;
+                padding: 7px 8px !important;
+                letter-spacing: .04em;
+            }
+            .wip-table tbody td { font-size: 10px !important; padding: 7px 8px !important; }
+            .wip-table tbody tr:nth-child(even) td { background: #f8fafc !important; }
+            .wip-table tbody tr:hover { background: transparent !important; }
+
+            .row-icon { display: none !important; }
+            .row-name-cell { gap: 0 !important; }
+            .row-name { font-size: 10px !important; font-weight: 600 !important; }
+            .row-sub { font-size: 9px !important; }
+
+            .stock-bar { display: none !important; }
+
+            .badge { padding: 2px 6px !important; font-size: 9px !important; }
+
+            .machine-section-header {
+                font-size: 12px !important;
+                background: #eff6ff;
+                padding: 6px 10px !important;
+                border-left: 3px solid #2563eb;
+                border-radius: 0 !important;
+            }
+
+            .highlight-row td { background: #fefce8 !important; }
+        }
+
+        /* ── PAGE SIZE ── */
+        @page { margin: 14mm 12mm; }
+        @page :portrait { size: A4 portrait; }
+        @page :landscape { size: A4 landscape; }
+    </style>
+</head>
+<body>
+
+<!-- PRINT DIALOG -->
+<div class="print-dialog-overlay" id="printDialogOverlay">
+    <div class="print-dialog">
+        <h2>🖨️ Print Report</h2>
+        <p>Customize the report header before printing.</p>
+
+        <div class="dialog-field">
+            <label>Prepared By</label>
+            <input type="text" id="printPreparedBy" placeholder="e.g. John Doe, Production Manager" value="" />
+        </div>
+
+        <div class="dialog-actions">
+            <button class="btn-cancel" id="dialogCancel">Cancel</button>
+            <button class="btn-print" id="dialogPrint">Print Report</button>
+        </div>
+    </div>
+</div>
+
+<!-- HIDDEN PRINT HEADER – shown only during print via CSS -->
+<div class="print-report-header" id="printReportHeader" style="display:none;">
+    <div class="print-header-left">
+        <div id="printLogoWrap">
+            <div class="print-logo-placeholder">⚙</div>
+        </div>
+        <div class="print-company-info">
+            <div class="print-company-name" id="printHeaderCompany">Manufacturing Report</div>
+            <div class="print-report-title">Manufacturing Details Report</div>
+            <div class="print-report-subtitle" id="printHeaderSubtitle">Year · All Records</div>
+        </div>
+    </div>
+    <div class="print-header-right">
+        <div class="print-meta-sep"></div>
+        <div class="print-meta-item"><span class="print-meta-label">Generated:</span> <span id="printHeaderDate">-</span></div>
+        <div class="print-meta-item"><span class="print-meta-label">Prepared By:</span> <span id="printHeaderPreparedBy">-</span></div>
+        <div class="print-meta-item"><span class="print-meta-label">Total Records:</span> <span id="printHeaderTotal">-</span></div>
+        <!-- FIX 3: Total PO Value added here -->
+        <div class="print-meta-item po-value-row"><span class="print-meta-label">Total PO Value:</span> ₹<span id="printHeaderPoValue">-</span> Lacs</div>
+    </div>
+</div>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">⚙</div>
+        <span class="brand-name">Manufacturing</span>
+    </div>
+    <div class="machine-list">
+        <p class="sidebar-label">Months</p>
+        <ul class="sidebar-menu" id="monthNav">
+            <li>
+                <a href="#" class="active" data-month="all">
+                    <span class="dot"></span>All Months
+                </a>
+            </li>
+        </ul>
+    </div>
+    <a class="back-btn" href="/home">← Dashboard</a>
+</aside>
+
+<div class="main">
+    <header class="top-header">
+        <div class="page-title-area">
+            <h1 id="pageTitle">Manufacturing Details</h1>
+            <p id="pageSubtitle">Year <span id="filterYearLabel">-</span> · Manufacturing Records</p>
+        </div>
+        <div class="header-actions">
+            <div class="search-bar">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input id="searchInput" type="search" placeholder="Search by CCN, customer or month..." />
+            </div>
+            <button class="icon-btn" id="printButton" title="Print Report">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M6 9V2h12v7"/><rect x="6" y="17" width="12" height="5" rx="1"/><path d="M6 13H4a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-2"/>
+                    <circle cx="18" cy="15" r="1"/>
+                </svg>
+            </button>
+            <div class="filter-select-wrap">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="stock">Stock</option>
+                    <option value="customized">Customized</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Records</div>
+            <div class="stat-value" id="totalRecords">0 <span id="totalPoValueLabel" style="font-size:16px;font-weight:500;color:var(--gray-400);">(₹0 Lacs)</span></div>
+            <div class="stat-sub">All manufacturing entries</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">With Invoice</div>
+            <div class="stat-value" id="withInvoice">0</div>
+            <div class="stat-sub">Invoice date available</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Stock Machines</div>
+            <div class="stat-value" id="stockCount">0</div>
+            <div class="stat-sub">Category: Stock</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Customized Machines</div>
+            <div class="stat-value" id="customizedCount">0</div>
+            <div class="stat-sub">Category: Customized</div>
+        </div>
+    </div>
+
+    <div class="table-filters">
+        <div class="filter-pill">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+            Show: <select id="statusFilter">
+                <option value="">All Status</option>
+                <option value="live">Live</option>
+                <option value="closed">Closed</option>
+            </select>
+        </div>
+        <div class="filter-pill">
+            📅 Year: <span id="yearLabel" style="margin-left:4px;color:#0f172a">-</span>
+        </div>
+        <div class="filter-pill">
+            🧾 Type: <span style="margin-left:4px;color:#0f172a">Manufacturing</span>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div id="loadingState" class="state-box">Loading records...</div>
+        <div id="errorState" class="error-box" style="display:none;"></div>
+        <div id="emptyState" class="state-box" style="display:none;">No records found.</div>
+        <div id="detailContent"></div>
+    </div>
+</div>
+
+<script>
+    let allRows = [];
+    let monthLabels = [];
+    let activeMonth = 'all';
+
+    /* ── HELPERS ── */
+    function getQueryParam(name) {
+        return new URL(window.location.href).searchParams.get(name);
+    }
+    function formatMonthLabel(dateValue) {
+        if (!dateValue) return 'Unknown Month';
+        const date = new Date(dateValue);
+        if (Number.isNaN(date.getTime())) return 'Unknown Month';
+        const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${names[date.getMonth()]} ${date.getFullYear()}`;
+    }
+    function formatDate(value) {
+        if (!value) return '-';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        const day = String(date.getDate()).padStart(2, '0');
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${day} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    }
+    function formatNumber(value) {
+        if (value == null) return '-';
+        return Number(value).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+    function matchesSearch(row, term) {
+        if (!term) return true;
+        const n = term.toLowerCase();
+        return [row.ccn, row.customerName, formatMonthLabel(row.actualAssyStartDate)].some(v => v && v.toString().toLowerCase().includes(n));
+    }
+
+    /* ── COUNT VISIBLE COLUMNS ── */
+    function countVisibleColumns() {
+        return 9;
+    }
+
+    /* ── SIDEBAR ── */
+    function buildSidebar(months) {
+        monthLabels = months;
+        const nav = document.getElementById('monthNav');
+        nav.innerHTML = '';
+        const allLi = document.createElement('li');
+        allLi.innerHTML = `<a href="#" class="${activeMonth === 'all' ? 'active' : ''}" data-month="all"><span class="dot"></span>All Months</a>`;
+        nav.appendChild(allLi);
+        months.forEach(m => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="#" class="${activeMonth === m ? 'active' : ''}" data-month="${m}"><span class="dot"></span>${m}</a>`;
+            nav.appendChild(li);
+        });
+        nav.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                activeMonth = a.dataset.month;
+                nav.querySelectorAll('a').forEach(x => x.classList.remove('active'));
+                a.classList.add('active');
+                applyFilters();
+            });
+        });
+    }
+
+    /* ── SUMMARY ── */
+    // FIX 3: Returns totalPoValue so we can use it in print header
+    function buildSummary(rows) {
+        const totalPoValue = rows.reduce((sum, row) => {
+            const value = Number(row.poValue);
+            return sum + (Number.isFinite(value) ? value : 0);
+        }, 0);
+        document.getElementById('totalRecords').innerHTML = `${rows.length} <span id="totalPoValueLabel" style="font-size:16px;font-weight:500;color:var(--gray-400);">(₹${formatNumber(totalPoValue)} Lacs)</span>`;
+        document.getElementById('withInvoice').textContent = rows.filter(r => r.invoiceDate).length;
+        document.getElementById('stockCount').textContent = rows.filter(r => (r.machineCategory || '').toLowerCase().includes('stock')).length;
+        document.getElementById('customizedCount').textContent = rows.filter(r => (r.machineCategory || '').toLowerCase().includes('customized')).length;
+        return { totalRows: rows.length, totalPoValue };
+    }
+
+    /* ── RENDER TABLE SECTION ── */
+    function renderMonthSection(monthLabel, rows, searchTerm) {
+        const section = document.createElement('div');
+        section.className = 'machine-section';
+        section.innerHTML = `<div class="machine-section-header">📅 ${monthLabel} <span style="font-weight:400;color:#94a3b8;font-size:12px;">(${rows.length} records)</span></div>`;
+        const card = document.createElement('div');
+        card.className = 'table-card';
+        const columns = [
+            { key: 'ccn', label: 'CCN' },
+            { key: 'customerName', label: 'Customer Name' },
+            { key: 'actualAssyStartDate', label: 'Assy Start Date' },
+            { key: 'invoiceDate', label: 'Invoice Date' },
+            { key: 'ccnStatus', label: 'CCN Status' },
+            { key: 'durationDays', label: 'Duration (days)' },
+            { key: 'poValue', label: 'PO Value' },
+            { key: 'machineCategory', label: 'Category' },
+            { key: 'liveStatus', label: 'Live Status' },
+        ];
+        let html = `<table class="wip-table"><thead><tr>${columns.map(c => `<th>${c.label}</th>`).join('')}</tr></thead><tbody>`;
+        rows.forEach(row => {
+            const isHighlight = searchTerm && matchesSearch(row, searchTerm);
+            const ccnStatusLower = (row.ccnStatus || '').toLowerCase();
+            const isClosed = ccnStatusLower.includes('close');
+            const categoryClass = (row.machineCategory || '').toLowerCase().includes('stock') ? 'badge-stock' :
+                                  (row.machineCategory || '').toLowerCase().includes('customized') ? 'badge-custom' : 'badge-gray';
+            const liveStatusVal = row.liveStatus || '-';
+            const liveClass = (liveStatusVal.toLowerCase().includes('live')) ? 'badge-live' :
+                              (liveStatusVal.toLowerCase().includes('close')) ? 'badge-closed' : 'badge-gray';
+            const monthLabelText = formatMonthLabel(row.actualAssyStartDate);
+            html += `<tr class="${isHighlight ? 'highlight-row' : ''}">
+                <td><div class="row-name-cell">
+                    <div class="row-icon">📅</div>
+                    <div>
+                        <div class="row-name" title="${row.ccn || '-'}">${row.ccn || '-'}</div>
+                        <div class="row-sub">${monthLabelText}</div>
+                    </div>
+                </div></td>
+                <td style="font-weight:500">${row.customerName || '-'}</td>
+                <td style="color:#475569">${formatDate(row.actualAssyStartDate)}</td>
+                <td style="color:#475569">${formatDate(row.invoiceDate)}</td>
+                <td>
+                    <span style="font-size:12px;font-weight:600;color:${isClosed ? '#166534' : '#92400e'}">${isClosed ? '✔ Closed' : '● Open'}</span>
+                </td>
+                <td>
+                    <div class="stock-bar-wrap">
+                        <div class="stock-bar"><div class="stock-bar-fill" style="width:${Math.min((row.durationDays || 0) / 200 * 100, 100)}%"></div></div>
+                        <span style="font-size:12px;font-weight:600">${row.durationDays != null ? row.durationDays : '-'}</span>
+                    </div>
+                </td>
+                <td style="font-weight:600">${formatNumber(row.poValue)} Lacs</td>
+                <td><span class="badge ${categoryClass}">${row.machineCategory || '-'}</span></td>
+                <td><span class="badge ${liveClass}">${liveStatusVal}</span></td>
+            </tr>`;
+        });
+        html += `</tbody></table>`;
+        card.innerHTML = html;
+        section.appendChild(card);
+        return section;
+    }
+
+    /* ── APPLY FILTERS ── */
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        const category = document.getElementById('categoryFilter').value.toLowerCase();
+        const status = document.getElementById('statusFilter').value.toLowerCase();
+        let filtered = allRows.filter(row => {
+            if (!matchesSearch(row, searchTerm)) return false;
+            if (category && !(row.machineCategory || '').toLowerCase().includes(category)) return false;
+            if (status === 'live' && (row.ccnStatus || '').toLowerCase().includes('close')) return false;
+            if (status === 'closed' && !(row.ccnStatus || '').toLowerCase().includes('close')) return false;
+            if (activeMonth !== 'all' && formatMonthLabel(row.actualAssyStartDate) !== activeMonth) return false;
+            return true;
+        });
+        buildSummary(filtered);
+        document.getElementById('emptyState').style.display = filtered.length === 0 ? 'block' : 'none';
+        const content = document.getElementById('detailContent');
+        content.innerHTML = '';
+        const grouped = filtered.reduce((map, row) => {
+            const key = formatMonthLabel(row.actualAssyStartDate);
+            if (!map[key]) map[key] = [];
+            map[key].push(row);
+            return map;
+        }, {});
+        Object.keys(grouped).forEach(month => {
+            content.appendChild(renderMonthSection(month, grouped[month], searchTerm));
+        });
+    }
+
+    /* ── PRINT DIALOG LOGIC ── */
+    function openPrintDialog() {
+        document.getElementById('printDialogOverlay').classList.add('open');
+    }
+    function closePrintDialog() {
+        document.getElementById('printDialogOverlay').classList.remove('open');
+    }
+
+    function getNow() {
+        const d = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${pad(d.getDate())} ${months[d.getMonth()]} ${d.getFullYear()}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function preparePrintHeader() {
+        const preparedBy = document.getElementById('printPreparedBy').value.trim() || '-';
+        const year = document.getElementById('filterYearLabel').textContent || '-';
+
+        // FIX 3: Read current total records count and PO value from live summary
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        const category = document.getElementById('categoryFilter').value.toLowerCase();
+        const status = document.getElementById('statusFilter').value.toLowerCase();
+        const filtered = allRows.filter(row => {
+            if (!matchesSearch(row, searchTerm)) return false;
+            if (category && !(row.machineCategory || '').toLowerCase().includes(category)) return false;
+            if (status === 'live' && (row.ccnStatus || '').toLowerCase().includes('close')) return false;
+            if (status === 'closed' && !(row.ccnStatus || '').toLowerCase().includes('close')) return false;
+            if (activeMonth !== 'all' && formatMonthLabel(row.actualAssyStartDate) !== activeMonth) return false;
+            return true;
+        });
+        const totalPoValue = filtered.reduce((sum, row) => {
+            const value = Number(row.poValue);
+            return sum + (Number.isFinite(value) ? value : 0);
+        }, 0);
+
+        document.getElementById('printHeaderCompany').textContent = 'Manufacturing Report';
+        document.getElementById('printHeaderSubtitle').textContent = `Year ${year} · Manufacturing Records`;
+        document.getElementById('printHeaderDate').textContent = getNow();
+        document.getElementById('printHeaderPreparedBy').textContent = preparedBy;
+        document.getElementById('printHeaderTotal').textContent = filtered.length + ' entries';
+
+        // FIX 3: Set Total PO Value in print header
+        document.getElementById('printHeaderPoValue').textContent = formatNumber(totalPoValue);
+
+        // Logo
+        const logoWrap = document.getElementById('printLogoWrap');
+        logoWrap.innerHTML = `<img class="print-logo" src="/images/IMA.JPG" alt="Logo" onerror="this.parentElement.innerHTML='<div class=\'print-logo-placeholder\'>⚙</div>'" />`;
+
+        document.getElementById('printReportHeader').style.display = 'flex';
+    }
+
+    function triggerPrint() {
+        preparePrintHeader();
+        closePrintDialog();
+
+        setTimeout(() => {
+            // ── Open a blank popup and write only the print content into it ──
+            // This completely bypasses the browser's default header/footer (URL, title, date, page numbers)
+            const printWin = window.open('', '_blank', 'width=1200,height=800');
+            if (!printWin) {
+                // Fallback if popup blocked
+                window.print();
+                setTimeout(() => { document.getElementById('printReportHeader').style.display = 'none'; }, 1000);
+                return;
+            }
+
+            // Collect the print header HTML
+            const headerHTML = document.getElementById('printReportHeader').outerHTML;
+
+            // Collect all rendered section HTML
+            const contentHTML = document.getElementById('detailContent').innerHTML;
+
+            // Build full standalone HTML for the print window
+            printWin.document.write(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title></title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', Arial, sans-serif; background: white; color: #0f172a; padding: 14mm 12mm; }
+
+/* Print header */
+.print-report-header {
+    display: flex !important;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0 0 16px 0;
+    margin-bottom: 18px;
+    border-bottom: 2px solid #1e3a8a;
+}
+.print-header-left { display: flex; align-items: flex-start; gap: 14px; }
+.print-logo { height: 56px; width: auto; object-fit: contain; }
+.print-logo-placeholder {
+    width: 56px; height: 56px;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+}
+.print-company-name { font-size: 18px; font-weight: 800; color: #1e3a8a; letter-spacing: -0.4px; line-height: 1.1; }
+.print-report-title { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .08em; margin-top: 4px; }
+.print-report-subtitle { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+.print-header-right { text-align: right; }
+.print-meta-item { font-size: 11px; color: #475569; margin-bottom: 3px; }
+.print-meta-label { font-weight: 700; color: #1e3a8a; }
+.print-meta-sep { width: 40px; height: 2px; background: #1e3a8a; margin-left: auto; margin-top: 8px; margin-bottom: 8px; }
+
+/* Sections */
+.machine-section { margin-bottom: 20px; page-break-inside: avoid; }
+.machine-section-header {
+    font-size: 12px;
+    font-weight: 800;
+    background: #eff6ff;
+    padding: 6px 10px;
+    border-left: 3px solid #2563eb;
+    margin-bottom: 0;
+    color: #0f172a;
+    letter-spacing: -.2px;
+}
+.table-card { border: 1px solid #d1d5db; overflow: hidden; page-break-inside: avoid; }
+
+/* Table */
+.wip-table { width: 100%; border-collapse: collapse; }
+.wip-table thead th {
+    padding: 7px 8px;
+    text-align: left;
+    font-size: 9px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    background: #1e3a8a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    white-space: nowrap;
+}
+.wip-table thead th:first-child { padding-left: 10px; }
+.wip-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+.wip-table tbody tr:last-child { border-bottom: none; }
+.wip-table tbody tr:nth-child(even) td { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.wip-table tbody td { padding: 7px 8px; font-size: 10px; color: #0f172a; vertical-align: middle; }
+.wip-table tbody td:first-child { padding-left: 10px; }
+
+.row-name-cell { display: flex; align-items: center; }
+.row-icon { display: none; }
+.row-name { font-weight: 600; font-size: 10px; }
+.row-sub { font-size: 9px; color: #94a3b8; margin-top: 1px; }
+
+.stock-bar { display: none !important; }
+.stock-bar-wrap { display: flex; align-items: center; gap: 4px; }
+
+.badge { display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 99px; font-size: 9px; font-weight: 700; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.badge-stock { background: #dcfce7 !important; color: #166534 !important; }
+.badge-custom { background: #dbeafe !important; color: #1e40af !important; }
+.badge-gray { background: #f1f5f9 !important; color: #475569 !important; }
+.badge-live { background: #fef9c3 !important; color: #854d0e !important; }
+.badge-closed { background: #dcfce7 !important; color: #166534 !important; }
+.highlight-row td { background: #fefce8 !important; }
+
+@page { size: A4 landscape; margin: 0; }
+</style>
+</head>
+<body>
+${headerHTML}
+${contentHTML}
+<script>
+window.onload = function() {
+    window.print();
+    window.onafterprint = function() { window.close(); };
+    // Fallback close after 3s if onafterprint not fired
+    setTimeout(function() { window.close(); }, 3000);
+};
+<\/script>
+</body>
+</html>`);
+            printWin.document.close();
+
+            // Hide print header in main window
+            setTimeout(() => {
+                document.getElementById('printReportHeader').style.display = 'none';
+            }, 500);
+        }, 100);
+    }
+
+    /* ── LOAD DATA ── */
+    function loadManufacturingDetails() {
+        const queryYear = getQueryParam('year');
+        const queryMonth = getQueryParam('month');
+        const year = Number.isFinite(Number(queryYear)) ? Number(queryYear) : new Date().getFullYear();
+        document.getElementById('filterYearLabel').textContent = year;
+        document.getElementById('yearLabel').textContent = year;
+        const url = queryMonth
+            ? `/api/machineccnproject/manufacturing-details?year=${encodeURIComponent(year)}&month=${encodeURIComponent(queryMonth)}`
+            : `/api/machineccnproject/manufacturing-details?year=${encodeURIComponent(year)}`;
+        document.getElementById('loadingState').style.display = 'block';
+        fetch(url)
+            .then(r => { if (!r.ok) throw new Error('Failed to load details'); return r.json(); })
+            .then(data => {
+                document.getElementById('loadingState').style.display = 'none';
+                allRows = Array.isArray(data) ? data : [];
+                const months = [...new Set(allRows.map(r => formatMonthLabel(r.actualAssyStartDate)).filter(Boolean))];
+                const monthOrder = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
+                months.sort((a, b) => {
+                    const [am, ay] = a.split(' ');
+                    const [bm, by] = b.split(' ');
+                    return Number(ay) - Number(by) || monthOrder[am] - monthOrder[bm];
+                });
+                activeMonth = queryMonth
+                    ? formatMonthLabel(`${year}-${String(queryMonth).padStart(2,'0')}-01`)
+                    : 'all';
+                buildSidebar(months);
+                applyFilters();
+            })
+            .catch(err => {
+                document.getElementById('loadingState').style.display = 'none';
+                const e = document.getElementById('errorState');
+                e.style.display = 'block';
+                e.innerHTML = `<strong>Error:</strong> ${err.message}`;
+            });
+    }
+
+    /* ── INIT ── */
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+
+        document.getElementById('printButton').addEventListener('click', openPrintDialog);
+        document.getElementById('dialogCancel').addEventListener('click', closePrintDialog);
+        document.getElementById('dialogPrint').addEventListener('click', triggerPrint);
+
+        // Close dialog on overlay click
+        document.getElementById('printDialogOverlay').addEventListener('click', e => {
+            if (e.target === document.getElementById('printDialogOverlay')) closePrintDialog();
+        });
+
+        loadManufacturingDetails();
+    });
+</script>
+</body>
+</html>

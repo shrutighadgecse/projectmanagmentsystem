@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved QR Codes</title>
+    <style>
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #35474d;
+            color: #333;
+            padding: 20px;
+            font-size: 0.8em;
+        }
+        #qrCodeContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 40px;
+            justify-items: center;
+        }
+        .qr-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid black; /* Change border color to black */
+            min-height: 150px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 350px; /* Increased max-width */
+        }
+        .select-checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            transform: scale(1.5);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .company-logo {
+            width: 70px;
+            height: auto;
+            object-fit: contain;
+            margin-left: auto;
+        }
+        .assembly-code {
+            font-weight: bold;
+            font-size: 1em;
+            margin-right: 10px;
+        }
+        .qr-content-wrapper {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        .qr-code-section {
+            position: absolute;
+            bottom: 0; /* Align to the bottom */
+            right: 0; /* Align to the right */
+            margin: 0; /* No margin */
+        }
+
+
+        .qr-card img.qr-image {
+            width: 80px;
+            height: 80px;
+        }
+        .machine-label {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 5px; /* Add space below the machine label */
+
+        }
+        .content-section {
+            flex: 1;
+            padding-left: 15px;
+            position: relative;
+            margin-top: 2px;
+        }
+        .content-section p {
+            margin: 5px;
+            font-size: 0.9em;
+            margin-left: 25px; /* Add space to the left of the paragraph */
+
+        }
+        .content-section h3 {
+    margin: 0; /* Remove default margin */
+    margin-top: 0; /* Remove top margin to reduce space above the h3 */
+    margin-left: 25px; /* Keep the left margin */
+}
+.card-header h4 {
+    margin: 0; /* Remove default margin */
+    margin-bottom: 5px; /* Adjust this value to control space below the h4 */
+    margin-left: 15px; /* Shift the h4 to the right by 10px (adjust as needed) */
+}
+        .print-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 1em;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        @media print {
+            @page {
+                size: 100mm 50mm; /* Set the page size to 100mm x 50mm */
+                margin: 10mm; /* Add uniform margin around the page */
+            }
+            body {
+                margin: 0; /* Remove body margin */
+                padding: 0; /* Remove padding */
+            }
+            #header, #footer, .page-heading, .main-content-area > .print-button, .main-content-area > .stock-transfer-button {
+                display: none !important;
+            }
+            #qrCodeContainer {
+                display: grid;
+                grid-template-columns: 1fr; /* Ensure one card per row */
+                gap: 10mm; /* Add consistent spacing between cards */
+            }
+            .qr-card {
+                page-break-inside: avoid;
+                margin: 0 auto; /* Center the card horizontally */
+                box-shadow: none;
+                border: none; /* Remove border when printing */
+                display: block; /* Ensure cards are displayed */
+                width: 100mm; /* Set card width to 100mm */
+                height: 50mm; /* Set card height to 50mm */
+                overflow: hidden; /* Prevent content overflow */
+            }
+            .qr-card.printable {
+                display: block; /* Only show selected cards */
+            }
+            .qr-code-section img.qr-image {
+                width: 60px; /* Reduced size of QR code */
+                height: 60px; /* Reduced size of QR code */
+            }
+            .print-button, h1, .select-checkbox, .stock-transfer-button, .machine-label {
+                display: none; /* Hide print button, header, checkboxes, and machine label */
+            }
+            .content-section p {
+                margin-left: 5px; /* Set left margin to 5px when printing */
+                margin-bottom: 2px; /* Add some space between paragraphs */
+            }
+            .content-section h3 {
+                margin-left: 5px; /* Adjust left margin */
+            }
+            .content-section {
+                padding-left: 5px; /* Adjust padding */
+                overflow: hidden; /* Prevent overflow */
+                word-wrap: break-word; /* Allow text to break */
+            }
+            .qr-card:not(.printable) {
+                display: none; /* Hide non-selected cards during printing */
+            }
+        }
+    </style>
+</head>
+<body style="padding:0; margin:0; background:#35474d;">
+    <div id="header"></div>
+    <div class="page-heading"><h1>Saved QR Codes</h1></div>
+    <div class="main-content-area">
+        <button class="print-button" onclick="printSelectedQRCodes()">Print Selected QR Codes</button>
+        <button class="stock-transfer-button" onclick="transferSelectedQRCodes()">Transfer Selected QR Codes</button>
+        <div id="qrCodeContainer"></div>
+    </div>
+    <div id="footer"></div>
+    <script>
+    // Load header and footer fragments
+    fetch('/fragments/header.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('header').innerHTML = data; });
+    fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+    <style>
+        .page-heading {
+            margin-top: 70px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .main-content-area {
+            margin-top: 10px;
+            margin-bottom: 80px; /* Space for footer */
+            padding: 0 10px;
+        }
+        @media (max-width: 600px) {
+            .page-heading {
+                margin-top: 55px;
+                margin-bottom: 10px;
+            }
+            .main-content-area {
+                margin-bottom: 60px;
+                padding: 0 2px;
+            }
+        }
+        #header { width: 100vw; }
+        #footer { width: 100vw; }
+    </style>
+    <script>
+        const machineColors = {
+            'EXPRESS N': '#4CAF50',
+            'ROTOVAC': '#9E9E9E',
+            'CARNATOR': '#F44336',
+            'EXCEL SMART': '#2196F3'
+        };
+
+        function getMachineColor(machineName) {
+            return machineColors[machineName.toUpperCase()] || '#607D8B';
+        }
+
+        function displaySavedQRCodes() {
+            fetch('/api/qr-cards')
+                .then(response => response.json())
+                .then(savedData => {
+                    const container = document.getElementById('qrCodeContainer');
+                    container.innerHTML = '';
+
+                    savedData.forEach(data => {
+                        const qrCard = document.createElement('div');
+                        qrCard.className = 'qr-card';
+
+                        const selectCheckbox = document.createElement('input');
+                        selectCheckbox.type = 'checkbox';
+                        selectCheckbox.className = 'select-checkbox';
+                        qrCard.appendChild(selectCheckbox);
+
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'card-header';
+                        
+                        const referenceId = document.createElement('h4');
+                        referenceId.className = 'refrence-id';
+                        referenceId.textContent = `Ref-ID : ${data.referenceId}`;
+                        cardHeader.appendChild(referenceId);
+
+                        const logoImg = document.createElement('img');
+                        logoImg.className = 'company-logo';
+                        logoImg.src = '/images/IMA1.jpg';
+                        cardHeader.appendChild(logoImg);
+
+                        const contentWrapper = document.createElement('div');
+                        contentWrapper.className = 'qr-content-wrapper';
+
+                        const qrSection = document.createElement('div');
+                        qrSection.className = 'qr-code-section';
+                        
+                        const qrData = {
+                            referenceId: data.referenceId,
+                            assemblyCode: data.assemblyCode,
+                            currentDateTime: new Date().toISOString()
+                        };
+                        const qrCodeImage = document.createElement('img');
+                        qrCodeImage.className = 'qr-image';
+                        qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(JSON.stringify(qrData))}`;
+                        qrSection.appendChild(qrCodeImage);
+
+                        const contentSection = document.createElement('div');
+                        contentSection.className = 'content-section';
+                        
+                        const machineLabel = document.createElement('div');
+                        machineLabel.className = 'machine-label';
+                        machineLabel.style.backgroundColor = getMachineColor(data.machineName);
+                        contentSection.appendChild(machineLabel);
+
+                        contentSection.innerHTML += `
+                            <h3><strong>Assembly Code:</strong> ${data.assemblyCode}</h3>
+                            <p><strong>Description:</strong> ${data.description}</p>
+                            <p><strong>Machine:</strong> ${data.machineName}</p>
+                            <p><strong>Stage:</strong> ${data.stage}</p>
+                            <p><strong>LM Location:</strong> ${data.limbodagriLocation}</p>
+                            <p><strong>KM Location:</strong> ${data.kmLocation}</p>
+                        `;
+
+                        contentWrapper.appendChild(qrSection);
+                        contentWrapper.appendChild(contentSection);
+                        qrCard.appendChild(cardHeader);
+                        qrCard.appendChild(contentWrapper);
+                        container.appendChild(qrCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching QR Code data:', error);
+                });
+        }
+
+        function printSelectedQRCodes() {
+            // First, transfer selected QR codes
+            transferSelectedQRCodes(true); // Pass a flag to avoid removing cards immediately
+            // Then, mark selected cards for printing
+            const qrCards = document.querySelectorAll('.qr-card');
+            qrCards.forEach(card => {
+                if (card.querySelector('.select-checkbox').checked) {
+                    card.classList.add('printable');
+                } else {
+                    card.classList.remove('printable');
+                }
+            });
+            window.print();
+        }
+
+        function transferSelectedQRCodes(skipRemove) {
+            const qrCards = document.querySelectorAll('.qr-card');
+            const selectedCards = [];
+
+            qrCards.forEach(card => {
+                if (card.querySelector('.select-checkbox').checked) {
+                    const referenceId = card.querySelector('.refrence-id').textContent.split(': ')[1];
+                    selectedCards.push(referenceId);
+                    if (!skipRemove) card.remove(); // Remove from the current page unless printing
+                }
+            });
+
+            if (selectedCards.length > 0) {
+                fetch('/api/qr-cards/transfer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(selectedCards)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Selected QR Codes transferred successfully.');
+                    } else {
+                        console.error('Error transferring QR Codes:', response.statusText);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error transferring QR Codes:', error);
+                });
+            } else if (!skipRemove) {
+                alert('Please select at least one QR code to transfer.');
+            }
+        }
+        displaySavedQRCodes();
+    </script>
+</body>
+</html>

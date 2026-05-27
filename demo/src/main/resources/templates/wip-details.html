@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WIP Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue: #2563eb;
+            --blue-light: #eff6ff;
+            --blue-mid: #dbeafe;
+            --sidebar-bg: #ffffff;
+            --sidebar-border: #e5e9f0;
+            --sidebar-w: 220px;
+            --header-h: 64px;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-400: #94a3b8;
+            --gray-600: #475569;
+            --gray-900: #0f172a;
+            --green: #22c55e;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+            --radius: 10px;
+            /* Balance WIP accent */
+            --amber: #f59e0b;
+            --amber-light: #fffbeb;
+            --amber-mid: #fef3c7;
+        }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--gray-50); color: var(--gray-900); display: flex; min-height: 100vh; }
+
+        .sidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
+        .sidebar-brand { height: var(--header-h); display: flex; align-items: center; gap: 10px; padding: 0 20px; border-bottom: 1px solid var(--sidebar-border); }
+        .brand-icon { width: 34px; height: 34px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px; }
+        .brand-name { font-size: 15px; font-weight: 800; color: var(--blue); letter-spacing: -0.3px; }
+        .sidebar-label { font-size: 10px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: .08em; padding: 18px 20px 6px; }
+        .sidebar-menu { list-style: none; padding: 0 10px; }
+        .sidebar-menu li { margin-bottom: 2px; }
+        .sidebar-menu a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 500; color: var(--gray-600); transition: all .15s; }
+        .sidebar-menu a:hover { background: var(--gray-100); color: var(--gray-900); }
+        .sidebar-menu a.active { background: var(--blue-light); color: var(--blue); font-weight: 700; }
+        .sidebar-menu .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gray-200); flex-shrink: 0; }
+        .sidebar-menu a.active .dot { background: var(--blue); }
+        .machine-list { flex: 1; overflow-y: auto; }
+        .back-btn { margin: 12px 10px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; background: var(--blue); color: white; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 700; }
+        .back-btn:hover { background: #1d4ed8; }
+
+        .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+        .top-header { height: var(--header-h); background: white; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; padding: 0 28px; position: sticky; top: 0; z-index: 50; }
+        .page-title-area h1 { font-size: 18px; font-weight: 800; color: var(--gray-900); letter-spacing: -0.4px; }
+        .page-title-area p { font-size: 12px; color: var(--gray-400); margin-top: 1px; }
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .search-bar { display: flex; align-items: center; gap: 8px; background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 8px; padding: 8px 14px; width: 260px; }
+        .search-bar svg { color: var(--gray-400); flex-shrink: 0; }
+        .search-bar input { border: none; background: transparent; outline: none; font-size: 13px; font-family: inherit; color: var(--gray-900); width: 100%; }
+        .search-bar input::placeholder { color: var(--gray-400); }
+        .icon-btn { width: 38px; height: 38px; border-radius: 8px; border: 1px solid var(--gray-200); background: white; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--gray-600); transition: all .15s; }
+        .icon-btn:hover { background: var(--gray-100); color: var(--gray-900); }
+        .filter-select-wrap { position: relative; }
+        .filter-select-wrap select { appearance: none; background: var(--blue); color: white; border: none; border-radius: 8px; padding: 9px 30px 9px 14px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; outline: none; }
+        .filter-select-wrap::after { content: '▾'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: white; pointer-events: none; font-size: 11px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 28px 0; }
+        .stat-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow-sm); }
+        .stat-label { font-size: 11px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; }
+        .stat-value { font-size: 30px; font-weight: 800; color: var(--gray-900); letter-spacing: -1px; line-height: 1; }
+        .stat-sub { font-size: 11px; color: var(--gray-400); margin-top: 6px; }
+
+        .table-filters { display: flex; align-items: center; gap: 10px; padding: 20px 28px 0; flex-wrap: wrap; }
+        .filter-pill { display: flex; align-items: center; gap: 6px; background: white; border: 1px solid var(--gray-200); border-radius: 7px; padding: 7px 12px; font-size: 12px; font-weight: 600; color: var(--gray-600); cursor: pointer; }
+        .filter-pill select { border: none; background: transparent; font-size: 12px; font-family: inherit; font-weight: 600; color: var(--gray-600); outline: none; cursor: pointer; }
+
+        /* Balance WIP info banner */
+        .balance-info-banner { margin: 16px 28px 0; padding: 12px 16px; background: var(--amber-mid); border: 1px solid #c5c2b9; border-radius: var(--radius); font-size: 12px; color: #92400e; display: flex; align-items: center; gap: 8px; }
+        .balance-info-banner strong { font-weight: 700; }
+
+        .content-area { padding: 20px 28px 40px; }
+        .machine-section { margin-bottom: 30px; }
+        .machine-section-header { font-size: 14px; font-weight: 800; color: var(--gray-900); margin-bottom: 10px; padding-left: 4px; letter-spacing: -.2px; }
+        .table-card { background: white; border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .wip-table { width: 100%; border-collapse: collapse; }
+        .wip-table thead th { padding: 11px 14px; text-align: left; font-size: 11px; font-weight: 700; color: var(--gray-400); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--gray-100); background: var(--gray-50); white-space: nowrap; }
+        .wip-table thead th:first-child { padding-left: 16px; }
+        .wip-table tbody tr { border-bottom: 1px solid var(--gray-100); transition: background .1s; }
+        .wip-table tbody tr:last-child { border-bottom: none; }
+        .wip-table tbody tr:hover { background: var(--gray-50); }
+        .wip-table tbody td { padding: 13px 14px; font-size: 13px; color: var(--gray-900); vertical-align: middle; }
+        .wip-table tbody td:first-child { padding-left: 16px; }
+        .row-name-cell { display: flex; align-items: center; gap: 10px; }
+        .row-icon { width: 34px; height: 34px; border-radius: 7px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        /* Balance WIP row icon — amber tint */
+        .row-icon.balance { background: var(--amber-mid); }
+        .row-name { font-weight: 600; font-size: 13px; white-space: nowrap; max-width: 380px; display: inline-block; }
+        .row-sub { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+        .stock-bar-wrap { display: flex; align-items: center; gap: 8px; }
+        .stock-bar { width: 60px; height: 5px; background: var(--gray-200); border-radius: 99px; overflow: hidden; }
+        .stock-bar-fill { height: 100%; background: var(--blue); border-radius: 99px; }
+        .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+        .badge-stock { background: #dcfce7; color: #166534; }
+        .badge-custom { background: #dbeafe; color: #1e40af; }
+        .badge-gray { background: var(--gray-100); color: var(--gray-600); }
+        .badge-live { background: #fef9c3; color: #854d0e; }
+        .badge-closed { background: #dcfce7; color: #166534; }
+        /* Pending badge for Balance WIP */
+        .badge-pending { background: #fef3c7; color: #92400e; }
+        .highlight-row td { background: #fefce8 !important; }
+        .toggle { width: 34px; height: 18px; border-radius: 99px; background: var(--blue); position: relative; display: inline-block; }
+        .toggle::after { content: ''; position: absolute; width: 13px; height: 13px; border-radius: 50%; background: white; top: 2.5px; right: 3px; }
+        .toggle.off { background: var(--gray-200); }
+        .toggle.off::after { right: auto; left: 3px; }
+        .state-box { padding: 40px; text-align: center; color: var(--gray-400); font-size: 14px; }
+        .error-box { margin: 20px 28px; padding: 16px 20px; background: #fff1f0; border: 1px solid #fca5a5; border-radius: var(--radius); color: #b91c1c; font-size: 13px; }
+
+        /* ── PRINT DIALOG ── */
+        .print-dialog-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 999; align-items: center; justify-content: center; }
+        .print-dialog-overlay.open { display: flex; }
+        .print-dialog { background: white; border-radius: 14px; padding: 28px; width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .print-dialog h2 { font-size: 17px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+        .print-dialog p { font-size: 12px; color: var(--gray-400); margin-bottom: 22px; }
+        .dialog-field { margin-bottom: 14px; }
+        .dialog-field label { display: block; font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+        .dialog-field input { width: 100%; padding: 9px 12px; border: 1px solid var(--gray-200); border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--gray-900); outline: none; transition: border .15s; }
+        .dialog-field input:focus { border-color: var(--blue); }
+        .dialog-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-cancel { flex: 1; padding: 10px; border: 1px solid var(--gray-200); background: white; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--gray-600); cursor: pointer; transition: background .15s; }
+        .btn-cancel:hover { background: var(--gray-100); }
+        .btn-print { flex: 2; padding: 10px; background: var(--blue); border: none; border-radius: 8px; font-size: 13px; font-weight: 700; color: white; cursor: pointer; transition: background .15s; }
+        .btn-print:hover { background: #1d4ed8; }
+
+        /* ── PRINT STYLES ── */
+        @media print {
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            @page { margin: 14mm 12mm; }
+            body { background: white !important; display: block !important; }
+            .sidebar, .top-header, .stats-grid, .table-filters, .print-dialog-overlay, .balance-info-banner { display: none !important; }
+            .main { margin-left: 0 !important; }
+            .content-area { padding: 0 !important; }
+            .machine-section { page-break-inside: avoid; margin-bottom: 20px !important; }
+            .table-card { box-shadow: none !important; border: 1px solid #d1d5db !important; border-radius: 0 !important; page-break-inside: avoid; }
+            .print-report-header { display: flex !important; align-items: flex-start; justify-content: space-between; padding: 0 0 16px 0; margin-bottom: 18px; border-bottom: 2px solid #1e3a8a; }
+            .print-header-left { display: flex; align-items: flex-start; gap: 14px; }
+            .print-logo { height: 56px; width: auto; object-fit: contain; }
+            .print-logo-placeholder { width: 56px; height: 56px; background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+            .print-company-name { font-size: 18px; font-weight: 800; color: #1e3a8a; letter-spacing: -0.4px; line-height: 1.1; }
+            .print-report-title { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .08em; margin-top: 4px; }
+            .print-report-subtitle { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+            .print-header-right { text-align: right; }
+            .print-meta-item { font-size: 11px; color: #475569; margin-bottom: 3px; }
+            .print-meta-label { font-weight: 700; color: #1e3a8a; }
+            .print-meta-sep { width: 40px; height: 2px; background: #1e3a8a; margin-left: auto; margin-top: 8px; margin-bottom: 8px; }
+            .wip-table thead th { background: #1e3a8a !important; color: white !important; font-size: 9px !important; padding: 7px 8px !important; }
+            .wip-table tbody td { font-size: 10px !important; padding: 7px 8px !important; }
+            .wip-table tbody tr:nth-child(even) td { background: #f8fafc !important; }
+            .row-icon { display: none !important; }
+            .row-name-cell { gap: 0 !important; }
+            .row-name { font-size: 10px !important; font-weight: 600 !important; }
+            .row-sub { font-size: 9px !important; }
+            .stock-bar { display: none !important; }
+            .badge { padding: 2px 6px !important; font-size: 9px !important; }
+            .machine-section-header { font-size: 12px !important; background: #eff6ff; padding: 6px 10px !important; border-left: 3px solid #2563eb; border-radius: 0 !important; }
+            .highlight-row td { background: #fefce8 !important; }
+        }
+        @page { margin: 14mm 12mm; }
+    </style>
+</head>
+<body>
+
+<!-- PRINT DIALOG -->
+<div class="print-dialog-overlay" id="printDialogOverlay">
+    <div class="print-dialog">
+        <h2>🖨️ Print Report</h2>
+        <p>Customize the report header before printing.</p>
+        <div class="dialog-field">
+            <label>Prepared By</label>
+            <input type="text" id="printPreparedBy" placeholder="e.g. John Doe, Production Manager" />
+        </div>
+        <div class="dialog-actions">
+            <button class="btn-cancel" id="dialogCancel">Cancel</button>
+            <button class="btn-print" id="dialogPrint">Print Report</button>
+        </div>
+    </div>
+</div>
+
+<!-- HIDDEN PRINT HEADER -->
+<div class="print-report-header" id="printReportHeader" style="display:none;">
+    <div class="print-header-left">
+        <div id="printLogoWrap"><div class="print-logo-placeholder">⚙</div></div>
+        <div class="print-company-info">
+            <div class="print-company-name" id="printHeaderCompany">WIP Report</div>
+            <div class="print-report-title">Assembly WIP Details Report</div>
+            <div class="print-report-subtitle" id="printHeaderSubtitle">Year · All Records</div>
+        </div>
+    </div>
+    <div class="print-header-right">
+        <div class="print-meta-sep"></div>
+        <div class="print-meta-item"><span class="print-meta-label">Generated:</span> <span id="printHeaderDate">-</span></div>
+        <div class="print-meta-item"><span class="print-meta-label">Prepared By:</span> <span id="printHeaderPreparedBy">-</span></div>
+        <div class="print-meta-item"><span class="print-meta-label">Total Records:</span> <span id="printHeaderTotal">-</span></div>
+        <div class="print-meta-item"><span class="print-meta-label">WIP Type:</span> <span id="printHeaderType">-</span></div>
+    </div>
+</div>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">⚙</div>
+        <span class="brand-name">Assembly WIP</span>
+    </div>
+    <div class="machine-list">
+        <p class="sidebar-label">Machines</p>
+        <ul class="sidebar-menu" id="machineNav">
+            <li><a href="#" class="active" data-machine="all"><span class="dot"></span>All Machines</a></li>
+        </ul>
+    </div>
+    <a class="back-btn" href="/home">← Dashboard</a>
+</aside>
+
+<div class="main">
+    <header class="top-header" id="topHeader">
+        <div class="page-title-area">
+            <h1 id="pageTitle">WIP Details</h1>
+            <p id="pageSubtitle">Loading...</p>
+        </div>
+        <div class="header-actions">
+            <div class="search-bar">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input id="searchInput" type="search" placeholder="Search by CCN, machine or customer..." />
+            </div>
+            <button class="icon-btn" id="printButton" title="Print Report">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M6 9V2h12v7"/><rect x="6" y="17" width="12" height="5" rx="1"/><path d="M6 13H4a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2h-2"/>
+                    <circle cx="18" cy="15" r="1"/>
+                </svg>
+            </button>
+            <div class="filter-select-wrap">
+                <select id="categoryFilter">
+                    <option value="">All Categories</option>
+                    <option value="stock">Stock</option>
+                    <option value="customized">Customized</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Records</div>
+            <div class="stat-value" id="totalRecords">0</div>
+            <div class="stat-sub">All machines combined</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">With Invoice</div>
+            <div class="stat-value" id="withInvoice">0</div>
+            <div class="stat-sub">Invoice date available</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Stock Machines</div>
+            <div class="stat-value" id="stockCount">0</div>
+            <div class="stat-sub">Category: Stock</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Customized Machines</div>
+            <div class="stat-value" id="customizedCount">0</div>
+            <div class="stat-sub">Category: Customized</div>
+        </div>
+    </div>
+
+    <div class="table-filters">
+        <div class="filter-pill">
+            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"/></svg>
+            Show: <select id="statusFilter">
+                <option value="">All Status</option>
+                <option value="live">Live</option>
+                <option value="closed">Closed</option>
+            </select>
+        </div>
+        <div class="filter-pill">📅 Year: <span id="filterYearLabel" style="margin-left:4px;color:#0f172a">-</span></div>
+        <div class="filter-pill">📁 Type: <span id="filterTypeLabel" style="margin-left:4px;color:#0f172a">-</span></div>
+    </div>
+
+    <div class="content-area">
+        <div id="loadingState" class="state-box">Loading records...</div>
+        <div id="errorState" class="error-box" style="display:none;"></div>
+        <div id="emptyState" class="state-box" style="display:none;">No records found.</div>
+        <div id="detailContent"></div>
+    </div>
+</div>
+
+<script>
+    let allRows = [];
+    let machineNames = [];
+    let activeMachine = 'all';
+    let currentType = '';
+    let currentYear = '';
+
+    function getQueryParam(name) {
+        return new URL(window.location.href).searchParams.get(name);
+    }
+
+    function formatTypeLabel(type) {
+        switch ((type || '').toLowerCase()) {
+            case 'cf':               return 'Carry Forward (C/F)';
+            case 'machine-in-build': return 'Machine in Build';
+            case 'dispatch':         return 'Dispatch';
+            case 'balance':          return 'Balance WIP (Pending Dispatch)'; // NEW
+            case 'balance-wip':      return 'Balance WIP (Pending Dispatch)'; // alias
+            default: return type || 'Unknown';
+        }
+    }
+
+    function isBalanceType(type) {
+        return (type || '').toLowerCase() === 'balance' || (type || '').toLowerCase() === 'balance-wip';
+    }
+
+    function formatNumber(value) {
+        if (value == null) return '-';
+        return Number(value).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    }
+
+    function formatDate(value) {
+        if (!value) return '-';
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let d;
+        if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+            const parts = value.split('T')[0].split('-');
+            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        } else { d = new Date(value); }
+        if (isNaN(d.getTime())) return value;
+        return `${String(d.getDate()).padStart(2,'0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function normalizeMachineName(name) {
+        if (name == null) return '';
+        return String(name).trim().toUpperCase();
+    }
+
+    function matchesSearch(row, term) {
+        if (!term) return true;
+        const n = term.toLowerCase();
+        return [row.ccn, row.customerName, row.machineName].some(v => v && v.toString().toLowerCase().includes(n));
+    }
+
+    function machineEmoji(name) {
+        const n = (name || '').toLowerCase();
+        if (n.includes('carton'))              return '📦';
+        if (n.includes('case') || n.includes('pack')) return '🗂️';
+        if (n.includes('fill'))                return '🧪';
+        if (n.includes('wrap'))                return '🔄';
+        if (n.includes('label'))               return '🏷️';
+        return '⚙️';
+    }
+
+    function buildSidebar(machines) {
+        machineNames = machines;
+        const nav = document.getElementById('machineNav');
+        nav.innerHTML = '';
+        const allLi = document.createElement('li');
+        allLi.innerHTML = `<a href="#" class="${activeMachine === 'all' ? 'active' : ''}" data-machine="all"><span class="dot"></span>All Machines</a>`;
+        nav.appendChild(allLi);
+        machines.forEach(m => {
+            const li = document.createElement('li');
+            li.innerHTML = `<a href="#" class="${activeMachine === m ? 'active' : ''}" data-machine="${m}"><span class="dot"></span>${m}</a>`;
+            nav.appendChild(li);
+        });
+        nav.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                activeMachine = a.dataset.machine;
+                nav.querySelectorAll('a').forEach(x => x.classList.remove('active'));
+                a.classList.add('active');
+                applyFilters();
+            });
+        });
+    }
+
+    function buildSummary(rows) {
+        document.getElementById('totalRecords').textContent = rows.length;
+        document.getElementById('withInvoice').textContent  = rows.filter(r => r.invoiceDate).length;
+        document.getElementById('stockCount').textContent   = rows.filter(r => (r.machineCategory || '').toLowerCase().includes('stock')).length;
+        document.getElementById('customizedCount').textContent = rows.filter(r => (r.machineCategory || '').toLowerCase().includes('customized')).length;
+    }
+
+    function renderMachineSection(machineName, rows, searchTerm) {
+        const isBalance = isBalanceType(currentType);
+        const section = document.createElement('div');
+        section.className = 'machine-section';
+        section.innerHTML = `<div class="machine-section-header">${machineEmoji(machineName)} ${machineName} <span style="font-weight:400;color:#94a3b8;font-size:12px;">(${rows.length} records)</span></div>`;
+
+        const card = document.createElement('div');
+        card.className = 'table-card';
+
+        const columns = [
+            { key: 'ccn',                 label: 'CCN' },
+            { key: 'customerName',        label: 'Customer Name' },
+            { key: 'actualAssyStartDate', label: 'Assy Start Date' },
+            { key: 'invoiceDate',         label: 'Invoice Date' },
+            { key: 'ccnStatus',           label: 'CCN Status' },
+            { key: 'durationDays',        label: isBalance ? 'Days Since Start' : 'Duration (days)' },
+            { key: 'poValue',             label: 'PO Value' },
+            { key: 'machineCategory',     label: 'Category' },
+            { key: 'liveStatus',          label: 'Live Status' },
+        ];
+
+        let html = `<table class="wip-table"><thead><tr>${columns.map(c => `<th>${c.label}</th>`).join('')}</tr></thead><tbody>`;
+
+        rows.forEach(row => {
+            const isHighlight = searchTerm && matchesSearch(row, searchTerm);
+            const isClosed    = (row.ccnStatus || '').toLowerCase().includes('close');
+
+            const categoryClass = (row.machineCategory || '').toLowerCase().includes('stock')
+                ? 'badge-stock'
+                : (row.machineCategory || '').toLowerCase().includes('customized')
+                    ? 'badge-custom' : 'badge-gray';
+
+            const liveStatusVal = row.liveStatus || '-';
+            const liveClass = liveStatusVal.toLowerCase().includes('live')  ? 'badge-live'
+                            : liveStatusVal.toLowerCase().includes('close') ? 'badge-closed'
+                            : 'badge-gray';
+
+            // For Balance WIP: calculate days since assy start (since no invoice yet)
+            let durationDisplay;
+            if (isBalance) {
+                if (row.actualAssyStartDate) {
+                    const startParts = String(row.actualAssyStartDate).split('T')[0].split('-');
+                    const startDate  = new Date(parseInt(startParts[0]), parseInt(startParts[1])-1, parseInt(startParts[2]));
+                    const today      = new Date();
+                    const daysSince  = Math.max(0, Math.floor((today - startDate) / 86400000));
+                    durationDisplay  = `<div class="stock-bar-wrap">
+                        <div class="stock-bar"><div class="stock-bar-fill" style="width:${Math.min(daysSince / 365 * 100, 100)}%;background:#f59e0b"></div></div>
+                        <span style="font-size:12px;font-weight:600;color:#92400e">${daysSince}d</span>
+                    </div>`;
+                } else {
+                    durationDisplay = '<span style="color:#94a3b8">-</span>';
+                }
+            } else {
+                durationDisplay = `<div class="stock-bar-wrap">
+                    <div class="stock-bar"><div class="stock-bar-fill" style="width:${Math.min((row.durationDays || 0) / 200 * 100, 100)}%"></div></div>
+                    <span style="font-size:12px;font-weight:600">${row.durationDays != null ? row.durationDays : '-'}</span>
+                </div>`;
+            }
+
+            // Invoice Date cell — for balance WIP pending ones, show a "Pending" badge
+            const invoiceDateDisplay = row.invoiceDate
+                ? `<span style="color:#475569">${formatDate(row.invoiceDate)}</span>`
+                : (isBalance ? `<span class="badge badge-pending">⏳ Pending</span>` : '<span style="color:#94a3b8">-</span>');
+
+            html += `<tr class="${isHighlight ? 'highlight-row' : ''}">
+                <td><div class="row-name-cell">
+                    <div class="row-icon${isBalance ? ' balance' : ''}">${machineEmoji(row.machineName)}</div>
+                    <div>
+                        <div class="row-name" title="${row.ccn || '-'}">${row.ccn || '-'}</div>
+                        <div class="row-sub">${row.machineName || ''}</div>
+                    </div>
+                </div></td>
+                <td style="font-weight:500">${row.customerName || '-'}</td>
+                <td style="color:#475569">${formatDate(row.actualAssyStartDate)}</td>
+                <td>${invoiceDateDisplay}</td>
+                <td><span style="font-size:12px;font-weight:600;color:${isClosed ? '#166534' : '#92400e'}">${isClosed ? '✔ Closed' : '● Open'}</span></td>
+                <td>${durationDisplay}</td>
+                <td style="font-weight:600">${formatNumber(row.poValue)} Lacs</td>
+                <td><span class="badge ${categoryClass}">${row.machineCategory || '-'}</span></td>
+                <td><span class="badge ${liveClass}">${liveStatusVal}</span></td>
+            </tr>`;
+        });
+
+        html += `</tbody></table>`;
+        card.innerHTML = html;
+        section.appendChild(card);
+        return section;
+    }
+
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        const category   = document.getElementById('categoryFilter').value.toLowerCase();
+        const status     = document.getElementById('statusFilter').value.toLowerCase();
+
+        let filtered = allRows.filter(row => {
+            if (!matchesSearch(row, searchTerm)) return false;
+            if (category && !(row.machineCategory || '').toLowerCase().includes(category)) return false;
+            if (status === 'live'   && (row.ccnStatus || '').toLowerCase().includes('close')) return false;
+            if (status === 'closed' && !(row.ccnStatus || '').toLowerCase().includes('close')) return false;
+            if (activeMachine !== 'all' && row.machineName !== activeMachine) return false;
+            return true;
+        });
+
+        buildSummary(filtered);
+        document.getElementById('emptyState').style.display = filtered.length === 0 ? 'block' : 'none';
+
+        const content = document.getElementById('detailContent');
+        content.innerHTML = '';
+
+        const grouped = filtered.reduce((map, row) => {
+            const key = row.machineName || 'Unknown Machine';
+            if (!map[key]) map[key] = [];
+            map[key].push(row);
+            return map;
+        }, {});
+
+        Object.keys(grouped).forEach(machine =>
+            content.appendChild(renderMachineSection(machine, grouped[machine], searchTerm)));
+    }
+
+    /* ── PRINT ── */
+    function openPrintDialog()  { document.getElementById('printDialogOverlay').classList.add('open'); }
+    function closePrintDialog() { document.getElementById('printDialogOverlay').classList.remove('open'); }
+
+    function getNow() {
+        const d = new Date(), pad = n => String(n).padStart(2,'0');
+        const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${pad(d.getDate())} ${m[d.getMonth()]} ${d.getFullYear()}  ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    function triggerPrint() {
+        const preparedBy = document.getElementById('printPreparedBy').value.trim() || '-';
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        const category   = document.getElementById('categoryFilter').value.toLowerCase();
+        const status     = document.getElementById('statusFilter').value.toLowerCase();
+
+        const filtered = allRows.filter(row => {
+            if (!matchesSearch(row, searchTerm)) return false;
+            if (category && !(row.machineCategory || '').toLowerCase().includes(category)) return false;
+            if (status === 'live'   && (row.ccnStatus || '').toLowerCase().includes('close')) return false;
+            if (status === 'closed' && !(row.ccnStatus || '').toLowerCase().includes('close')) return false;
+            if (activeMachine !== 'all' && row.machineName !== activeMachine) return false;
+            return true;
+        });
+
+        document.getElementById('printHeaderCompany').textContent  = 'WIP Report';
+        document.getElementById('printHeaderSubtitle').textContent = `Year ${currentYear} · ${formatTypeLabel(currentType)}`;
+        document.getElementById('printHeaderDate').textContent      = getNow();
+        document.getElementById('printHeaderPreparedBy').textContent= preparedBy;
+        document.getElementById('printHeaderTotal').textContent     = filtered.length + ' entries';
+        document.getElementById('printHeaderType').textContent      = formatTypeLabel(currentType);
+        document.getElementById('printLogoWrap').innerHTML = `<img class="print-logo" src="/images/IMA.JPG" alt="Logo" onerror="this.parentElement.innerHTML='<div class=\\'print-logo-placeholder\\'>⚙</div>'" />`;
+        document.getElementById('printReportHeader').style.display  = 'flex';
+
+        closePrintDialog();
+        setTimeout(() => {
+            const printWin = window.open('', '_blank', 'width=1200,height=800');
+            if (!printWin) {
+                window.print();
+                setTimeout(() => { document.getElementById('printReportHeader').style.display = 'none'; }, 1000);
+                return;
+            }
+            const headerHTML  = document.getElementById('printReportHeader').outerHTML;
+            const contentHTML = document.getElementById('detailContent').innerHTML;
+            printWin.document.write(`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title></title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',Arial,sans-serif;background:white;color:#0f172a;padding:14mm 12mm}
+.print-report-header{display:flex!important;align-items:flex-start;justify-content:space-between;padding:0 0 16px 0;margin-bottom:18px;border-bottom:2px solid #1e3a8a}
+.print-header-left{display:flex;align-items:flex-start;gap:14px}
+.print-logo{height:56px;width:auto;object-fit:contain}
+.print-logo-placeholder{width:56px;height:56px;background:#eff6ff;border:1px solid #dbeafe;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px}
+.print-company-name{font-size:18px;font-weight:800;color:#1e3a8a;letter-spacing:-0.4px;line-height:1.1}
+.print-report-title{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.print-report-subtitle{font-size:11px;color:#94a3b8;margin-top:2px}
+.print-header-right{text-align:right}
+.print-meta-item{font-size:11px;color:#475569;margin-bottom:3px}
+.print-meta-label{font-weight:700;color:#1e3a8a}
+.print-meta-sep{width:40px;height:2px;background:#1e3a8a;margin-left:auto;margin-top:8px;margin-bottom:8px}
+.machine-section{margin-bottom:20px;page-break-inside:avoid}
+.machine-section-header{font-size:12px;font-weight:800;background:#eff6ff;padding:6px 10px;border-left:3px solid #2563eb;margin-bottom:0;color:#0f172a}
+.table-card{border:1px solid #d1d5db;overflow:hidden;page-break-inside:avoid}
+.wip-table{width:100%;border-collapse:collapse}
+.wip-table thead th{padding:7px 8px;text-align:left;font-size:9px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.04em;background:#1e3a8a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;white-space:nowrap}
+.wip-table thead th:first-child{padding-left:10px}
+.wip-table tbody tr{border-bottom:1px solid #f1f5f9}
+.wip-table tbody tr:nth-child(even) td{background:#f8fafc!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.wip-table tbody td{padding:7px 8px;font-size:10px;color:#0f172a;vertical-align:middle}
+.wip-table tbody td:first-child{padding-left:10px}
+.row-name-cell{display:flex;align-items:center}
+.row-icon{display:none}
+.row-name{font-weight:600;font-size:10px}
+.row-sub{font-size:9px;color:#94a3b8;margin-top:1px}
+.stock-bar{display:none!important}
+.stock-bar-wrap{display:flex;align-items:center;gap:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 6px;border-radius:99px;font-size:9px;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.badge-stock{background:#dcfce7!important;color:#166534!important}
+.badge-custom{background:#dbeafe!important;color:#1e40af!important}
+.badge-gray{background:#f1f5f9!important;color:#475569!important}
+.badge-live{background:#fef9c3!important;color:#854d0e!important}
+.badge-closed{background:#dcfce7!important;color:#166534!important}
+.badge-pending{background:#fef3c7!important;color:#92400e!important}
+.highlight-row td{background:#fefce8!important}
+@page{size:A4 landscape;margin:0}
+</style></head><body>
+${headerHTML}
+${contentHTML}
+<script>window.onload=function(){window.print();window.onafterprint=function(){window.close()};setTimeout(function(){window.close()},3000)};<\/script>
+</body></html>`);
+            printWin.document.close();
+            setTimeout(() => { document.getElementById('printReportHeader').style.display = 'none'; }, 500);
+        }, 100);
+    }
+
+    /* ── LOAD DATA ── */
+    function loadWipDetails() {
+        const type = getQueryParam('type') || 'cf';
+        const fy   = parseInt(getQueryParam('filterYear') || getQueryParam('year'), 10);
+        const validYear = Number.isFinite(fy) ? fy : new Date().getFullYear();
+
+        currentType = type;
+        currentYear = validYear;
+
+        document.getElementById('pageTitle').textContent    = formatTypeLabel(type);
+        document.getElementById('pageSubtitle').textContent = `Year ${validYear} · WIP Records`;
+        document.getElementById('filterYearLabel').textContent = validYear;
+        document.getElementById('filterTypeLabel').textContent = formatTypeLabel(type);
+
+        document.getElementById('loadingState').style.display = 'block';
+
+        fetch(`/api/machineccnproject/wip-details?type=${encodeURIComponent(type)}&filterYear=${encodeURIComponent(validYear)}`)
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('loadingState').style.display = 'none';
+                if (data && data.success === false) throw new Error(data.error || 'Failed to load');
+                allRows = Object.values(data).flat();
+                if (!Array.isArray(allRows)) allRows = [];
+                allRows = allRows.map(row => ({
+                    ...row,
+                    machineName: normalizeMachineName(row.machineName) || ''
+                }));
+
+                // Deduplicate machine names by normalized value and preserve uppercase display
+                const machines = [...new Set(allRows.map(r => r.machineName).filter(Boolean))].sort();
+                buildSidebar(machines);
+                applyFilters();
+            })
+            .catch(err => {
+                document.getElementById('loadingState').style.display = 'none';
+                const e = document.getElementById('errorState');
+                e.style.display = 'block';
+                e.innerHTML = `<strong>Error:</strong> ${err.message}`;
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+        document.getElementById('statusFilter').addEventListener('change', applyFilters);
+        document.getElementById('printButton').addEventListener('click', openPrintDialog);
+        document.getElementById('dialogCancel').addEventListener('click', closePrintDialog);
+        document.getElementById('dialogPrint').addEventListener('click', triggerPrint);
+        document.getElementById('printDialogOverlay').addEventListener('click', e => {
+            if (e.target === document.getElementById('printDialogOverlay')) closePrintDialog();
+        });
+        loadWipDetails();
+    });
+</script>
+</body>
+</html>

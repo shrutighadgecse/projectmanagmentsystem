@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kit Inward Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* General Reset and Base Styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background:  #35474d;
+        }
+        .container {
+            margin-left: 260px;
+            padding: 30px 20px 20px 20px;
+            transition: margin 0.3s;
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px; /* Reduced width for large screens */
+            height: 100vh;
+            background: #232946;
+            color: #fff;
+            padding: 30px 20px 30px 20px; /* Reduced top padding for better card visibility */
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            z-index: 100;
+            transition: left 0.3s, width 0.3s;
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #eebbc3 #232946;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #eebbc3;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #232946;
+        }
+        .sidebar h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+        .sidebar .form-group {
+            margin-bottom: 15px;
+        }
+        .sidebar label {
+            font-size: 0.95rem;
+            color: #eebbc3;
+        }
+        .sidebar input[type="date"] {
+            width: 100%;
+            padding: 6px 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-top: 4px;
+        }
+        .sidebar button {
+            width: 100%;
+            padding: 8px 0;
+            background: #eebbc3;
+            color: #232946;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sidebar button:hover {
+            background: #f6c7be;
+        }
+        .sidebar .card {
+            margin-bottom: 28px;
+        }
+        .sidebar .card:first-child {
+            margin-top: 32px; /* Increased top margin for first card */
+        }
+        /* Responsive Navbar for Small Screens */
+        .navbar-toggle {
+            display: none;
+            position: fixed;
+            left: 10px;
+            top: 15px;
+            z-index: 200;
+            background: #232946;
+            color: #fff;
+            border: none;
+            font-size: 1.7rem;
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+        #header {
+    margin-bottom: 16px;
+}
+.navbar-toggle {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    /* Responsive spacing */
+}
+@media (max-width: 900px) {
+    .container {
+        margin-left: 0;
+        padding: 10px;
+    }
+    .sidebar {
+        left: -260px;
+        width: 220px;
+        height: 100vh;
+        padding: 20px 10px;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+    }
+    .sidebar.open {
+        left: 0;
+    }
+    .navbar-toggle {
+        display: block;
+        margin-top: 25px;
+        margin-bottom: 25px;
+        font-size: 1.2rem; /* smaller font size */
+        padding: 2px 6px;  /* smaller padding */
+        height: 32px;      /* smaller height */
+        width: 38px;       /* smaller width */
+    }
+}
+@media (max-width: 600px) {
+    .container {
+        padding: 5px;
+    }
+    .sidebar {
+        width: 120px;
+        padding: 10px 4px;
+    }
+    .navbar-toggle {
+        margin-top: 35px;
+        margin-bottom: 35px;
+        font-size: 1rem;   /* even smaller font size */
+        padding: 1px 4px;  /* even smaller padding */
+        height: 28px;      /* even smaller height */
+        width: 32px;       /* even smaller width */
+    }
+    .sidebar h3 {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+    .sidebar .card:first-child {
+        margin-top: 48px; /* Increased top margin for first card on small screens */
+    }
+}
+        /* Table Styles */
+        .table-wrapper {
+            overflow: auto;
+            max-height: 500px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            margin-top: 30px;
+        }
+        table.clean-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            min-width: 900px;
+            background: #fff;
+        }
+        table.clean-table th, table.clean-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 15px;
+            background: #fff;
+        }
+        table.clean-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        table.clean-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+        table.clean-table tr:hover td {
+            background: #eebbc3;
+            color: #232946;
+        }
+        .chart-container {
+    width: 100%; /* Make the chart container take full width of the sidebar */
+    height: 200px; /* Set a fixed height for the chart container */
+    margin-top: 20px; /* Add some margin to separate from buttons */
+    padding: 10px; /* Add some padding */
+    border: 1px solid #ccc; /* Optional: Add a border */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow */
+    display: flex; /* Use flexbox to center the canvas */
+    justify-content: center; /* Center the canvas horizontally */
+    align-items: center; /* Center the canvas vertically */
+}
+        @media (max-width: 900px) {
+            .chart-container {
+                max-width: 100%;
+                margin: 20px 0 0 0;
+            }
+        }
+        @media (max-width: 600px) {
+            .chart-container {
+                padding: 10px 2px 2px 2px;
+            }
+        }
+        /* Modal Form Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .form-container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            padding: 32px 10px 10px 10px; /* Increased top padding for header gap */
+            min-width: 180px;
+            max-width: 95vw;
+            width: 260px;
+            margin: 40px auto 80px auto; /* Increased bottom margin for footer gap */
+            position: relative;
+            z-index: 400;
+            display: none;
+            animation: fadeIn 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .form-container.active {
+            display: block;
+        }
+        .form-container h2 {
+            margin-top: 18px;
+            margin-bottom: 18px;
+            color: #232946;
+        }
+        @media (max-width: 900px) {
+            .form-container {
+                font-size: 0.97rem;
+            }
+            .form-group label {
+                font-size: 0.97rem;
+            }
+            .form-group input,
+            .form-group button {
+                font-size: 0.97rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .form-container {
+                width: 96vw;
+                min-width: 0;
+                max-width: 99vw;
+                padding: 20px 2vw 10px 2vw; /* More top padding for mobile */
+                font-size: 0.92rem;
+                margin: 20px auto 60px auto; /* More bottom margin for mobile */
+            }
+        }
+        @media (max-width: 400px) {
+            .form-container {
+                width: 100vw;
+                padding: 12px 1vw 4px 1vw; /* More top padding for very small screens */
+                font-size: 0.85rem;
+                margin: 10px auto 40px auto;
+            }
+        }
+        .container h2#currentStatus {
+            text-align: center;
+            color: #fff;
+            margin-top: 32px;
+            margin-bottom: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: 2rem;
+        }
+        @media (max-width: 600px) {
+    .container h2#currentStatus {
+        font-size: 1.2rem;
+    }
+}
+        .form-group label {
+            font-weight: 500;
+            color: #232946;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group input[type="datetime-local"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 7px 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-top: 4px;
+            margin-bottom: 10px;
+        }
+        .form-group button {
+            background: #232946;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .form-group button:hover {
+            background: #eebbc3;
+            color: #232946;
+        }
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1.3rem;
+            color: #232946;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px; /* smaller width */
+    height: 20px; /* smaller height */
+}
+.toggle-switch input {display:none;}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px; /* smaller knob */
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #2196F3;
+}
+input:checked + .slider:before {
+    transform: translateX(16px);
+}
+    </style>
+</head>
+<body>
+    <div id="header"></div> <!-- Header will be loaded here -->
+
+    <button class="navbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="sidebar" id="sidebar">
+        <h3>Inward Status</h3>
+        <div class="card">
+            <button onclick="fetchEntriesByStatus('IN PROCESS')">
+                IN PROCESS <span id="inProcessCount">0</span>
+            </button>
+        </div>
+        <div class="card">
+            <button onclick="fetchEntriesByStatus('SHORTFALL')">
+                SHORTFALL <span id="shortfallCount">0</span>
+            </button>
+        </div>
+        <div class="card">
+            <button onclick="fetchEntriesByStatus('COMPLETE')">
+                COMPLETED <span id="completeCount">0</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="container" id="tableContainer">
+        <h2 id="currentStatus">Kit Live Stauts Table </h2>
+        <div class="table-wrapper">
+            <table class="clean-table">
+                <thead>
+                    <tr>
+                        <th>Reference ID</th>
+                        <th>Date</th>
+                        <th>BLC_PO</th>
+                        <th>BLCPO_DATE</th>
+                        <th>CCN</th>
+                        <th>ASSEMBLY CODE</th>
+                        <th>MACHINE NAME</th>
+                        <th>STAGE</th>
+                        <th>Status</th>
+                        <th>INWARD BY</th>
+                        <th>INWARD-QTY</th>
+                        <th>DESCRIPTION</th>
+                        <th>Completion Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="detailedBody">
+                    <!-- Detailed entries will be populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div id="kitForm" class="form-container">
+            <button class="close-modal" onclick="closeForm()">&times;</button>
+            <h2>Update Sub Assembly  Kit Form</h2>
+            <input type="hidden" id="kitFormId" value="" />
+            <div class="form-group">
+                <label>Reference ID:</label>
+                <input type="text" id="referenceId" disabled />
+            </div>
+            <div class="form-group">
+                <label>Date:</label>
+                <input type="datetime-local" id="dateTime" disabled /> <!-- Remove 'disabled' attribute -->
+            </div>
+            <div class="form-group">
+                <label>BLC_PO:</label>
+                <input type="text" id="blcPoInput" disabled />
+            </div>
+            <div class="form-group">
+                <label>BLCPO_DATE:</label>
+                <input type="date" id="blcPoDate" disabled />
+            </div>
+            <div class="form-group">
+                <label>CCN:</label>
+                <input type="text" id="ccn" disabled />
+            </div>
+            <div class="form-group">
+                <label>ASSEMBLY CODE:</label>
+                <input type="text" id="assemblyCode" disabled />
+            </div>
+            <div class="form-group">
+                <label>MACHINE NAME:</label>
+                <input type="text" id="machineName" disabled />
+            </div>
+            <div class="form-group">
+                <label>STAGE:</label>
+                <input type="text" id="stage" disabled />
+            </div>
+            <div class="form-group">
+                <label>INWARD BY:</label>
+                <input type="text" id="inwardBy" disabled />
+            </div>
+            <div class="form-group">
+                <label>INWARD-QTY:</label>
+                <input type="number" id="inwardQty" />
+            </div>
+            <div class="form-group">
+                <label>DESCRIPTION:</label>
+                <input type="text" id="description" disabled />
+            </div>
+            <div class="form-group">
+                <label>Status:</label><br />
+                <input type="radio" name="status" value="IN PROCESS" id="statusInProcess" /> In Process<br />
+                <input type="radio" name="status" value="SHORTFALL" id="statusShortfall" /> Shortfall<br />
+                <input type="radio" name="status" value="COMPLETE" id="statusComplete" /> Completed<br />
+            </div>
+            <div class="form-group">
+                <button onclick="saveForm()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+
+            // Load header and footer
+ fetch('/fragments/header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading header:', error));
+
+    
+
+ async function fetchEntriesByStatus(status) {
+    console.log(`Fetching entries for status: ${status}`);
+    const response = await fetch(`/api/kitform/status?status=${status}`);
+    if (!response.ok) {
+        console.error('Failed to fetch entries:', response.statusText);
+        return;
+    }
+    const entries = await response.json();
+    console.log('Entries retrieved:', entries);
+    populateDetailedEntries(entries);
+    
+    // Update the status header
+    const statusHeader = document.getElementById("currentStatus");
+    statusHeader.innerText = status === 'COMPLETE' ? 'Complete Kit Forwarded Details' :
+                             status === 'IN PROCESS' ? 'In Process Kit Forwarded Details' :
+                             status === 'SHORTFALL' ? 'Shortfall Kit Forwarded Details' :
+                             'Kit Forwarded Details'; // Default case
+}
+
+function showChart() {
+    document.getElementById("chartContainer").style.display = "block"; // Show the chart
+    document.getElementById("detailedEntries").style.display = "none"; // Hide detailed entries
+}
+
+window.onload = function() {
+    fetchEntriesByStatus('IN PROCESS'); // Show IN PROCESS entries by default
+    fetchStatusCounts();
+    document.getElementById('chartContainer').style.display = 'block';
+};
+
+function populateDetailedEntries(entries) {
+    const detailedBody = document.getElementById("detailedBody");
+    detailedBody.innerHTML = "";
+    entries.forEach(entry => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${entry.referenceId}</td>
+            <td>${new Date(entry.dateTime).toLocaleString()}</td>
+            <td>${entry.blcPo}</td>
+            <td>${entry.blcPoDate}</td>
+            <td>${entry.ccn}</td>
+            <td>${entry.assemblyCode}</td>
+            <td>${entry.machineName}</td>
+            <td>${entry.stage}</td>
+            <td>${entry.status}</td>
+            <td>${entry.inwardBy}</td>
+            <td>${entry.inwardQty}</td>
+            <td>${entry.description}</td>
+            <td>${entry.completionDate ? new Date(entry.completionDate).toLocaleString() : 'N/A'}</td>
+            <td>${entry.status !== 'COMPLETE' ? `<button onclick=\"editEntry('${entry.id}')\">Edit</button>` : ''}</td>
+        `;
+        detailedBody.appendChild(row);
+    });
+    document.getElementById("detailedEntries").style.display = "block"; // Show detailed entries
+    document.getElementById("chartContainer").style.display = "block";
+}
+
+    async function fetchStatusCounts() {
+        const response = await fetch('/api/kitform/status/counts');
+        const counts = await response.json();
+        
+        document.getElementById("inProcessCount").innerText = counts["IN PROCESS"] || 0;
+        document.getElementById("shortfallCount").innerText = counts["SHORTFALL"] || 0;
+        document.getElementById("completeCount").innerText = counts["COMPLETE"] || 0;
+
+        createPieChart(counts);
+    }
+
+    function createPieChart(counts) {
+    const ctx = document.getElementById('statusPieChart').getContext('2d');
+    const data = {
+        labels: Object.keys(counts),
+        datasets: [{
+            label: 'Status Counts',
+            data: Object.values(counts),
+            backgroundColor: [
+                'rgb(255, 99, 132)',
+                'rgb(54, 162, 235)',
+                'rgb(255, 205, 86)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)'
+            ],
+            borderWidth: 1 // Adjust this value to change the line width
+        }]
+    };
+
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top', // Position the legend at the top
+                align: 'start', // Align the legend items to the start
+                labels: {
+                    color: 'white', // Change font color to white
+                    font: {
+                        size: 10, // Adjust font size for legend
+                        weight: 'normal' // Set font weight
+                    },
+                    padding: 5 // Adjust padding for legend items
+                }
+            },
+            tooltip: {
+                bodyFont: {
+                    size: 10 // Adjust font size for tooltip
+                }
+            }
+        },
+        layout: {
+            padding: {
+                top: 20 // Add padding to the top
+            }
+        }
+    };
+
+    new Chart(ctx, {
+        type: 'pie',
+        data: data,
+        options: options
+    });
+}
+
+
+    function toggleSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('open');
+}
+function closeForm() {
+    document.getElementById('modalOverlay').classList.remove('active');
+    document.getElementById('kitForm').classList.remove('active');
+}
+    async function editEntry(id) {
+        const response = await fetch(`/api/kitform/${id}`);
+        const kitForm = await response.json();
+        populateForm(kitForm);
+        document.getElementById("kitFormId").value = kitForm.id;
+        document.getElementById("modalOverlay").classList.add('active');
+        document.getElementById("kitForm").classList.add('active');
+    }
+
+    function populateForm(kitForm) {
+    document.getElementById("referenceId").value = kitForm.referenceId;
+
+ // Use Moment.js to parse the date and format it
+ const formattedDateTime = moment(kitForm.dateTime).local().format('YYYY-MM-DDTHH:mm');
+    document.getElementById("dateTime").value = formattedDateTime;
+
+    document.getElementById("blcPoInput").value = kitForm.blcPo;
+    document.getElementById("blcPoDate").value = kitForm.blcPoDate;
+    document.getElementById("ccn").value = kitForm.ccn;
+    document.getElementById("assemblyCode").value = kitForm.assemblyCode;
+    document.getElementById("machineName").value = kitForm.machineName;
+    document.getElementById("stage").value = kitForm.stage;
+    document.getElementById("inwardBy").value = kitForm.inwardBy;
+    document.getElementById("inwardQty").value = kitForm.inwardQty;
+    document.getElementById("description").value = kitForm.description;
+
+    // Set the radio button for status based on the current status
+    if (kitForm.status === "IN PROCESS") {
+        document.getElementById("statusInProcess").checked = true;
+    } else if (kitForm.status === "SHORTFALL") {
+        document.getElementById("statusShortfall").checked = true;
+    } else if (kitForm.status === "COMPLETE") {
+        document.getElementById("statusComplete").checked = true;
+    }
+}
+
+async function saveForm() {
+    const kitForm = {
+        referenceId: document.getElementById("referenceId").value,
+        dateTime: document.getElementById("dateTime").value, // This should be in the format YYYY-MM-DDTHH:mm
+        blcPo: document.getElementById("blcPoInput").value,
+        blcPoDate: document.getElementById("blcPoDate").value,
+        ccn: document.getElementById("ccn").value,
+        assemblyCode: document.getElementById("assemblyCode").value,
+        stage: document.getElementById("stage").value,
+        machineName: document.getElementById("machineName").value,
+        inwardBy: document.getElementById("inwardBy").value,
+        inwardQty: document.getElementById("inwardQty").value,
+        description: document.getElementById("description").value,
+        id: document.getElementById("kitFormId").value,
+        status: document.querySelector('input[name="status"]:checked').value
+    };
+    console.log("KitForm to be updated:", kitForm);
+    
+    const response = await fetch(`/api/kitform/update`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(kitForm)
+    });
+
+    if (response.ok) {
+        alert("Entry updated successfully!");
+        location.reload(); // Refresh the page to reflect changes
+    } else {
+        const errorText = await response.text(); // Get the error message from the response
+        console.error("Error response:", errorText); // Log the error response
+        alert("Error updating entry: " + errorText); // Show the error message
+    }
+}
+
+document.getElementById('filterBtn').addEventListener('click', async () => {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (!startDate || !endDate) {
+        alert('Please select both start and end dates.');
+        return;
+    }
+
+    // Format the dates to include time
+    const formattedStartDate = `${startDate}T00:00:00`;
+    const formattedEndDate = `${endDate}T23:59:59`;
+
+    const response = await fetch(`/api/kitform/filter?startDate=${formattedStartDate}&endDate=${formattedEndDate}`);
+    if (!response.ok) {
+        console.error('Failed to fetch entries:', response.statusText);
+        return;
+    }
+    const entries = await response.json();
+    populateDetailedEntries(entries);
+});
+</script>
+<div id="footer"></div>
+<script>
+fetch('/fragments/footer.html')
+  .then(response => response.text())
+  .then(data => { document.getElementById('footer').innerHTML = data; });
+</script>
+</body>
+</html>

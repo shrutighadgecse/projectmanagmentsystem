@@ -1,0 +1,682 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Dropdown Form</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="masterkanban.css">
+    <style>
+        .hidden {
+        display: none;
+    }
+        /* Remove duplicate container margin-bottom, keep only for gap above footer */
+        .container, .form-container, main {
+            margin-bottom: 80px !important;
+        }
+        .form-wrapper {
+            margin-bottom: 40px !important;
+        }
+        /* Responsive font and input scaling */
+        .form-wrapper, .form-group, label, input, select, textarea, .submit-button, .gender label {
+            font-size: 1rem;
+        }
+        @media (max-width: 900px) {
+            .form-wrapper, .form-group, label, input, select, textarea, .submit-button, .gender label {
+                font-size: 0.95rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .form-wrapper, .form-group, label, input, select, textarea, .submit-button, .gender label {
+                font-size: 0.9rem;
+            }
+            .form-wrapper {
+                padding: 10px;
+            }
+            .submit-button {
+                padding: 8px 12px;
+            }
+            input, select, textarea {
+                padding: 8px;
+            }
+            .gender input[type="radio"] {
+                width: 16px;
+                height: 16px;
+            }
+        }
+        @media (max-width: 400px) {
+            .form-wrapper, .form-group, label, input, select, textarea, .submit-button, .gender label {
+                font-size: 0.8rem;
+            }
+            .form-wrapper {
+                padding: 4px;
+            }
+            .submit-button {
+                padding: 6px 8px;
+            }
+            input, select, textarea {
+                padding: 6px;
+            }
+            .gender input[type="radio"] {
+                width: 14px;
+                height: 14px;
+            }
+        }
+        /* Ensure gap below header */
+        .container {
+            margin-top: 70px !important;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="header"></div> <!-- Header will be loaded here -->
+
+
+
+<div class="container">
+    <div class="form-wrapper">
+    <form id="dynamicForm">
+        <h3>Kanban Item Master Form </h3>
+        <p>Current Date and Time: <span id="dateTime"></span></p>
+        <div class="form-group">
+            <label for="referenceId">Reference ID:</label>
+            <input type="text" id="referenceId" class="form-control" readonly>
+        </div>
+        <div class="form-group position-relative">
+            <label for="assemblyCodeInput">Assembly Code</label>
+            <input type="text" id="assemblyCodeInput" class="form-control" autocomplete="off" oninput="checkAssemblyCode()">
+            <div id="suggestionBox" class="suggestions-list"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Sub-Assembly Description:</label>
+            <input id="description" class="form-control" rows="4"></input>
+        </div>
+        <div class="form-group position-relative">
+            <label for="machineInput">Machine Name:</label>
+            <input type="text" id="machineInput" class="form-control" autocomplete="off" oninput="checkMachineName()">
+            <div id="machineSuggestionBox" class=" suggestions-list"></div>
+            <button type="button" id="addMachineButton" style="display:none;" onclick="addMachineOption()">Add</button>
+        </div>
+
+        <div class="form-group position-relative">
+            <label for="lmLocationInput">LimbodaGiri Location:</label>
+            <input type="text" id="lmLocationInput" class="form-control" autocomplete="off" oninput="checkLMLocation()">
+            <div id="lmLocationSuggestionBox" class="suggestions-list"></div>
+            <button type="button" id="addLMLocationButton" style="display:none;" onclick="addLMLocationOption()">Add</button>
+        </div>
+
+        <div class="form-group position-relative">
+            <label for="kmLocationInput"  style="display: none;">KM Location:</label>
+            <input type="text" id="kmLocationInput" class="form-control" autocomplete="off" oninput="checkKMLocation()" style="display: none;">
+            <div id="kmLocationSuggestionBox" class="suggestions-list"></div>
+            <button type="button" id="addKMLocationButton" style="display:none;" onclick="addKMLocationOption()">Add</button>
+        </div>
+
+        <div class="form-group">
+            <label>Inward Location:</label>
+            <select id="inwardLocationDropdown">
+                <option value="Bhoomika">Bhoomika</option>
+                <option value="Limboda Gari">LimbodaGiri Stores</option>
+                <option value="Others">Others</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Stage:</label>
+            <div class="gender-box">
+                <div class="gender-option">
+                    <div class="gender">
+                        <input type="radio" id="stage1" name="stage" value="STAGE-I">
+                        <label for="stage1">STAGE-I</label>
+                    </div>
+                    <div class="gender">
+                        <input type="radio" id="stage2" name="stage" value="STAGE-II">
+                        <label for="stage2">STAGE-II</label>
+                    </div>
+                    <div class="gender">
+                        <input type="radio" id="stage3" name="stage" value="STAGE-III">
+                        <label for="stage3">STAGE-III</label>
+                    </div>
+                    <div class="gender">
+                        <input type="radio" id="optional" name="stage" value="OPTIONAL">
+                        <label for="optional">OPTIONAL</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="openingStock">Opening Stock LM:</label>
+            <input type="number" id="openingStock" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="openingStockKM">Opening Stock KM:</label>
+            <input type="number" id="openingStockKM" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="reorderLevel">Reorder Level:</label>
+            <input type="number" id="reorderLevel" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="reorderQty">Reorder Quantity:</label>
+            <input type="number" id="reorderQty" class="form-control">
+        </div>
+       
+
+        <div class="form-group">
+            <div class="button-container">
+                <button type="submit" class="submit-button">Submit Form</button>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+     fetch('/fragments/header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading header:', error));
+
+       
+// Generate reference ID when the page loads
+async function generateReferenceId() {
+    try {
+        const response = await fetch('/api/generateReferenceId');
+        const data = await response.json();
+        document.getElementById('referenceId').value = data.referenceId;
+    } catch (error) {
+        console.error('Error generating reference ID:', error);
+    }
+}
+
+// Fetch dropdown options from the backend
+async function fetchMachineOptions() {
+    const response = await fetch('/api/dropdown/machine/options');
+    return await response.json();
+}
+
+async function fetchLMLocationOptions() {
+    const response = await fetch('/api/dropdown/lm-location/options');
+    return await response.json();
+}
+
+
+async function fetchKMLocationOptions() {
+    const response = await fetch('/api/dropdown/km-location/options');
+    return await response.json();
+}
+
+
+// Fetch and display all options when the input field is focused
+async function showAllMachineOptions() {
+    const suggestionBox = document.getElementById('machineSuggestionBox');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchMachineOptions(); // Fetch all options
+
+    options.forEach(option => {
+        const div = document.createElement('div');
+        div.textContent = option; // Show option
+        div.onclick = () => {
+            document.getElementById('machineInput').value = option; // Set input value to selected option
+            suggestionBox.style.display = 'none'; // Hide suggestions
+        };
+        suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.style.display = 'block'; // Show all options
+}
+
+// Fetch and display all options when the input field is focused
+async function showAllLMLocationOptions() {
+    const suggestionBox = document.getElementById('lmLocationSuggestionBox');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchLMLocationOptions(); // Fetch all options
+
+    options.forEach(option => {
+        const div = document.createElement('div');
+        div.textContent = option; // Show option
+        div.onclick = () => {
+            document.getElementById('lmLocationInput').value = option; // Set input value to selected option
+            suggestionBox.style.display = 'none'; // Hide suggestions
+        };
+        suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.style.display = 'block'; // Show all options
+}
+
+
+// Fetch and display all options when the input field is focused
+async function showAllKMLocationOptions() {
+    const suggestionBox = document.getElementById('kmLocationSuggestionBox');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchKMLocationOptions(); // Fetch all options
+
+    options.forEach(option => {
+        const div = document.createElement('div');
+        div.textContent = option; // Show option
+        div.onclick = () => {
+            document.getElementById('kmLocationInput').value = option; // Set input value to selected option
+            suggestionBox.style.display = 'none'; // Hide suggestions
+        };
+        suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.style.display = 'block'; // Show all options
+}
+
+
+
+
+// Modify the existing check functions to only filter when typing
+async function checkMachineName() {
+    const input = document.getElementById('machineInput').value.trim();
+    const suggestionBox = document.getElementById('machineSuggestionBox');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchMachineOptions(); // Fetch options
+
+    if (input.length > 0) {
+        const filteredOptions = options.filter(option => option.toLowerCase().includes(input.toLowerCase()));
+        if (filteredOptions.length > 0) {
+            suggestionBox.style.display = 'block';
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option; // Show suggestion
+                div.onclick = () => {
+                    document.getElementById('machineInput').value = option; // Set input value to selected option
+                    suggestionBox.style.display = 'none'; // Hide suggestions
+                };
+                suggestionBox.appendChild(div);
+            });
+        } else {
+            suggestionBox.style.display = 'none'; // Hide if no suggestions
+        }
+    } else {
+        showAllMachineOptions(); // Show all options if input is empty
+    }
+}
+
+async function checkLMLocation() {
+    const input = document.getElementById('lmLocationInput').value.trim();
+    const suggestionBox = document.getElementById('lmLocationSuggestionBox');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchLMLocationOptions(); // Fetch options
+
+    if (input.length > 0) {
+        const filteredOptions = options.filter(option => option.toLowerCase().includes(input.toLowerCase()));
+        if (filteredOptions.length > 0) {
+            suggestionBox.style.display = 'block';
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option; // Show suggestion
+                div.onclick =  () => {
+                    document.getElementById('lmLocationInput').value = option; // Set input value to selected option
+                    suggestionBox.style.display = 'none'; // Hide suggestions
+                };
+                suggestionBox.appendChild(div);
+            });
+        } else {
+            suggestionBox.style.display = 'none'; // Hide if no suggestions
+        }
+    } else {
+        showAllLMLocationOptions(); // Show all options if input is empty
+    }
+}
+
+
+
+async function checkKMLocation() {
+    const input = document.getElementById('kmLocationInput').value.trim();
+    const suggestionBox = document.getElementById('kmLocationSuggestionBox');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchKMLocationOptions(); // Fetch options
+
+    if (input.length > 0) {
+        const filteredOptions = options.filter(option => option.toLowerCase().includes(input.toLowerCase()));
+        if (filteredOptions.length > 0) {
+            suggestionBox.style.display = 'block';
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option; // Show suggestion
+                div.onclick =  () => {
+                    document.getElementById('kmLocationInput').value = option; // Set input value to selected option
+                    suggestionBox.style.display = 'none'; // Hide suggestions
+                };
+                suggestionBox.appendChild(div);
+            });
+        } else {
+            suggestionBox.style.display = 'none'; // Hide if no suggestions
+        }
+    } else {
+        showAllKMLocationOptions(); // Show all options if input is empty
+    }
+}
+
+
+
+// Add event listeners to show all options on focus
+document.getElementById('machineInput').addEventListener('focus', showAllMachineOptions);
+document.getElementById('lmLocationInput').addEventListener('focus', showAllLMLocationOptions);
+document.getElementById('kmLocationInput').addEventListener('focus', showAllKMLocationOptions);
+
+
+// Check if machine name exists and provide suggestions
+async function checkMachineName() {
+    const input = document.getElementById('machineInput').value.trim();
+    const suggestionBox = document.getElementById('machineSuggestionBox');
+    const addButton = document.getElementById('addMachineButton');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchMachineOptions(); // Fetch options
+
+    if (input.length > 0) {
+        const filteredOptions = options.filter(option => option.toLowerCase().includes(input.toLowerCase()));
+        if (filteredOptions.length > 0) {
+            suggestionBox.style.display = 'block';
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option; // Show suggestion
+                div.onclick = () => {
+                    document.getElementById('machineInput').value = option; // Set input value to selected option
+                    suggestionBox.style.display = 'none'; // Hide suggestions
+                    addButton.style.display = 'none'; // Hide add button
+                };
+                suggestionBox.appendChild(div);
+            });
+            addButton.style.display = 'none'; // Hide add button if suggestions exist
+        } else {
+            suggestionBox.style.display = 'none'; // Hide if no suggestions
+            addButton.style.display = 'block'; // Show add button if no options match
+        }
+    } else {
+        suggestionBox.style.display = 'none'; // Hide if input is empty
+        addButton.style.display = 'none'; // Hide add button
+    }
+}
+// Check if assy location exists and provide suggestions
+async function checkLMLocation() {
+    const input = document.getElementById('lmLocationInput').value.trim();
+    const suggestionBox = document.getElementById('lmLocationSuggestionBox');
+    const addButton = document.getElementById('addLMLocationButton');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchLMLocationOptions();
+
+    if (input.length > 0) {
+        const filteredOptions = options.filter(option => option.toLowerCase().includes(input.toLowerCase()));
+        if (filteredOptions.length > 0) {
+            suggestionBox.style.display = 'block';
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option; // Show suggestion
+                div.onclick = () => {
+                    document.getElementById('lmLocationInput').value = option; // Set input value to selected option
+                    suggestionBox.style.display = 'none'; // Hide suggestions
+                    addButton.style.display = 'none'; // Hide add button
+                };
+                suggestionBox.appendChild(div);
+            });
+            addButton.style.display = 'none'; // Hide add button if suggestions exist
+        } else {
+            suggestionBox.style.display = 'none'; // Hide if no suggestions
+            addButton.style.display = 'block'; // Show add button if no options match
+        }
+    } else {
+        suggestionBox.style.display = 'none'; // Hide if input is empty
+        addButton.style.display = 'none'; // Hide add button
+    }
+}
+
+
+
+// Check if bhoomika location exists and provide suggestions
+async function checkKMLocation() {
+    const input = document.getElementById('kmLocationInput').value.trim();
+    const suggestionBox = document.getElementById('kmLocationSuggestionBox');
+    const addButton = document.getElementById('addKMLocationButton');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchKMLocationOptions();
+
+    if (input.length > 0) {
+        const filteredOptions = options.filter(option => option.toLowerCase().includes(input.toLowerCase()));
+        if (filteredOptions.length > 0) {
+            suggestionBox.style.display = 'block';
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option; // Show suggestion
+                div.onclick = () => {
+                    document.getElementById('kmLocationInput').value = option; // Set input value to selected option
+                    suggestionBox.style.display = 'none'; // Hide suggestions
+                    addButton.style.display = 'none'; // Hide add button
+                };
+                suggestionBox.appendChild(div);
+            });
+            addButton.style.display = 'none'; // Hide add button if suggestions exist
+        } else {
+            suggestionBox.style.display = 'none'; // Hide if no suggestions
+            addButton.style.display = 'block'; // Show add button if no options match
+        }
+    } else {
+        suggestionBox.style.display = 'none'; // Hide if input is empty
+        addButton.style.display = 'none'; // Hide add button
+    }
+}
+
+async function addMachineOption() {
+    const newOption = document.getElementById('machineInput').value.trim().toUpperCase(); // Convert to uppercase
+    if (newOption) {
+        const existingOptions = await fetchMachineOptions();
+        if (!existingOptions.map(option => option.toUpperCase()).includes(newOption)) {
+            await fetch('/api/dropdown/machine/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newOption),
+            });
+            alert('Machine name added successfully');
+            // Do not clear the input field, keep the new option
+            document.getElementById('machineSuggestionBox').innerHTML = ''; // Clear suggestions
+            document.getElementById('addMachineButton').style.display = 'none'; // Hide add button
+        } else {
+            alert('This machine name already exists.');
+        }
+    }
+}
+
+// Add new option to Assy Location
+async function addLMLocationOption() {
+    const newOption = document.getElementById('lmLocationInput').value.trim().toUpperCase(); // Convert to uppercase
+    if (newOption) {
+        const existingOptions = await fetchLMLocationOptions();
+        if (!existingOptions.map(option => option.toUpperCase()).includes(newOption)) {
+            await fetch('/api/dropdown/lm-location/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newOption),
+            });
+            alert('LM location added successfully');
+            // Do not clear the input field, keep the new option
+            document.getElementById('lmLocationSuggestionBox').innerHTML = ''; // Clear suggestions
+            document.getElementById('addLMLocationButton').style.display = 'none'; // Hide add button
+        } else {
+            alert('This lm location already exists.');
+        }
+    }
+}
+
+
+
+// Add new option to Assy Location
+async function addKMLocationOption() {
+    const newOption = document.getElementById('kmLocationInput').value.trim().toUpperCase(); // Convert to uppercase
+    if (newOption) {
+        const existingOptions = await fetchKMLocationOptions();
+        if (!existingOptions.map(option => option.toUpperCase()).includes(newOption)) {
+            await fetch('/api/dropdown/km-location/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newOption),
+            });
+            alert('KM location added successfully');
+            // Do not clear the input field, keep the new option
+            document.getElementById('kmLocationSuggestionBox').innerHTML = ''; // Clear suggestions
+            document.getElementById('addKMLocationButton').style.display = 'none'; // Hide add button
+        } else {
+            alert('This km location already exists.');
+        }
+    }
+}
+
+
+// Fetch options when the page loads
+window.onload = async function() {
+    await generateReferenceId();
+    await fetchAndDisplayFormData(); // Fetch and display data
+    fetchMachineOptions();
+    fetchLMLocationOptions();
+    fetchKMLocationOptions();
+    
+    updateDateTime();
+};
+ 
+
+    function updateDateTime() {
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+        const formattedDateTime = now.toLocaleString('en-US', options);
+        document.getElementById('dateTime').innerText = formattedDateTime;
+    }
+
+
+// Check if assembly code exists and provide suggestions
+async function checkAssemblyCode() {
+    const input = document.getElementById('assemblyCodeInput').value.trim();
+    const suggestionBox = document.getElementById('suggestionBox');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+
+    if (input.length > 0) {
+        try {
+            const response = await fetch(`/api/checkAssemblyCode?assemblyCode=${encodeURIComponent(input)}`);
+            const data = await response.json();
+
+            if (data.exists) {
+                suggestionBox.style.display = 'none'; // Hide suggestions if code exists
+                alert('This assembly code already exists. Please enter a unique code.'); // Alert the user
+            } else {
+                // Show suggestions if there are any
+                if (data.suggestions.length > 0) {
+                    suggestionBox.style.display = 'block';
+                    data.suggestions.forEach(suggestion => {
+                        const div = document.createElement('div');
+                        div.textContent = suggestion; // Show suggestion
+                        suggestionBox.appendChild(div);
+                    });
+                } else {
+                    suggestionBox.style.display = 'none'; // Hide if no suggestions
+                }
+            }
+        } catch (error) {
+            console.error('Error checking assembly code:', error);
+        }
+    } else {
+        suggestionBox.style.display = 'none'; // Hide if input is empty
+    }
+}
+
+document.getElementById('dynamicForm').addEventListener('submit', async (e) => {
+    e.preventDefault(); // Prevent default form submission
+
+    const assemblyCode = document.getElementById('assemblyCodeInput').value.trim().toUpperCase(); // Convert to uppercase
+    const response = await fetch(`/api/checkAssemblyCode?assemblyCode=${encodeURIComponent(assemblyCode)}`);
+    const data = await response.json();
+
+    if (data.exists) {
+        alert('This assembly code already exists. Please enter a unique code.');
+        return; // Prevent submission if the code exists
+    }
+
+    const formData = {
+        assembly_code: document.getElementById('assemblyCodeInput').value.trim().toUpperCase(), // Convert to uppercase
+        machine_name: document.getElementById('machineInput').value.toUpperCase(), // Convert to uppercase
+        lm_location: document.getElementById('lmLocationInput').value.toUpperCase(), // Convert to uppercase
+        km_location: document.getElementById('kmLocationInput').value.toUpperCase(), // Convert to uppercase
+        inward_location: document.getElementById('inwardLocationDropdown').value,
+        stage: document.querySelector('input[name="stage"]:checked')?.value,
+        opening_stock: document.getElementById('openingStock').value,
+        opening_stock_km: document.getElementById('openingStockKM').value,
+        reorder_level: document.getElementById('reorderLevel').value,
+        reorder_qty: document.getElementById('reorderQty').value,
+        description: document.getElementById('description').value.toUpperCase(), // Convert to uppercase
+    };
+
+    console.log('Form Data:', formData); // Log the form data for debugging
+
+    try {
+        const submitResponse = await fetch('/api/submitForm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData),
+        });
+
+        if (submitResponse.ok) {
+            alert('Form submitted successfully');
+            await generateReferenceId(); // Generate a new reference ID
+            document.getElementById('dynamicForm').reset(); // Clear the form
+        } else {
+            const errorText = await submitResponse.text(); // Get error response text
+            console.error('Form submission failed:', errorText);
+            alert('Form submission failed. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error during form submission:', error);
+        alert('An error occurred. Please check the console for more details.');
+    }
+});
+
+// Fetch and display all form data in the table
+async function fetchAndDisplayFormData() {
+    try {
+        const response = await fetch('/api/getAllFormData');
+        const data = await response.json();
+
+        const tableBody = document.querySelector('#outputTable tbody');
+        tableBody.innerHTML = ''; // Clear existing rows
+
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.referenceId}</td>
+                <td>${row.assemblyCode}</td>
+                <td>${row.machineName}</td>
+                <td>${row.lmLocation}</td>
+                <td>${row.kmLocation}</td>
+                <td>${row.inwardLocation}</td>
+                <td>${row.stage}</td>
+                <td>${row.openingStock}</td>
+                <td>${row.openingStockM}</td>
+                <td>${row.reorderLevel}</td>
+                <td>${row.reorderQty}</td>
+                <td>${row.description}</td>
+                <td>${new Date(row.createdAt).toLocaleString()}</td> <!-- Display the createdAt date -->
+
+            `;
+            tableBody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error fetching form data:', error);
+    }
+}
+</script>
+
+<div id="footer"></div>
+    <script>
+    fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

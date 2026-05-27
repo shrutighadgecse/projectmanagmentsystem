@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Transfer</title>
+    <style>
+        /* Include the same styles as in saved QR codes page */
+        /* Responsive QR Card Grid and Card */
+        #header {
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #35474d;
+            color: #333;
+            padding: 0;
+            font-size: 0.8em;
+            margin: 0;
+        }
+        .page-content {
+            margin-top: 70px; /* Gap below header */
+            margin-bottom: 80px; /* Gap above footer */
+            padding: 20px 10px 0 10px;
+        }
+        h1 {
+            margin-top: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #ffffff;
+        }
+        #qrCodeContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            justify-items: center;
+            margin-bottom: 40px;
+        }
+        .qr-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid black;
+            min-height: 150px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 350px;
+            box-sizing: border-box;
+        }
+        .select-checkbox {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            transform: scale(1.5);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .company-logo {
+            width: 70px;
+            height: auto;
+            object-fit: contain;
+            margin-left: auto;
+        }
+        .refrence-id {
+            font-weight: bold;
+            font-size: 1em;
+            margin-right: 10px;
+        }
+        .qr-content-wrapper {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        .qr-code-section {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            margin: 0;
+        }
+        .qr-card img.qr-image {
+            width: 80px;
+            height: 80px;
+        }
+        .machine-label {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 5px;
+        }
+        .content-section {
+            flex: 1;
+            padding-left: 15px;
+            position: relative;
+            margin-top: 2px;
+        }
+        .content-section p {
+            margin: 5px;
+            font-size: 0.9em;
+            margin-left: 25px;
+        }
+        .content-section h3 {
+            margin: 0;
+            margin-top: 0;
+            margin-left: 25px;
+        } 
+        @media (max-width: 900px) {
+            #qrCodeContainer {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 16px;
+            }
+            .qr-card {
+                max-width: 98vw;
+                min-width: 0;
+                padding: 10px;
+            }
+            .company-logo {
+                width: 50px;
+            }
+        }
+        @media (max-width: 600px) {
+            #header {
+                min-height: 48px;
+            }
+            .page-content {
+                margin-top: 54px;
+                margin-bottom: 60px;
+                padding: 8px 2px 0 2px;
+            }
+            h1 {
+                margin-top: 10px;
+                margin-bottom: 18px;
+                font-size: 1.1em;
+            }
+            #qrCodeContainer {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            .qr-card {
+                max-width: 99vw;
+                min-width: 0;
+                padding: 6px;
+                font-size: 0.95em;
+            }
+            .company-logo {
+                width: 36px;
+            }
+            .qr-card img.qr-image {
+                width: 60px;
+                height: 60px;
+            }
+            .content-section h3, .content-section p {
+                margin-left: 12px;
+                font-size: 0.95em;
+            }
+        }
+        @media (max-width: 400px) {
+            .qr-card {
+                padding: 2px;
+                font-size: 0.85em;
+            }
+            .company-logo {
+                width: 28px;
+            }
+            .qr-card img.qr-image {
+                width: 40px;
+                height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div class="page-content">
+        <h1>Stock Transfer</h1>
+        <div id="qrCodeContainer"></div>
+    </div>
+    <div id="footer"></div>
+    <script>
+        const machineColors = {
+            'EXPRESS N': '#4CAF50',
+            'ROTOVAC': '#9E9E9E',
+            'CARNATOR': '#F44336',
+            'EXCEL SMART': '#2196F3'
+        };
+
+        function getMachineColor(machineName) {
+            return machineColors[machineName.toUpperCase()] || '#607D8B';
+        }
+
+        function displayTransferredQRCodes() {
+            fetch('/api/stock-transfers')
+                .then(response => response.json())
+                .then(savedData => {
+                    const container = document.getElementById('qrCodeContainer');
+                    container.innerHTML = '';
+
+                    savedData.forEach(data => {
+                        const qrCard = document.createElement('div');
+                        qrCard.className = 'qr-card';
+
+                        const selectCheckbox = document.createElement('input');
+                        selectCheckbox.type = 'checkbox';
+                        selectCheckbox.className = 'select-checkbox';
+                        qrCard.appendChild(selectCheckbox);
+
+                        const cardHeader = document.createElement('div');
+                        cardHeader.className = 'card-header';
+                        
+                        const referenceId = document.createElement('h4');
+                        referenceId.className = 'refrence-id';
+                        referenceId.textContent = `Ref-ID : ${data.referenceId}`;
+                        cardHeader.appendChild(referenceId);
+
+                        const logoImg = document.createElement('img');
+                        logoImg.className = 'company-logo';
+                        logoImg.src = '/images/IMA1.jpg';
+                        cardHeader.appendChild(logoImg);
+
+                        const contentWrapper = document.createElement('div');
+                        contentWrapper.className = 'qr-content-wrapper';
+
+                        const qrSection = document.createElement('div');
+                        qrSection.className = 'qr-code-section';
+                        
+                        const qrData = {
+                            referenceId: data.referenceId,
+                            assemblyCode: data.assemblyCode,
+                            currentDateTime: new Date().toISOString()
+                        };
+                        const qrCodeImage = document.createElement('img');
+                        qrCodeImage.className = 'qr-image';
+                        qrCodeImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(JSON.stringify(qrData))}`;
+                        qrSection.appendChild(qrCodeImage);
+
+                        const contentSection = document.createElement('div');
+                        contentSection.className = 'content-section';
+                        
+                        const machineLabel = document.createElement('div');
+                        machineLabel.className = 'machine-label';
+                        machineLabel.style.backgroundColor = getMachineColor(data.machineName);
+                        contentSection.appendChild(machineLabel);
+
+                        contentSection.innerHTML += `
+                            <h3><strong>Assembly Code:</strong> ${data.assemblyCode}</h3>
+                            <p><strong>Description:</strong> ${data.description}</p>
+                            <p><strong>Machine:</strong> ${data.machineName}</p>
+                            <p><strong>Stage:</strong> ${data.stage}</p>
+                            <p><strong>LM Location:</strong> ${data.limbodagriLocation}</p>
+                            <p><strong>KM Location:</strong> ${data.kmLocation}</p>
+                        `;
+
+                        contentWrapper.appendChild(qrSection);
+                        contentWrapper.appendChild(contentSection);
+                        qrCard.appendChild(cardHeader);
+                        qrCard.appendChild(contentWrapper);
+                        container.appendChild(qrCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching stock transfer data:', error);
+                });
+        }
+
+        displayTransferredQRCodes();
+
+        // Load header and footer
+        fetch('/fragments/header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+            });
+        fetch('/fragments/footer.html')
+          .then(response => response.text())
+          .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

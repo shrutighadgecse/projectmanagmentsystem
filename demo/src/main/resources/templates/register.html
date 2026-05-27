@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Register - IMAPG</title>
+  <link rel="stylesheet" th:href="@{/registration/registration.css}" />
+  <script src="https://kit.fontawesome.com/41baba5a65.js" crossorigin="anonymous"></script>
+  <style>
+    /* small helpers to position the eye icon like the login page */
+    .field { position: relative; }
+    .field .eye { position: absolute; right: 14px; top: 38px; cursor: pointer; color: var(--primary); font-size: 16px; }
+    .field .eye i { display: none; }
+    .field .eye i:first-child { display: none; }
+    .field .eye i:last-child { display: inline-block; }
+  </style>
+</head>
+<body>
+  <main class="reg-page simple">
+    <div class="card single">
+      <h2>Register</h2>
+
+      <div th:if="${error != null}" class="alert error" th:text="${error}"></div>
+      <div th:if="${success != null}" class="alert success" th:text="${success}"></div>
+
+      <form th:action="@{/register}" method="post" id="registerForm" novalidate>
+        <div class="row">
+          <div class="field">
+            <label for="employeename">Employee Name</label>
+            <input id="employeename" name="employeename" type="text" placeholder="Full name" required />
+          </div>
+
+          <div class="field">
+            <label for="emailid">Email ID</label>
+            <input id="emailid" name="emailid" type="email" placeholder="you@example.com" required />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="employeecontact">Contact</label>
+            <input id="employeecontact" name="employeecontact" type="tel" placeholder="Phone number" required />
+          </div>
+
+          <div class="field">
+            <label for="department">Department</label>
+            <select id="department" name="department" required>
+              <option value="">Select department</option>
+              <option value="assembly">Assembly</option>
+              <option value="sales">Sales</option>
+              <option value="ppc">Purchase</option>
+              <option value="store">Stores</option>
+              <option value="design">Design</option>
+              <option value="kanban">Kanban</option>
+              <option value="electrical">Electrical</option>
+              <option value="qa/qc">QA/QC</option>
+              <option value="admin">Admin</option>
+              <option value="superuser">Super User</option>
+              <option value="bhoomika">Bhoomika</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="createpassword">Create Password</label>
+            <input id="createpassword" name="createpassword" type="password" placeholder="At least 8 characters" minlength="8" required />
+            <span class="eye" id="eyeCreate" role="button" tabindex="0" aria-label="Toggle create password visibility" onclick="togglePasswordVisibility('createpassword','hideCreate1','hideCreate2')">
+              <i id="hideCreate1" class="far fa-eye"></i>
+              <i id="hideCreate2" class="fas fa-eye-slash"></i>
+            </span>
+          </div>
+
+          <div class="field">
+            <label for="confirmpassword">Confirm Password</label>
+            <input id="confirmpassword" name="confirmpassword" type="password" placeholder="Repeat password" minlength="8" required />
+            <span class="eye" id="eyeConfirm" role="button" tabindex="0" aria-label="Toggle confirm password visibility" onclick="togglePasswordVisibility('confirmpassword','hideConfirm1','hideConfirm2')">
+              <i id="hideConfirm1" class="far fa-eye"></i>
+              <i id="hideConfirm2" class="fas fa-eye-slash"></i>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">Create account</button>
+          <a class="btn-link" href="/">Already have an account? Login</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    // Toggle password visibility for specified input and icon IDs
+    function togglePasswordVisibility(inputId, hide1Id, hide2Id) {
+      const passwordInput = document.getElementById(inputId);
+      const hideIcon1 = document.getElementById(hide1Id);
+      const hideIcon2 = document.getElementById(hide2Id);
+
+      if (!passwordInput) return;
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        if (hideIcon1) hideIcon1.style.display = 'inline-block';
+        if (hideIcon2) hideIcon2.style.display = 'none';
+      } else {
+        passwordInput.type = 'password';
+        if (hideIcon1) hideIcon1.style.display = 'none';
+        if (hideIcon2) hideIcon2.style.display = 'inline-block';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('registerForm');
+      const fields = [
+        'employeename', 'emailid', 'employeecontact', 'department', 'createpassword', 'confirmpassword'
+      ];
+
+      form.addEventListener('submit', function(e) {
+        // clear previous invalid states
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.remove('invalid');
+        });
+
+        const values = {};
+        fields.forEach(id => { 
+          const el = document.getElementById(id); 
+          values[id] = el ? el.value.trim() : ''; 
+        });
+
+        const invalids = [];
+        // check required fields
+        fields.forEach(id => {
+          if (!values[id]) invalids.push(id);
+        });
+
+        // password validation checks
+        if (values.createpassword && values.createpassword.length < 8) {
+          if (!invalids.includes('createpassword')) invalids.push('createpassword');
+        }
+        if (values.createpassword !== values.confirmpassword) {
+          if (!invalids.includes('confirmpassword')) invalids.push('confirmpassword');
+        }
+
+        if (invalids.length > 0) {
+          e.preventDefault();
+          // mark invalid fields
+          invalids.forEach(id => { 
+            const el = document.getElementById(id); 
+            if (el) el.classList.add('invalid'); 
+          });
+
+          // build error message
+          let msg = '"All fields are mandatory."';
+          if (invalids.includes('createpassword') && values.createpassword && values.createpassword.length < 8) {
+            msg = 'Password must be at least 8 characters long.';
+          } else if (invalids.includes('confirmpassword')) {
+            msg = 'Passwords do not match.';
+          }
+
+          showTempError(msg);
+          // focus first invalid field
+          const first = document.getElementById(invalids[0]);
+          if (first) first.focus();
+          return false;
+        }
+      });
+
+      function showTempError(msg) {
+        let div = document.querySelector('.alert.error');
+        if (!div) {
+          div = document.createElement('div');
+          div.className = 'alert error';
+          const container = document.querySelector('.card.single') || document.querySelector('.card-right');
+          container.insertBefore(div, container.firstChild);
+        }
+        div.textContent = msg;
+        // remove after timeout
+        setTimeout(()=>{ if(div) div.remove(); }, 4500);
+      }
+
+      // Keyboard support for eye toggles (Enter / Space)
+      const eyeCreate = document.getElementById('eyeCreate');
+      const eyeConfirm = document.getElementById('eyeConfirm');
+      if (eyeCreate) {
+        eyeCreate.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePasswordVisibility('createpassword','hideCreate1','hideCreate2'); }
+        });
+      }
+      if (eyeConfirm) {
+        eyeConfirm.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); togglePasswordVisibility('confirmpassword','hideConfirm1','hideConfirm2'); }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

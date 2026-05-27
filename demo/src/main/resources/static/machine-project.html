@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Project Form</title>
+    <link rel="stylesheet" href="header.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background: linear-gradient(180deg, #f4f7fb 0%, #eef3f9 100%); color: #2f3e55; }
+        #header-include { position: sticky; top: 0; z-index: 1000; width: 100%; }
+        .container { max-width: 1180px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 24px; box-shadow: 0 24px 60px rgba(35, 68, 127, 0.12); border: 1px solid rgba(115, 134, 176, 0.18); margin-top: 20px; }
+        h1 { font-size: 2.1rem; letter-spacing: -0.04em; margin-bottom: 16px; }
+        .progress-wrapper { margin-bottom: 28px; }
+        .progress-line { position: relative; height: 6px; background: #dfe7f4; border-radius: 999px; overflow: hidden; }
+        .progress-fill { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: linear-gradient(90deg, #4f7dfa 0%, #24c6ff 100%); transition: width 0.4s ease; }
+        .progress-steps { display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 0.5rem; margin-top: 16px; }
+        .progress-step { display: flex; flex-direction: column; align-items: center; text-align: center; font-size: 0.78rem; color: #677889; cursor: pointer; }
+        .progress-step:hover .bullet { transform: scale(1.05); }
+        .progress-step .bullet { width: 32px; height: 32px; border-radius: 50%; background: #e8eef8; display: grid; place-items: center; font-weight: 700; color: #4f7dfa; margin-bottom: 8px; transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease; }
+        .progress-step.active .bullet { background: #4f7dfa; color: white; transform: scale(1.05); }
+        .progress-step.current .bullet { box-shadow: 0 0 0 6px rgba(79, 125, 250, 0.14); }
+        .progress-step span { max-width: 80px; line-height: 1.3; }
+        .form-header-panel { position: sticky; top: 20px; z-index: 12; background: #ffffff; border-radius: 22px; border: 1px solid rgba(79, 125, 250, 0.14); box-shadow: 0 20px 40px rgba(33, 93, 212, 0.08); padding: 12px 16px; margin-bottom: 16px; }
+        .form-header-panel h3 { margin: 0 0 8px; font-size: 0.85rem; letter-spacing: 0.02em; color: #1f3250; }
+        .form-header-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+        .header-item { background: #f8fbff; border: 1px solid rgba(79, 125, 250, 0.12); border-radius: 14px; padding: 8px 10px; }
+        .header-item label { display: block; font-size: 0.65rem; font-weight: 700; color: #51648c; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.03em; }
+        .header-item .value { font-size: 0.8rem; font-weight: 600; color: #1e2f4f; min-height: 1.2rem; }
+        .section { margin-bottom: 24px; padding: 24px; border-radius: 20px; border: 1px solid rgba(79, 125, 250, 0.12); background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(243,248,255,0.96) 100%); }
+        .section h2 { margin-top: 0; color: #1f3250; font-size: 1.25rem; }
+        .section p { color: #5d6f86; margin-bottom: 20px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 700; color: #36456a; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 16px; border: 1px solid rgba(99, 119, 173, 0.22); border-radius: 14px; background: #fbfcff; color: #293649; transition: border-color 0.25s ease, box-shadow 0.25s ease; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #4f7dfa; box-shadow: 0 0 0 6px rgba(79, 125, 250, 0.08); }
+        .form-group textarea { min-height: 110px; resize: vertical; }
+        input.read-only { background-color: #7283a0; cursor: not-allowed; }
+        input:disabled { background-color: #7283a0; }
+        .tentative { color: #426aee; font-weight: 600; font-size: 0.8rem; margin-top: 6px; }
+        .table-container { margin-top: 14px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        table th, table td { border: 1px solid rgba(99, 119, 173, 0.18); padding: 12px 14px; text-align: left; vertical-align: middle; }
+        table th { background: rgba(79, 125, 250, 0.08); color: #273650; font-weight: 700; }
+        .checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+        .checkbox-group label { display: flex; align-items: center; gap: 10px; background: #f6f8ff; border: 1px solid rgba(99, 119, 173, 0.18); border-radius: 14px; padding: 12px 14px; cursor: pointer; color: #3b4e6d; }
+        .checkbox-group input { width: auto; margin: 0; }
+        .form-navigation { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
+        .form-navigation button { min-width: 150px; border: none; border-radius: 12px; padding: 14px 20px; font-weight: 700; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .form-navigation button:hover { transform: translateY(-1px); }
+        .prev-btn { background: #f4f7ff; color: #3756a4; box-shadow: 0 10px 20px rgba(79, 125, 250, 0.08); }
+        .next-btn { background: #4f7dfa; color: white; box-shadow: 0 12px 24px rgba(79, 125, 250, 0.22); }
+        .submit-btn { background: linear-gradient(135deg, #3b76f4 0%, #1bb0ff 100%); color: white; box-shadow: 0 14px 30px rgba(33, 122, 255, 0.20); }
+        .hidden { display: none !important; }
+        .form-step { display: none; animation: fadeIn 0.35s ease; }
+        .form-step.active { display: block; }
+        .step-description { margin-bottom: 18px; font-size: 0.98rem; color: #556a8a; }
+        .step-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 38px; height: 38px; border-radius: 999px; background: #eef3ff; color: #3756a4; font-weight: 700; margin-bottom: 16px; }
+        .btn-inline { background: #ffffff; color: #3756a4; border: 1px solid rgba(99, 119, 173, 0.22); }
+        .btn-inline:hover { background: #f6f9ff; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 960px) {
+            .progress-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 12px; }
+            .checkbox-group { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .container { padding: 20px; }
+            .progress-step span { max-width: 100%; font-size: 0.72rem; }
+            .form-navigation { flex-direction: column; align-items: stretch; }
+            .form-navigation button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-include"></div>
+    <div class="container">
+        <h1>Machine Project Management</h1>
+
+        <!-- Machine Project Form -->
+        <div class="progress-wrapper">
+            <div class="progress-line"><div class="progress-fill"></div></div>
+            <div class="progress-steps">
+                <div class="progress-step active"><div class="bullet">1</div><span>Purchase Order</span></div>
+                <div class="progress-step"><div class="bullet">2</div><span>Sales</span></div>
+                <div class="progress-step"><div class="bullet">3</div><span>Design</span></div>
+                <div class="progress-step"><div class="bullet">4</div><span>QA / QC</span></div>
+                <div class="progress-step"><div class="bullet">5</div><span>PPC</span></div>
+                <div class="progress-step"><div class="bullet">6</div><span>CP Cell</span></div>
+                <div class="progress-step"><div class="bullet">7</div><span>Stores</span></div>
+                <div class="progress-step"><div class="bullet">8</div><span>Assembly</span></div>
+                <div class="progress-step"><div class="bullet">9</div><span>Invoice / Dispatch</span></div>
+            </div>
+        </div>
+
+        <div class="form-header-panel">
+            <div class="form-header-grid">
+                <div class="header-item">
+                    <label>CCN</label>
+                    <div id="header-ccn" class="value">-</div>
+                </div>
+                <div class="header-item">
+                    <label>Machine Family</label>
+                    <div id="header-machine-family" class="value">-</div>
+                </div>
+                <div class="header-item">
+                    <label>Machine Name</label>
+                    <div id="header-machine-name" class="value">-</div>
+                </div>
+                <div class="header-item">
+                    <label>Machine Model</label>
+                    <div id="header-machine-model" class="value">-</div>
+                </div>
+                <div class="header-item">
+                    <label>Customer Name</label>
+                    <div id="header-customer-name" class="value">-</div>
+                </div>
+                <div class="header-item">
+                    <label>Unit</label>
+                    <div id="header-unit" class="value">-</div>
+                </div>
+                <div class="header-item">
+                    <label>Sales Engineer</label>
+                    <div id="header-sales-engineer" class="value">-</div>
+                </div>
+            </div>
+        </div>
+
+        <form id="machineProjectForm" enctype="multipart/form-data">
+            <input type="hidden" id="mp-id" name="id">
+            <input type="hidden" id="mp-ccn" name="ccn">
+            <input type="hidden" name="workmen">
+
+            <div class="form-step active" data-step="1">
+                <div class="section">
+                    <div class="step-pill">Stage 1</div>
+                    <h2>Purchase Order</h2>
+                    <div class="form-group">
+                        <label>PO Reference Number</label>
+                        <input type="text" id="po-reference-number" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>PO Date</label>
+                        <input type="date" id="po-date" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>PO Delivery Date</label>
+                        <input type="date" id="po-delivery-date" readonly class="read-only">
+                    </div>
+                     <div class="form-group">
+                        <label>PO Receipt Date</label>
+                        <input type="date" id="po-receipt-date" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>PO Value Lacs</label>
+                        <input type="number" id="po-value-lacs" readonly class="read-only" step="0.01">
+                    </div>
+                  
+                    <div class="form-group">
+                        <label>Order Type</label>
+                        <input type="text" id="order-type" readonly class="read-only">
+                    </div>
+                  
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="po-address" readonly class="read-only">
+                    </div>
+                   
+                </div>
+            </div>
+
+            <div class="form-step" data-step="2">
+                <div class="section">
+                    <div class="step-pill">Stage 2</div>
+                    <h2>Sales</h2>
+                    <div class="form-group">
+                        <label>PO Reference Number</label>
+                        <input type="text" id="step2-po-reference-number" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>PO Date</label>
+                        <input type="date" id="step2-po-date" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>PO Delivery Date</label>
+                        <input type="date" id="step2-po-delivery-date" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>PO Receipt Date</label>
+                        <input type="date" id="step2-po-receipt-date" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>DN Number</label>
+                        <input type="text" name="dnNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>Sales Order Number</label>
+                        <input type="text" name="salesOrderNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks Sales</label>
+                        <textarea name="remarksSales"></textarea>
+                    </div>
+                   
+                    <div class="form-group">
+                        <label>Actual Machine Layout Approval Date</label>
+                        <input type="date" name="actualMachineLayoutApprovalDate" id="actualMachineLayoutApprovalDate">
+                        <div class="tentative" id="tentativeMachineLayoutApprovalDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Room Layout Approval Date</label>
+                        <input type="date" name="actualRoomLayoutApprovalDate" id="actualRoomLayoutApprovalDate">
+                        <div class="tentative" id="tentativeRoomLayoutApprovalDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Change Part Layout Approval Date</label>
+                        <input type="date" name="actualCpLayoutApprovalDate" id="actualCpLayoutApprovalDate">
+                        <div class="tentative" id="tentativeCpLayoutApprovalDate"></div>
+                    </div>
+                     <div class="form-group">
+                        <label>Actual Optional Change Part Layout Approval Date</label>
+                        <input type="date" name="actualOptionalCpLayoutApprovalDate" id="actualOptionalCpLayoutApprovalDate">
+                        <div class="tentative" id="tentativeOptionalCpLayoutApprovalDate"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Actual OA Generation Date</label>
+                        <input type="date" name="actualOaGenerationDate" id="actualOaGenerationDate">
+                        <div class="tentative" id="tentativeOaGenerationDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Change Part OA Generation Date</label>
+                        <input type="date" name="actualCpOaGenerationDate" id="actualCpOaGenerationDate">
+                        <div class="tentative" id="tentativeCpOaGenerationDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Adv Payment Receipt Date</label>
+                        <input type="date" name="actualAdvPaymentRecdDate" id="actualAdvPaymentRecdDate" class="read-only">
+                        <div class="tentative" id="tentativeAdvPaymentRecdDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Bal Payment Receipt Date</label>
+                        <input type="date" name="actualBalPaymentRecdDate" id="actualBalPaymentRecdDate"  class="read-only">
+                        <div class="tentative" id="tentativeBalPaymentRecdDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Commercial Clearance Date</label>
+                        <input type="date" name="actualCommercialClearanceDate" id="actualCommercialClearanceDate">
+                        <div class="tentative" id="tentativeCommercialClearance"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Dispatch Clearance Recd Date</label>
+                        <input type="date" name="actualDispatchClearanceRecdDate" id="actualDispatchClearanceRecdDate">
+                        <div class="tentative" id="tentativeDispatchClearanceRecdDate"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="3">
+                <div class="section">
+                    <div class="step-pill">Stage 3</div>
+                    <h2>Design</h2>
+                  
+                    <div class="form-group">
+                        <label>Actual LOA Basic Release Date</label>
+                        <input type="date" name="actualLoaBasicReleaseDate" id="actualLoaBasicReleaseDate">
+                        <div class="tentative" id="tentativeLoaBasicReleaseDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual LOA Optional Release Date</label>
+                        <input type="date" name="actualLoaOptionalReleaseDate" id="actualLoaOptionalReleaseDate">
+                        <div class="tentative" id="tentativeLoaOptionalReleaseDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual DQ Release Date</label>
+                        <input type="date" name="actualDqReleaseDate" id="actualDqReleaseDate">
+                        <div class="tentative" id="tentativeDqReleaseDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual IFAT Protocol Release Date</label>
+                        <input type="date" name="actualIfatProtocolReleaseDate" id="actualIfatProtocolReleaseDate">
+                        <div class="tentative" id="tentativeIfatProtocolReleaseDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Machine Layout Approval Date</label>
+                        <input type="date" id="step3-actualMachineLayoutApprovalDate" disabled class="read-only">
+                        <div class="tentative" id="step3-tentativeMachineLayoutApprovalDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Room Layout Approval Date</label>
+                        <input type="date" id="step3-actualRoomLayoutApprovalDate" disabled class="read-only">
+                        <div class="tentative" id="step3-tentativeRoomLayoutApprovalDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Change Part Layout Approval Date</label>
+                        <input type="date" id="step3-actualCpLayoutApprovalDate" disabled class="read-only">
+                        <div class="tentative" id="step3-tentativeCpLayoutApprovalDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Optional Change Part Layout Approval Date</label>
+                        <input type="date" id="step3-actualOptionalCpLayoutApprovalDate" disabled class="read-only">
+                        <div class="tentative" id="step3-tentativeOptionalCpLayoutApprovalDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual OA Generation Date</label>
+                        <input type="date" id="step3-actualOaGenerationDate" disabled class="read-only">
+                        <div class="tentative" id="step3-tentativeOaGenerationDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Basic Assembly Attached</label>
+                        <input type="number" name="totalBasicAssemblyAttached">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Optional Assembly Attached</label>
+                        <input type="number" name="totalOptionalAssemblyAttached">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Additional New Assembly After CFAT</label>
+                        <input type="number" name="totalAdditionalNewAssemblyCfat">
+                    </div>
+                    <div class="form-group">
+                        <label>Additional New Assembly After CFAT Date</label>
+                        <input type="date" name="additionalNewAssemblyCfatDate">
+                    </div>
+                    <div class="form-group">
+                        <label>Assemblies Released By</label>
+                        <input type="text" id="assembliesInput" placeholder="Add Design Person Name">
+                        <button type="button" class="btn-inline" onclick="addAssembly()">Add</button>
+                        <div id="assemblies-list"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks Design</label>
+                        <textarea name="remarksDesign"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="4">
+                <div class="section">
+                    <div class="step-pill">Stage 4</div>
+                    <h2>QA / QC</h2>
+                    <div class="form-group">
+                        <label>Actual IFAT with Std CP Date</label>
+                        <input type="date" id="step4-actualIfatStdCpDate" readonly class="read-only">
+                        <div class="tentative" id="step4-tentativeIfatStdCpDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual CFAT Date</label>
+                        <input type="date" id="step4-actualCfatDate" readonly class="read-only">
+                        <div class="tentative" id="step4-tentativeCfatDate"></div>
+                    </div>
+                      <div class="form-group">
+                        <label>Machine CP Qty</label>
+                        <input type="number" id="kickoff-machine-cp-qty" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Optional CP Qty</label>
+                        <input type="number" id="kickoff-machine-optional-cp-qty" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>Sales Order Number</label>
+                        <input type="text" id="step4-salesOrderNumber" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>Actual PMR Submission Date</label>
+                        <input type="date" name="actualPmrSubmissionDate" id="actualPmrSubmissionDate">
+                        <div class="tentative" id="tentativePmrSubmissionDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Product Receipt Date</label>
+                        <input type="date" name="actualProductReceiptDate" id="actualProductReceiptDate">
+                        <div class="tentative" id="tentativeProductReceiptDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Packaging Receipt Date</label>
+                        <input type="date" name="actualPackagingReceiptDate" id="actualPackagingReceiptDate">
+                        <div class="tentative" id="tentativePackagingReceiptDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Compliance Date</label>
+                        <input type="date" name="actualComplianceDate" id="actualComplianceDate">
+                        <div class="tentative" id="tentativeComplianceDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Packing Clearance Received Date</label>
+                        <input type="date" name="actualPackingClearanceRecdDate" id="actualPackingClearanceRecdDate">
+                        <div class="tentative" id="tentativePackingClearanceRecdDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>MCN Number</label>
+                        <input type="text" name="mcnNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>MCN with Shortfall</label>
+                        <input type="checkbox" name="mcnWithShortfall">
+                    </div>
+                
+                    <div class="form-group">
+                        <label>Product Packaging Remarks</label>
+                        <textarea name="productPackagingRemarks"></textarea>
+                    </div>
+                
+                    <div class="form-group">
+                        <label>MCN Remarks (For Shortfall)</label>
+                        <textarea name="mcnRemarksShortfall"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine CP Trial Completed</label>
+                        <input type="number" name="machineCpTrialCompleted">
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Optional CP Trial Completed</label>
+                        <input type="number" name="machineOptionalCpTrialCompleted">
+                    </div>
+                    <div class="form-group">
+                        <label>MCN Shortfall Closure Date</label>
+                        <input type="date" name="mcnShortfallClosureDate">
+                    </div>
+                    <div class="table-container">
+                        <h3>CP Trial Details</h3>
+                        <table id="cp-trial-table">
+                            <thead>
+                                <tr>
+                                    <th>CP Detail</th>
+                                    <th>IFAT Done On</th>
+                                    <th>QC Cleared On</th>
+                                    <th>Remarks</th>
+                                    <th>Handed To Assembly On</th>
+                                    <th>Received By</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cp-trial-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="5">
+                <div class="section">
+                    <div class="step-pill">Stage 5</div>
+                    <h2>PPC</h2>
+                    <div class="form-group">
+                        <label>Actual PPC Basic Material Date</label>
+                        <input type="date" name="actualPpcBasicMaterialDate" id="actualPpcBasicMaterialDate">
+                        <div class="tentative" id="tentativePpcBasicMaterialDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual PPC Optional Material Date</label>
+                        <input type="date" name="actualPpcOptionalMaterialDate" id="actualPpcOptionalMaterialDate">
+                        <div class="tentative" id="tentativePpcOptionalMaterialDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual PPC New Material Date After CFAT</label>
+                        <input type="date" name="actualPpcNewMaterialDateAfterCfat" id="actualPpcNewMaterialDateAfterCfat">
+                        <div class="tentative" id="tentativePpcNewMaterialDateAfterCfat"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Material Progress Status</label>
+                        <textarea name="materialProgressStatus"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks PPC</label>
+                        <textarea name="remarksPpc"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Delay in Days Basic Material</label>
+                        <input type="number" name="delayInDaysBasicMaterial">
+                    </div>
+                    <div class="form-group">
+                        <label>Delay in Optional Basic Material</label>
+                        <input type="number" name="delayInOptionalBasicMaterial">
+                    </div>
+                    <div class="form-group">
+                        <label>Actual LOA Basic Release Date</label>
+                        <input type="date" name="step5-actualLoaBasicReleaseDate" id="step5-actualLoaBasicReleaseDate" disabled>
+                        <div class="tentative" id="step5-tentativeLoaBasicReleaseDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual LOA Optional Release Date</label>
+                        <input type="date" name="step5-actualLoaOptionalReleaseDate" id="step5-actualLoaOptionalReleaseDate" disabled>
+                        <div class="tentative" id="step5-tentativeLoaOptionalReleaseDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Basic Assembly Attached</label>
+                        <input type="number" name="totalBasicAssemblyAttached" id="totalBasicAssemblyAttached-step5" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Optional Assembly Attached</label>
+                        <input type="number" name="totalOptionalAssemblyAttached" id="totalOptionalAssemblyAttached-step5" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Additional New Assembly After CFAT</label>
+                        <input type="number" name="totalAdditionalNewAssemblyAfterCfat" id="totalAdditionalNewAssemblyAfterCfat-step5" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional New Assembly After CFAT Date</label>
+                        <input type="date" name="additionalNewAssemblyAfterCfatDate" id="additionalNewAssemblyAfterCfatDate-step5" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>MCN Shortfall Closure Date</label>
+                        <input type="date" name="mcnShortfallClosureDate" id="mcnShortfallClosureDate-step5" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual IFAT with Std CP Date</label>
+                        <input type="date" name="actualIfatWithStdCpDate" id="actualIfatWithStdCpDate-step5" disabled>
+                        <div class="tentative" id="step5-tentativeIfatWithStdCpDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual CFAT Date</label>
+                        <input type="date" name="actualCfatDate" id="actualCfatDate-step5" disabled>
+                        <div class="tentative" id="step5-tentativeCfatDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Percentage</label>
+                        <input type="number" id="step5-machinePercentage" disabled class="read-only" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Live Status</label>
+                        <input type="text" id="step5-projectLiveStatus" disabled class="read-only">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="6">
+                <div class="section">
+                    <div class="step-pill">Stage 6</div>
+                    <h2>CP Cell</h2>
+                    <div class="form-group">
+                        <label>Actual CP Design Release Date</label>
+                        <input type="date" name="actualCpDesignReleaseDate" id="actualCpDesignReleaseDate">
+                        <div class="tentative" id="tentativeCpDesignReleaseDate"></div>
+                    </div>
+                   
+                    <div class="form-group">
+                        <label>Actual Machine CP Manufacturing Date</label>
+                        <input type="date" name="actualMachineCpManufacturingDate" id="actualMachineCpManufacturingDate">
+                        <div class="tentative" id="tentativeMachineCpManufacturingDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Machine Optional CP Manufacturing Date</label>
+                        <input type="date" name="actualMachineOptionalCpManufacturingDate" id="actualMachineOptionalCpManufacturingDate">
+                        <div class="tentative" id="tentativeMachineOptionalCpManufacturingDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Change Part OA Generation Date</label>
+                        <input type="date" id="step6-actualCpOaGenerationDate" disabled class="read-only">
+                        <div class="tentative" id="step6-tentativeCpOaGenerationDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine CP Qty</label>
+                        <input type="number" id="step6-machineCpQty" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Optional CP Qty</label>
+                        <input type="number" id="step6-machineOptionalCpQty" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual IFAT with Std CP Date</label>
+                        <input type="date" id="step6-actualIfatWithStdCpDate" disabled>
+                        <div class="tentative" id="step6-tentativeIfatStdCpDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual CFAT Date</label>
+                        <input type="date" id="step6-actualCfatDate" disabled>
+                        <div class="tentative" id="step6-tentativeCfatDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Delay in Days Machine CP</label>
+                        <input type="number" name="delayInDaysMachineCp">
+                    </div>
+                    <div class="form-group">
+                        <label>Delay in Days Optional CP</label>
+                        <input type="number" name="delayInDaysOptionalCp">
+                    </div>
+                    <div class="form-group">
+                        <label>CP Progress Status</label>
+                        <textarea name="cpProgressStatus"></textarea>
+                    </div>
+                    <div class="table-container">
+                        <h3>CP Trial Progress</h3>
+                        <table id="cp-progress-table">
+                            <thead>
+                                <tr>
+                                    <th>CP Detail</th>
+                                    <th>IFAT Done On</th>
+                                    <th>QC Cleared On</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cp-progress-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks CP Cell</label>
+                        <textarea name="remarksCpCell"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>CP Image Upload</label>
+                        <input type="file" name="cpImageUpload" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Change Part Layout Approval Date</label>
+                        <input type="date" id="step6-actualCpLayoutApprovalDate" disabled class="read-only">
+                        <div class="tentative" id="step6-tentativeCpLayoutApprovalDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Optional Change Part Layout Approval Date</label>
+                        <input type="date" id="step6-actualOptionalCpLayoutApprovalDate" disabled class="read-only">
+                        <div class="tentative" id="step6-tentativeOptionalCpLayoutApprovalDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Percentage</label>
+                        <input type="number" id="step6-machinePercentage" disabled class="read-only" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Live Status</label>
+                        <input type="text" id="step6-projectLiveStatus" disabled class="read-only">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="7">
+                <div class="section">
+                    <div class="step-pill">Stage 7</div>
+                    <h2>Stores</h2>
+                    <div class="form-group">
+                        <label>Actual Basic Material Handed Over to Assembly Date</label>
+                        <input type="date" name="actualBasicMaterialHandedOverAssyDate" id="actualBasicMaterialHandedOverAssyDate">
+                        <div class="tentative" id="tentativeBasicMaterialHandedOverAssyDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Optional Material Handed Over to Assembly Date</label>
+                        <input type="date" name="actualOptionalMaterialHandedOverAssyDate" id="actualOptionalMaterialHandedOverAssyDate">
+                        <div class="tentative" id="tentativeOptionalMaterialHandedOverAssyDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Material Progress Status</label>
+                        <textarea name="storesMaterialProgressStatus"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Remarks Stores</label>
+                        <textarea name="remarksStores"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual PPC Basic Material Date</label>
+                        <input type="date" id="step7-actualPpcBasicMaterialDate" disabled>
+                        <div class="tentative" id="step7-tentativePpcBasicMaterialDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual PPC Optional Material Date</label>
+                        <input type="date" id="step7-actualPpcOptionalMaterialDate" disabled>
+                        <div class="tentative" id="step7-tentativePpcOptionalMaterialDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual IFAT with Std CP Date</label>
+                        <input type="date" id="step7-actualIfatWithStdCpDate" disabled>
+                        <div class="tentative" id="step7-tentativeIfatWithStdCpDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>MCN Shortfall Closure Date</label>
+                        <input type="date" id="step7-mcnShortfallClosureDate" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual CFAT Date</label>
+                        <input type="date" id="step7-actualCfatDate">
+                        <div class="tentative" id="step7-tentativeCfatDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Percentage</label>
+                        <input type="number" id="step7-machinePercentage" disabled class="read-only" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Live Status</label>
+                        <input type="text" id="step7-projectLiveStatus" disabled class="read-only">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="8">
+                <div class="section">
+                    <div class="step-pill">Stage 8</div>
+                    <h2>Assembly</h2>
+                    <div class="form-group">
+                        <label>Actual Basic Material Receipt Date</label>
+                        <input type="date" name="actualBasicMaterialReceiptDate" id="actualBasicMaterialReceiptDate">
+                        <div class="tentative" id="tentativeBasicMaterialReceiptDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Customization Material Receipt Date</label>
+                        <input type="date" name="actualCustomizationMaterialReceiptDate" id="actualCustomizationMaterialReceiptDate">
+                        <div class="tentative" id="tentativeCustomizationMaterialReceiptDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Assembly Start Date</label>
+                        <input type="date" name="actualAssyStartDate" id="actualAssyStartDate">
+                        <div class="tentative" id="tentativeAssyStartDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Basic Completion</label>
+                        <input type="date" name="actualMachineBasicCompletion" id="actualMachineBasicCompletion">
+                        <div class="tentative" id="tentativeMachineBasicCompletion"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Customization Completion</label>
+                        <input type="date" name="actualMachineCustomizationCompletion" id="actualMachineCustomizationCompletion">
+                        <div class="tentative" id="tentativeMachineCustomizationCompletion"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual IFAT with Std CP Date</label>
+                        <input type="date" name="actualIfatStdCpDate" id="actualIfatStdCpDate">
+                        <div class="tentative" id="tentativeIfatStdCpDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual IFAT with Customer CP Date</label>
+                        <input type="date" name="actualIfatCustomerCpDate" id="actualIfatCustomerCpDate">
+                        <div class="tentative" id="tentativeIfatCustomerCpDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual CFAT Date</label>
+                        <input type="date" name="actualCfatDate" id="actualCfatDate">
+                        <div class="tentative" id="tentativeCfatDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Handed to Dispatch</label>
+                        <input type="date" name="actualHandedToDispatchDate" id="actualHandedToDispatchDate">
+                        <div class="tentative" id="tentativeHandedToDispatchDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Updated Data As On</label>
+                        <input type="date" name="lastUpdatedDataAsOn">
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Category</label>
+                        <input type="text" name="machineCategory" disabled class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>Workmen</label>
+                        <input type="text" id="workmenInput" placeholder="Add workmen">
+                        <button type="button" class="btn-inline" onclick="addWorkman()">Add</button>
+                        <div id="workmen-list"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Std Task Of Machine</label>
+                        <input type="number" name="stdTaskOfMachine" id="stdTaskOfMachine" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>Task Completed</label>
+                        <input type="number" name="taskCompleted" id="taskCompleted">
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Percentage</label>
+                        <input type="text" name="machinePercentage" id="machinePercentage" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>Live Status</label>
+                        <select name="liveStatus" id="liveStatus">
+                            <option value="NEW CCN FOR APPROVAL">NEW CCN FOR APPROVAL</option>
+                            <option value="DESIGN">DESIGN</option>
+                            <option value="IN MUMBAI">IN MUMBAI</option>
+                            <option value="RECEIVED FROM MUMBAI">RECEIVED FROM MUMBAI</option>
+                            <option value="PPC" selected>PPC</option>
+                            <option value="WIP- KANBAN">WIP- KANBAN</option>
+                            <option value="WIP -BASIC">WIP -BASIC</option>
+                            <option value="WIP- OPTIONALS">WIP- OPTIONALS</option>
+                            <option value="HOLD - AUTOMATION PENDING">HOLD - AUTOMATION PENDING</option>
+                            <option value="HOLD">HOLD</option>
+                            <option value="STD CP TRIALS">STD CP TRIALS</option>
+                            <option value="IFAT IN PROGRESS">IFAT IN PROGRESS</option>
+                            <option value="IFAT DONE">IFAT DONE</option>
+                            <option value="POST IFAT - POINT CLOSURE">POST IFAT - POINT CLOSURE</option>
+                            <option value="READY">READY</option>
+                            <option value="AWAITED PRODUCT">AWAITED PRODUCT</option>
+                            <option value="AWAITED PACKAGING">AWAITED PACKAGING</option>
+                            <option value="AWAITED CP">AWAITED CP</option>
+                            <option value="CUSTOMER CP TRIALS">CUSTOMER CP TRIALS</option>
+                            <option value="AWAITED CFAT">AWAITED CFAT</option>
+                            <option value="CFAT IN PROGRESS">CFAT IN PROGRESS</option>
+                            <option value="CFAT DONE">CFAT DONE</option>
+                            <option value="RE-CFAT ">RE-CFAT</option>
+                            <option value="POST CFAT - POINT CLOSURE">POST CFAT - POINT CLOSURE</option>
+                            <option value="COMPLIANCE - SENT TO CUSTOMER">COMPLIANCE - SENT TO CUSTOMER</option>
+                            <option value="AWAITING PACKING CLEARLANCE">AWAITING PACKING CLEARLANCE</option>
+                            <option value="FOR DISPATCH">FOR DISPATCH</option>
+                            <option value="AWAITING COMMERCIAL CLEARLANCE">AWAITING COMMERCIAL CLEARLANCE</option>
+                            <option value="STOCK MC - READY">STOCK MC - READY</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Project Percentage</label>
+                        <input type="text" name="projectPercentage" id="projectPercentage" readonly class="read-only">
+                    </div>
+                    <div class="form-group">
+                        <label>Assembly Progress Status</label>
+                        <textarea name="assemblyProgressStatus"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Pending Follow-up (Mech)</label>
+                        <input type="text" name="pendingFollowUpMech">
+                    </div>
+                    <div class="form-group">
+                        <label>Pending Follow-up (Elect)</label>
+                        <input type="text" name="pendingFollowUpElect">
+                    </div>
+                    <div class="form-group">
+                        <label>Pending Follow-up (CP)</label>
+                        <input type="text" name="pendingFollowUpCp">
+                    </div>
+                    <div class="form-group">
+                        <label>Delay Analysis</label>
+                        <textarea name="delayAnalysis"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Image Assembly Upload</label>
+                        <input type="file" name="machineImageAssemblyUpload" accept="image/*">
+                    </div>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="validationUploaded"> Validation Uploaded</label>
+                        <label><input type="checkbox" name="matpsUploaded"> MATPS Uploaded</label>
+                        <label><input type="checkbox" name="videoUploaded"> Video Uploaded</label>
+                        <label><input type="checkbox" name="twelveDaysProject"> 12 Days Project</label>
+                        <label><input type="checkbox" name="ccnInterchangedMc"> CCN Interchanged MC</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="interUnitReceipt"> Inter Unit Receipt</label>
+                        <label><input type="checkbox" name="interUnitTransfer"> Inter Unit Transfer</label>
+                        <label><input type="checkbox" name="issueReturnQty"> Issue Return Qty</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual CP Manufacturing Date</label>
+                        <input type="date" id="step8-actualCpManufacturingDate" disabled>
+                        <div class="tentative" id="step8-tentativeCpManufacturingDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine CP Qty</label>
+                        <input type="number" id="step8-machineCpQty" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Optional CP Qty</label>
+                        <input type="number" id="step8-machineOptionalCpQty" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Product Receipt Date</label>
+                        <input type="date" id="step8-actualProductReceiptDate" disabled>
+                        <div class="tentative" id="step8-tentativeProductReceiptDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Packaging Receipt Date</label>
+                        <input type="date" id="step8-actualPackagingReceiptDate" disabled>
+                        <div class="tentative" id="step8-tentativePackagingReceiptDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Packing Clearance Received Date</label>
+                        <input type="date" id="step8-actualPackingClearanceRecdDate" disabled>
+                        <div class="tentative" id="step8-tentativePackingClearanceRecdDate"></div>
+                    </div>
+                   
+                    <div class="form-group">
+                        <label>Actual Commercial Clearance</label>
+                        <input type="date" id="step8-commercialClearance" disabled>
+                        <div class="tentative" id="step8-tentativeCommercialClearance"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Basics</label>
+                        <textarea id="machineBasicsDisplay" readonly class="read-only"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Features</label>
+                        <textarea id="machineFeaturesDisplay" readonly class="read-only"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional/Other Options</label>
+                        <textarea id="additionalOptionsDisplay" readonly class="read-only"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Project Kickoff Details</label>
+                        <textarea id="projectKickoffDetailsDisplay" readonly class="read-only"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="9">
+                <div class="section">
+                    <div class="step-pill">Stage 9</div>
+                    <h2>Invoice / Dispatch</h2>
+                    <div class="form-group">
+                        <label>PO Reference Number</label>
+                        <input type="text" id="step9-po-reference-number" readonly class="read-only" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>PO Date</label>
+                        <input type="date" id="step9-po-date" readonly class="read-only" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>DN Number</label>
+                        <input type="text" id="step9-dn-number" readonly class="read-only" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Sales Order Number</label>
+                        <input type="text" id="step9-salesOrderNumber" readonly class="read-only" disabled>
+                    </div>
+                
+                    <div class="form-group">
+                        <label>MCN Number</label>
+                        <input type="text" id="step9-mcnNumber" readonly class="read-only" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>MCN Shortfall Closure Date</label>
+                        <input type="date" id="step9-mcnShortfallClosureDate" readonly class="read-only" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Actual Packing Clearance Received Date</label>
+                        <input type="date" id="step9-actualPackingClearanceRecdDate" disabled>
+                        <div class="tentative" id="step9-tentativePackingClearanceRecdDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Invoice Date</label>
+                        <input type="date" name="invoiceDate">
+                        <div class="tentative" id="step9-tentativeInvoiceDate"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Invoice Number</label>
+                        <input type="text" name="invoiceNumber">
+                    </div>
+                    <div class="form-group">
+                        <label>LR No</label>
+                        <input type="text" name="lrNo">
+                    </div>
+                    <div class="form-group">
+                        <label>LR Date</label>
+                        <input type="date" name="lrDate">
+                    </div>
+                    <div class="form-group">
+                        <label>POD Date</label>
+                        <input type="date" name="podDate">
+                    </div>
+                    <div class="form-group">
+                        <label>CCN Status</label>
+                        <select name="ccnStatus">
+                            <option value="">Select Status</option>
+                            <option value="LIVE">LIVE</option>
+                            <option value="CLOSE">CLOSE</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Progress Status</label>
+                        <textarea name="progressStatus"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Machine Image Stores Upload</label>
+                        <input type="file" name="machineImageStoresUpload" accept="image/*">
+                    </div>
+                   
+                </div>
+            </div>
+
+            <div class="form-navigation">
+                <button type="button" class="prev-btn" onclick="changeStep(-1)">Previous</button>
+                <button type="button" class="next-btn" onclick="changeStep(1)">Next</button>
+                <button type="submit" class="submit-btn hidden">Save Machine Project</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let cpTrialData = [];
+        let assemblies = [];
+        let workmen = [];
+        let currentStep = 1;
+        const totalSteps = 9;
+        const stepNames = ['Purchase Order','Sales','Design','QA / QC','PPC','CP Cell','Stores','Assembly','Invoice / Dispatch'];
+
+        // Enhanced error logging
+        function logError(context, err) {
+            console.error(`[${context}] Error:`, err);
+        }
+
+        // Safe data access helper
+        function safeGet(obj, path, defaultVal = '') {
+            if (!obj) return defaultVal;
+            const parts = path.split('.');
+            let current = obj;
+            for (let part of parts) {
+                if (current && typeof current === 'object') {
+                    current = current[part];
+                } else {
+                    return defaultVal;
+                }
+            }
+            return current || defaultVal;
+        }
+
+        function showStep(step) {
+            if (step < 1 || step > totalSteps) return;
+            currentStep = step;
+            document.querySelectorAll('.form-step').forEach(el => el.classList.toggle('active', Number(el.dataset.step) === step));
+            document.querySelector('.prev-btn').style.display = step === 1 ? 'none' : 'inline-flex';
+            document.querySelector('.next-btn').style.display = step === totalSteps ? 'none' : 'inline-flex';
+            document.querySelector('.submit-btn').classList.toggle('hidden', step !== totalSteps);
+            document.querySelectorAll('.progress-step').forEach((el, index) => {
+                const stepIndex = index + 1;
+                el.classList.toggle('active', stepIndex <= step);
+                el.classList.toggle('current', stepIndex === step);
+            });
+            const fill = document.querySelector('.progress-fill');
+            if (fill) {
+                fill.style.width = `${((step - 1) / (totalSteps - 1)) * 100}%`;
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function changeStep(delta) {
+            showStep(currentStep + delta);
+        }
+
+        function fetchData() {
+            const ccn = getQueryParam('ccn');
+            if (!ccn) {
+                logError('fetchData', 'No CCN provided in URL');
+                return alert('No CCN provided');
+            }
+
+            console.log('Fetching data for CCN:', ccn);
+            fetch(`/api/machine-project/by-ccn?ccn=${encodeURIComponent(ccn)}`)
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                    }
+                    return res.json();
+                })
+                .then(dto => {
+                    console.log('Fetch successful, received data:', dto);
+                    if (!dto) {
+                        throw new Error('Empty response from server');
+                    }
+                    populatePO(safeGet(dto, 'purchaseOrder'));
+                    populateKickoff(safeGet(dto, 'kickoffForm'));
+                    if (safeGet(dto, 'machineProject')) {
+                        populateMachineProject(safeGet(dto, 'machineProject'), safeGet(dto, 'kickoffForm'));
+                    } else {
+                        // Create new
+                        document.getElementById('mp-ccn').value = ccn;
+                        generateCpTrialTable(safeGet(dto, 'kickoffForm'));
+                        setDefaultDatesFromKickoff(safeGet(dto, 'kickoffForm'));
+                    }
+                    setTentativeDates(safeGet(dto, 'kickoffForm'));
+                    populateStep5Fields(safeGet(dto, 'kickoffForm'));
+                    populateStep6Fields(safeGet(dto, 'kickoffForm'));
+                    populateStep7Fields(safeGet(dto, 'kickoffForm'));
+                    populateStep8Fields(safeGet(dto, 'kickoffForm'));
+                    renderCpProgressTable();
+                    setHeaderData(safeGet(dto, 'purchaseOrder'), safeGet(dto, 'kickoffForm'), safeGet(dto, 'machineProject'));
+                    // Sync Step 2 to Step 3 after data loading
+                    syncStep2ToStep3();
+                    // Sync Step 2 to Step 6 after data loading
+                    syncStep2ToStep6();
+                    // Sync to Step 4 after data loading
+                    syncToStep4(safeGet(dto, 'kickoffForm'));
+                    // Sync repeated fields into Step 9 after data loading
+                    syncStep9Fields();
+                    // Sync Machine Percentage and Project Live Status to Steps 5, 6, 7
+                    syncRepeatedFields();
+                })
+                .catch(err => {
+                    logError('fetchData', err);
+                    console.error('Full error:', err);
+                    alert(`Error loading data: ${err.message}`);
+                });
+        }
+
+        function populatePO(po) {
+            if (!po) {
+                console.warn('PO data is empty/null');
+                return;
+            }
+            try {
+                document.getElementById('po-reference-number').value = safeGet(po, 'poReferenceNumber') || safeGet(po, 'poReference') || safeGet(po, 'recordNo');
+                document.getElementById('po-date').value = safeGet(po, 'poDate');
+                document.getElementById('po-delivery-date').value = safeGet(po, 'poDeliveryDate');
+                document.getElementById('po-receipt-date').value = safeGet(po, 'poReceiptDate');
+                document.getElementById('po-value-lacs').value = safeGet(po, 'poValueLacs');
+                document.getElementById('order-type').value = safeGet(po, 'orderType') || safeGet(po, 'order_type');
+                const address = [safeGet(po, 'country'), safeGet(po, 'state'), safeGet(po, 'city'), safeGet(po, 'addressLine1'), safeGet(po, 'addressLine2')].filter(Boolean).join(', ');
+                document.getElementById('po-address').value = address;
+                
+                // Populate Machine Model and fetch stdTaskOfMachine
+                const machineModel = safeGet(po, 'machineModel') || safeGet(po, 'modelName');
+                if (machineModel) {
+                    // model value is available from PO, fetch std task for the project
+                    // only if stdTaskOfMachine is not already populated.
+                    const stdTaskEl = document.getElementById('stdTaskOfMachine');
+                    if (stdTaskEl && !stdTaskEl.value) {
+                        fetchStdTaskOfMachine(machineModel);
+                    }
+                }
+                
+                // Sync PO fields to Step 2
+                syncPoToStep2();
+            } catch (err) {
+                logError('populatePO', err);
+            }
+        }
+
+        function syncPoToStep2() {
+            try {
+                document.getElementById('step2-po-reference-number').value = document.getElementById('po-reference-number').value;
+                document.getElementById('step2-po-date').value = document.getElementById('po-date').value;
+                document.getElementById('step2-po-delivery-date').value = document.getElementById('po-delivery-date').value;
+                document.getElementById('step2-po-receipt-date').value = document.getElementById('po-receipt-date').value;
+            } catch (err) {
+                logError('syncPoToStep2', err);
+            }
+        }
+
+        function fetchStdTaskOfMachine(machineModel) {
+            if (!machineModel) {
+                console.warn('Machine model is empty, cannot fetch std task');
+                return;
+            }
+            console.log('Fetching stdTaskOfMachine for model:', machineModel);
+            fetch(`/api/machine-model/total-process-task?model=${encodeURIComponent(machineModel)}`)
+                .then(res => {
+                    if (!res.ok) {
+                        console.warn(`API returned status ${res.status}`);
+                        return null;
+                    }
+                    return res.json();
+                })
+                .then(total => {
+                    console.log('Received totalProcessTask:', total);
+                    const stdTaskEl = document.getElementById('stdTaskOfMachine');
+                    if (stdTaskEl && total !== null && total !== undefined) {
+                        stdTaskEl.value = total;
+                        console.log('stdTaskOfMachine populated with value:', total);
+                    }
+                })
+                .catch(e => logError('fetchStdTaskOfMachine', e));
+        }
+
+        function syncStep2ToStep3() {
+            try {
+                document.getElementById('step3-actualMachineLayoutApprovalDate').value = document.getElementById('actualMachineLayoutApprovalDate').value;
+                document.getElementById('step3-actualRoomLayoutApprovalDate').value = document.getElementById('actualRoomLayoutApprovalDate').value;
+                document.getElementById('step3-actualCpLayoutApprovalDate').value = document.getElementById('actualCpLayoutApprovalDate').value;
+                document.getElementById('step3-actualOptionalCpLayoutApprovalDate').value = document.getElementById('actualOptionalCpLayoutApprovalDate').value;
+                document.getElementById('step3-actualOaGenerationDate').value = document.getElementById('actualOaGenerationDate').value;
+
+                const tentativePairs = [
+                    ['tentativeMachineLayoutApprovalDate', 'step3-tentativeMachineLayoutApprovalDate'],
+                    ['tentativeRoomLayoutApprovalDate', 'step3-tentativeRoomLayoutApprovalDate'],
+                    ['tentativeCpLayoutApprovalDate', 'step3-tentativeCpLayoutApprovalDate'],
+                    ['tentativeOptionalCpLayoutApprovalDate', 'step3-tentativeOptionalCpLayoutApprovalDate'],
+                    ['tentativeOaGenerationDate', 'step3-tentativeOaGenerationDate']
+                ];
+                tentativePairs.forEach(([srcId, destId]) => {
+                    const src = document.getElementById(srcId);
+                    const dest = document.getElementById(destId);
+                    if (src && dest) {
+                        dest.innerText = src.innerText;
+                    }
+                });
+            } catch (err) {
+                logError('syncStep2ToStep3', err);
+            }
+        }
+
+        function syncStep2ToStep6() {
+            try {
+                document.getElementById('step6-actualCpLayoutApprovalDate').value = document.getElementById('actualCpLayoutApprovalDate').value;
+                document.getElementById('step6-actualOptionalCpLayoutApprovalDate').value = document.getElementById('actualOptionalCpLayoutApprovalDate').value;
+                document.getElementById('step6-actualCpOaGenerationDate').value = document.getElementById('actualCpOaGenerationDate').value;
+
+                const tentativePairs = [
+                    ['tentativeCpOaGenerationDate', 'step6-tentativeCpOaGenerationDate']
+                ];
+                tentativePairs.forEach(([srcId, destId]) => {
+                    const src = document.getElementById(srcId);
+                    const dest = document.getElementById(destId);
+                    if (src && dest) {
+                        dest.innerText = src.innerText;
+                    }
+                });
+            } catch (err) {
+                logError('syncStep2ToStep6', err);
+            }
+        }
+
+        function syncToStep4(kickoff) {
+            try {
+                // Sync from Step 8 (Assembly)
+                document.getElementById('step4-actualIfatStdCpDate').value = document.getElementById('actualIfatStdCpDate').value;
+                document.getElementById('step4-actualCfatDate').value = document.getElementById('actualCfatDate').value;
+                
+                // Sync from Step 2 (Sales)
+                document.getElementById('step4-salesOrderNumber').value = document.getElementById('salesOrderNumber').value;
+                
+                // Sync from kickoff
+                if (kickoff) {
+                    document.getElementById('step4-machineCpQty').value = safeGet(kickoff, 'machineCpQty', 0);
+                    document.getElementById('step4-machineOptionalCpQty').value = safeGet(kickoff, 'machineOptionalCpQty', 0);
+                }
+            } catch (err) {
+                logError('syncToStep4', err);
+            }
+        }
+
+        function syncStep9Fields() {
+            try {
+                const mappings = {
+                    'step9-po-reference-number': 'po-reference-number',
+                    'step9-po-date': 'po-date',
+                    'step9-dn-number': 'dnNumber',
+                    'step9-salesOrderNumber': 'salesOrderNumber',
+                    'step9-actualPackingClearanceRecdDate': 'actualPackingClearanceRecdDate',
+                    'step9-mcnNumber': 'mcnNumber',
+                    'step9-mcnShortfallClosureDate': 'mcnShortfallClosureDate'
+                };
+                Object.entries(mappings).forEach(([targetId, sourceId]) => {
+                    const target = document.getElementById(targetId);
+                    const source = document.getElementById(sourceId);
+                    if (target) {
+                        target.value = source ? source.value || '' : '';
+                    }
+                });
+            } catch (err) {
+                logError('syncStep9Fields', err);
+            }
+        }
+
+        function populateKickoff(kickoff) {
+            if (!kickoff) return;
+            document.getElementById('kickoff-machine-cp-qty').value = kickoff.machineCpQty || 0;
+            document.getElementById('kickoff-machine-optional-cp-qty').value = kickoff.machineOptionalCpQty || 0;
+        }
+        function populateKickoff(kickoff) {
+            if (!kickoff) {
+                console.warn('Kickoff data is empty/null');
+                return;
+            }
+            try {
+                const cpQtyEl = document.getElementById('kickoff-machine-cp-qty');
+                const optionalCpQtyEl = document.getElementById('kickoff-machine-optional-cp-qty');
+                if (cpQtyEl) cpQtyEl.value = safeGet(kickoff, 'machineCpQty', 0);
+                if (optionalCpQtyEl) optionalCpQtyEl.value = safeGet(kickoff, 'machineOptionalCpQty', 0);
+                
+                // Populate machine category in Stage 8
+                const machineCategoryEl = document.querySelector('[name="machineCategory"]');
+                if (machineCategoryEl) {
+                    machineCategoryEl.value = safeGet(kickoff, 'machineCategory', '');
+                }
+            } catch (err) {
+                logError('populateKickoff', err);
+            }
+        }
+
+        function setHeaderField(id, value) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value || '-';
+        }
+
+        function setHeaderData(po, kickoff, mp) {
+            try {
+                const headerSource = {
+                    ccn: getQueryParam('ccn') || safeGet(mp, 'ccn') || safeGet(po, 'ccn'),
+                    machineFamily: safeGet(po, 'machineFamily') || safeGet(po, 'machine_family') || safeGet(mp, 'machineFamily') || safeGet(kickoff, 'machineFamily'),
+                    machineName: safeGet(po, 'machineName') || safeGet(mp, 'machineName'),
+                    machineModel: safeGet(po, 'machineModel') || safeGet(po, 'modelName') || safeGet(mp, 'machineModel'),
+                    customerName: safeGet(po, 'customerName') || safeGet(mp, 'customerName'),
+                    unit: safeGet(po, 'unit') || safeGet(mp, 'unit') || safeGet(kickoff, 'unit'),
+                    salesEngineer: safeGet(po, 'salesPerson') || safeGet(po, 'salesEngineer') || safeGet(mp, 'salesPerson') || safeGet(mp, 'salesEngineer')
+                };
+                setHeaderField('header-ccn', headerSource.ccn);
+                setHeaderField('header-machine-family', headerSource.machineFamily);
+                setHeaderField('header-machine-name', headerSource.machineName);
+                setHeaderField('header-machine-model', headerSource.machineModel);
+                setHeaderField('header-customer-name', headerSource.customerName);
+                setHeaderField('header-unit', headerSource.unit);
+                setHeaderField('header-sales-engineer', headerSource.salesEngineer);
+                if (headerSource.machineModel) {
+                    const stdTaskEl = document.getElementById('stdTaskOfMachine');
+                    if (stdTaskEl && !stdTaskEl.value) {
+                        fetchStdTaskOfMachine(headerSource.machineModel);
+                    }
+                }
+            } catch (err) {
+                logError('setHeaderData', err);
+            }
+        }
+
+        function populateMachineProject(mp, kickoff) {
+            try {
+                document.getElementById('mp-id').value = safeGet(mp, 'id');
+                document.getElementById('mp-ccn').value = safeGet(mp, 'ccn');
+                // Populate all fields
+                Object.keys(mp).forEach(key => {
+                    const el = document.querySelector(`[name="${key}"]`);
+                    if (el) {
+                        if (el.type === 'checkbox') {
+                            el.checked = mp[key];
+                        } else {
+                            el.value = mp[key] || '';
+                        }
+                    }
+                });
+                // Handle JSON fields
+                if (safeGet(mp, 'cpTrialData')) {
+                    try {
+                        cpTrialData = JSON.parse(safeGet(mp, 'cpTrialData'));
+                    } catch (e) {
+                        logError('parsing cpTrialData', e);
+                        cpTrialData = [];
+                    }
+                }
+                renderCpTrialTable();
+                if (safeGet(mp, 'assembliesReleasedBy')) {
+                    try {
+                        assemblies = JSON.parse(safeGet(mp, 'assembliesReleasedBy'));
+                    } catch (e) {
+                        logError('parsing assembliesReleasedBy', e);
+                        assemblies = [];
+                    }
+                }
+                renderAssemblies();
+                if (safeGet(mp, 'workmen')) {
+                    try {
+                        workmen = JSON.parse(safeGet(mp, 'workmen'));
+                    } catch (e) {
+                        logError('parsing workmen', e);
+                        workmen = [];
+                    }
+                }
+                renderWorkmen();
+                // Calculate percentages after loading data
+                setTimeout(() => {
+                    updateProjectPercentage();
+                    const taskCompletedEl = document.getElementById('taskCompleted');
+                    if (taskCompletedEl && taskCompletedEl.value) {
+                        taskCompletedEl.dispatchEvent(new Event('input'));
+                    }
+                }, 200);
+                // If machine project has an actual commercial clearance date, reflect it in the Stage 8 summary field.
+                const actualCommercialClearanceEl = document.getElementById('actualCommercialClearanceDate');
+                const step8CommercialClearanceEl = document.getElementById('step8-commercialClearance');
+                if (actualCommercialClearanceEl && step8CommercialClearanceEl && actualCommercialClearanceEl.value) {
+                    step8CommercialClearanceEl.value = actualCommercialClearanceEl.value;
+                }
+                // Sync PO fields to Step 2
+                syncPoToStep2();
+                // Sync Step 2 fields to Step 3
+                syncStep2ToStep3();
+                // Sync Step 2 fields to Step 6
+                syncStep2ToStep6();
+                // Sync to Step 4
+                syncToStep4(kickoff);
+            } catch (err) {
+                logError('populateMachineProject', err);
+            }
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            if (isNaN(date)) return dateStr;
+            const day = date.getDate();
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = monthNames[date.getMonth()];
+            const year = date.getFullYear();
+            return `${day}-${month} ${year}`;
+        }
+
+        function setTentativeDates(kickoff) {
+            if (!kickoff) {
+                console.warn('Kickoff data is empty/null for tentative dates');
+                return;
+            }
+            try {
+                const mappings = {
+                    tentativeMachineLayoutApprovalDate: 'machine_layout_approvals',
+                    tentativeRoomLayoutApprovalDate: 'room_layout_approvals',
+                    tentativeCpLayoutApprovalDate: 'cp_layout_approvals',
+                    tentativeOaGenerationDate: 'oa_generation_date',
+                    tentativeCpOaGenerationDate: 'cp_oa_genration_date',
+                    tentativeDispatchClearanceRecdDate: 'dispatch_clearance',
+                    tentativeAdvPaymentRecdDate: 'advance_payment_receipt_date',
+                    tentativeBalPaymentRecdDate: 'balance_payment_receipt_date',
+                    tentativeLoaBasicReleaseDate: 'loa_basic',
+                    tentativeLoaOptionalReleaseDate: 'loa_optional',
+                    tentativeDqReleaseDate: 'dq_release',
+                    tentativeIfatProtocolReleaseDate: 'ifat_protocol_release',
+                    tentativePmrSubmissionDate: 'pmr_genration_submission_date',
+                    tentativeProductReceiptDate: 'products_receipt_date',
+                    tentativePackagingReceiptDate: 'packaging_receipt_date',
+                    tentativeComplianceDate: 'compliance',
+                    tentativePackingClearanceRecdDate: 'packaging_clearance_rec_date',
+                    tentativePpcBasicMaterialDate: 'ppc_basic_date',
+                    tentativePpcOptionalMaterialDate: 'ppc_optional_date',
+                    tentativePpcNewMaterialDateAfterCfat: 'ppc_new_material_cfat_date',
+                    tentativeCpDesignReleaseDate: 'cp_design_release_date',
+                    tentativeMachineCpManufacturingDate: 'cp_manufacturing_date',
+                    tentativeMachineOptionalCpManufacturingDate: 'optional_cp_manufacturing_date',
+                    tentativeIfatStdCpDate: 'ifat_std_cp',
+                    tentativeIfatCustomerCpDate: 'ifat_customer_cp',
+                    tentativeCfatDate: 'cfat',
+                    'step4-tentativeIfatStdCpDate': 'ifat_std_cp',
+                    'step4-tentativeCfatDate': 'cfat',
+                    'step5-tentativeLoaBasicReleaseDate': 'loa_basic',
+                    'step5-tentativeLoaOptionalReleaseDate': 'loa_optional',
+                    'step5-tentativeIfatWithStdCpDate': 'ifat_std_cp',
+                    'step5-tentativeCfatDate': 'cfat',
+                    tentativeCommercialClearance: 'commercial_clearance',
+                    tentativeOptionalCpLayoutApprovalDate: 'optional_cp_layout_approval_date',
+                    'step6-tentativeCpLayoutApprovalDate': 'cp_layout_approvals',
+                    'step6-tentativeOptionalCpLayoutApprovalDate': 'optional_cp_layout_approval_date',
+                    'step6-tentativeIfatStdCpDate': 'ifat_std_cp',
+                    'step6-tentativeCfatDate': 'cfat',
+                    tentativeBasicMaterialHandedOverAssyDate: 'basic_matl_handed_over_Assy_date',
+                    tentativeOptionalMaterialHandedOverAssyDate: 'optional_matl_handed_over_Assy_date',
+                    tentativeBasicMaterialReceiptDate: 'basic_matl_handed_receipt_date',
+                    tentativeCustomizationMaterialReceiptDate: 'customization_matl_handed_receipt_date',
+                    tentativeAssyStartDate: 'assy_start_date',
+                    tentativeMachineBasicCompletion: 'machine_manufacturing_basic',
+                    tentativeMachineCustomizationCompletion: 'machine_manufacturing_customisation',
+                    tentativeHandedToDispatchDate: 'handed_dispatch_date',
+                    tentativeDispatchDate: 'planned_dispatch_date',
+                    'step7-tentativePpcBasicMaterialDate': 'ppc_basic_date',
+                    'step7-tentativePpcOptionalMaterialDate': 'ppc_optional_date',
+                    'step7-tentativeIfatWithStdCpDate': 'ifat_std_cp',
+                    'step7-tentativeCfatDate': 'cfat',
+                    'step8-tentativeCommercialClearance': 'commercial_clearance',
+                    'step8-tentativeCpManufacturingDate': 'cp_manufacturing_date',
+                    'step8-tentativeProductReceiptDate': 'products_receipt_date',
+                    'step8-tentativePackagingReceiptDate': 'packaging_receipt_date',
+                    'step8-tentativePackingClearanceRecdDate': 'packaging_clearance_rec_date',
+                    'step9-tentativePackingClearanceRecdDate': 'packaging_clearance_rec_date',
+                    'step9-tentativeInvoiceDate': 'planned_dispatch_date'
+                };
+                Object.keys(mappings).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el) {
+                        const value = safeGet(kickoff, mappings[key]);
+                        if (value) {
+                            el.textContent = `KOM Date: ${formatDate(value)}`;
+                        }
+                    }
+                });
+            } catch (err) {
+                logError('setTentativeDates', err);
+            }
+        }
+
+        function setDefaultDatesFromKickoff(kickoff) {
+            if (!kickoff) {
+                console.warn('Kickoff data is empty/null for default dates');
+                return;
+            }
+            try {
+                const mappings = {
+                    actualMachineLayoutApprovalDate: 'machine_layout_approvals',
+                    actualRoomLayoutApprovalDate: 'room_layout_approvals',
+                    actualCpLayoutApprovalDate: 'cp_layout_approvals',
+                    actualOaGenerationDate: 'oa_generation_date',
+                    actualCpOaGenerationDate: 'cp_oa_genration_date',
+                    actualDispatchClearanceRecdDate: 'dispatch_clearance',
+                    actualAdvPaymentRecdDate: 'advance_payment_receipt_date',
+                    actualBalPaymentRecdDate: 'balance_payment_receipt_date',
+                    actualLoaBasicReleaseDate: 'loa_basic',
+                    actualLoaOptionalReleaseDate: 'loa_optional',
+                    actualDqReleaseDate: 'dq_release',
+                    actualIfatProtocolReleaseDate: 'ifat_protocol_release',
+                    actualPmrSubmissionDate: 'pmr_genration_submission_date',
+                    actualProductReceiptDate: 'products_receipt_date',
+                    actualPackagingReceiptDate: 'packaging_receipt_date',
+                    actualComplianceDate: 'compliance',
+                    actualPackingClearanceRecdDate: 'packaging_clearance_rec_date',
+                    actualPpcBasicMaterialDate: 'ppc_basic_date',
+                    actualPpcOptionalMaterialDate: 'ppc_optional_date',
+                    actualPpcNewMaterialDateAfterCfat: 'ppc_new_material_cfat_date',
+                    actualCpDesignReleaseDate: 'cp_design_release_date',
+                    actualMachineCpManufacturingDate: 'cp_manufacturing_date',
+                    actualMachineOptionalCpManufacturingDate: 'optional_cp_manufacturing_date',
+                    actualIfatStdCpDate: 'ifat_std_cp',
+                    actualIfatCustomerCpDate: 'ifat_customer_cp',
+                    actualCfatDate: 'cfat',
+                    actualCommercialClearanceDate: 'commercial_clearance',
+                    actualOptionalCpLayoutApprovalDate: 'optional_cp_layout_approval_date',
+                    actualBasicMaterialHandedOverAssyDate: 'basic_matl_handed_over_Assy_date',
+                    actualOptionalMaterialHandedOverAssyDate: 'optional_matl_handed_over_Assy_date',
+                    actualBasicMaterialReceiptDate: 'basic_matl_handed_receipt_date',
+                    actualCustomizationMaterialReceiptDate: 'customization_matl_handed_receipt_date',
+                    actualAssyStartDate: 'assy_start_date',
+                    actualMachineBasicCompletion: 'machine_manufacturing_basic',
+                    actualMachineCustomizationCompletion: 'machine_manufacturing_customisation',
+                    actualHandedToDispatchDate: 'handed_dispatch_date',
+                    actualDispatchDate: 'planned_dispatch_date',
+                    totalBasicAssemblyAttached: 'total_basic_assembly_attached',
+                    totalOptionalAssemblyAttached: 'total_optional_assembly_attached',
+                    totalAdditionalNewAssemblyAfterCfat: 'total_additional_new_assembly_after_cfat',
+                    additionalNewAssemblyAfterCfatDate: 'additional_new_assembly_after_cfat_date',
+                    mcnShortfallClosureDate: 'mcn_shortfall_closure_date',
+                    actualIfatWithStdCpDate: 'ifat_std_cp'
+                };
+                Object.keys(mappings).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el && mappings[key]) {
+                        // Only set value if element is empty (no actual date set yet)
+                        if (!el.value || el.value.trim() === '') {
+                            const value = safeGet(kickoff, mappings[key]);
+                            if (value) {
+                                el.value = value;
+                            }
+                        }
+                    }
+                });
+
+                const invoiceDateEl = document.querySelector('input[name="invoiceDate"]');
+                if (invoiceDateEl && (!invoiceDateEl.value || invoiceDateEl.value.trim() === '')) {
+                    const tentativeInvoiceDate = safeGet(kickoff, 'planned_dispatch_date');
+                    if (tentativeInvoiceDate) {
+                        invoiceDateEl.value = tentativeInvoiceDate;
+                    }
+                }
+            } catch (err) {
+                logError('setDefaultDatesFromKickoff', err);
+            }
+        }
+
+        function generateCpTrialTable(kickoff) {
+            if (!kickoff) {
+                console.warn('Kickoff data is empty/null for CP trial table');
+                return;
+            }
+            try {
+                const basicQty = parseInt(safeGet(kickoff, 'machineCpQty', 0)) || 0;
+                const optionalQty = parseInt(safeGet(kickoff, 'machineOptionalCpQty', 0)) || 0;
+                const totalCp = basicQty + optionalQty;
+                cpTrialData = Array.from({length: totalCp}, () => ({
+                    cpDetail: '',
+                    ifatDoneOn: '',
+                    qcClearedOn: '',
+                    remarks: '',
+                    handedToAssemblyOn: '',
+                    receivedBy: ''
+                }));
+                renderCpTrialTable();
+            } catch (err) {
+                logError('generateCpTrialTable', err);
+            }
+        }
+
+        function populateStep5Fields(kickoff) {
+            if (!kickoff) {
+                console.warn('Kickoff data is empty/null for Step 5 fields');
+                return;
+            }
+            try {
+                const mappings = {
+                    'step5-actualLoaBasicReleaseDate': 'loa_basic',
+                    'step5-actualLoaOptionalReleaseDate': 'loa_optional',
+                    'totalBasicAssemblyAttached-step5': 'total_basic_assembly_attached',
+                    'totalOptionalAssemblyAttached-step5': 'total_optional_assembly_attached',
+                    'totalAdditionalNewAssemblyAfterCfat-step5': 'total_additional_new_assembly_after_cfat',
+                    'additionalNewAssemblyAfterCfatDate-step5': 'additional_new_assembly_after_cfat_date',
+                    'mcnShortfallClosureDate-step5': 'mcn_shortfall_closure_date',
+                    'actualIfatWithStdCpDate-step5': 'ifat_std_cp',
+                    'actualCfatDate-step5': 'cfat'
+                };
+                Object.keys(mappings).forEach(elementId => {
+                    const el = document.getElementById(elementId);
+                    if (el) {
+                        const value = safeGet(kickoff, mappings[elementId]);
+                        if (value) {
+                            el.value = value;
+                        }
+                    }
+                });
+            } catch (err) {
+                logError('populateStep5Fields', err);
+            }
+        }
+
+        function populateStep6Fields(kickoff) {
+            if (!kickoff) {
+                console.warn('Kickoff data is empty/null for Step 6 fields');
+                return;
+            }
+            try {
+                const mappings = {
+                    'step6-actualCpOaGenerationDate': 'cp_oa_genration_date',
+                    'step6-machineCpQty': 'machineCpQty',
+                    'step6-machineOptionalCpQty': 'machineOptionalCpQty',
+                    'step6-actualIfatWithStdCpDate': 'ifat_std_cp',
+                    'step6-actualCfatDate': 'cfat'
+                };
+                Object.keys(mappings).forEach(elementId => {
+                    const el = document.getElementById(elementId);
+                    if (el) {
+                        const value = safeGet(kickoff, mappings[elementId]);
+                        if (value !== '') {
+                            el.value = value;
+                        }
+                    }
+                });
+            } catch (err) {
+                logError('populateStep6Fields', err);
+            }
+        }
+
+        function populateStep7Fields(kickoff) {
+            if (!kickoff) {
+                console.warn('Kickoff data is empty/null for Step 7 fields');
+                return;
+            }
+            try {
+                const mappings = {
+                    'step7-actualPpcBasicMaterialDate': 'ppc_basic_date',
+                    'step7-actualPpcOptionalMaterialDate': 'ppc_optional_date',
+                    'step7-actualIfatWithStdCpDate': 'ifat_std_cp',
+                    'step7-mcnShortfallClosureDate': 'mcn_shortfall_closure_date',
+                    'step7-actualCfatDate': 'cfat'
+                };
+                Object.keys(mappings).forEach(elementId => {
+                    const el = document.getElementById(elementId);
+                    if (el) {
+                        const value = safeGet(kickoff, mappings[elementId]);
+                        if (value !== '') {
+                            el.value = value;
+                        }
+                    }
+                });
+            } catch (err) {
+                logError('populateStep7Fields', err);
+            }
+        }
+
+        function populateStep8Fields(kickoff) {
+            if (!kickoff) {
+                console.warn('Kickoff data is empty/null for Step 8 fields');
+                return;
+            }
+            try {
+                const mappings = {
+                    'step8-machineCpQty': 'machineCpQty',
+                    'step8-machineOptionalCpQty': 'machineOptionalCpQty',
+                    'step8-actualProductReceiptDate': 'products_receipt_date',
+                    'step8-actualPackagingReceiptDate': 'packaging_receipt_date',
+                    'step8-actualPackingClearanceRecdDate': 'packaging_clearance_rec_date',
+                    'step8-actualCfatDate': 'cfat',
+                    'step8-commercialClearance': 'commercial_clearance'
+                };
+                Object.keys(mappings).forEach(elementId => {
+                    const el = document.getElementById(elementId);
+                    if (el) {
+                        const value = safeGet(kickoff, mappings[elementId]);
+                        if (value !== '') {
+                            el.value = value;
+                        }
+                    }
+                });
+                
+                // Populate the 4 kickoff detail fields
+                populateKickoffDetailsInStep8(kickoff);
+            } catch (err) {
+                logError('populateStep8Fields', err);
+            }
+        }
+
+        function populateKickoffDetailsInStep8(kickoff) {
+            if (!kickoff) return;
+            try {
+                // Machine Basics - convert JSON to readable text
+                const machineBasicsEl = document.getElementById('machineBasicsDisplay');
+                if (machineBasicsEl) {
+                    const machineBasics = safeGet(kickoff, 'machineBasics');
+                    if (machineBasics) {
+                        machineBasicsEl.value = convertJsonToReadableText(machineBasics);
+                    }
+                }
+
+                // Machine Features - convert JSON to readable text
+                const machineFeaturesEl = document.getElementById('machineFeaturesDisplay');
+                if (machineFeaturesEl) {
+                    const machineFeatures = safeGet(kickoff, 'machineFeatures');
+                    if (machineFeatures) {
+                        machineFeaturesEl.value = convertJsonToReadableText(machineFeatures);
+                    }
+                }
+
+                // Additional Options - convert JSON to readable text
+                const additionalOptionsEl = document.getElementById('additionalOptionsDisplay');
+                if (additionalOptionsEl) {
+                    const additionalOptions = safeGet(kickoff, 'additionalOptions');
+                    if (additionalOptions) {
+                        additionalOptionsEl.value = convertJsonToReadableText(additionalOptions);
+                    }
+                }
+
+                // Project Kickoff Details
+                const projectKickoffDetailsEl = document.getElementById('projectKickoffDetailsDisplay');
+                if (projectKickoffDetailsEl) {
+                    const projectKickoffDetails = safeGet(kickoff, 'projectKickoffDetails');
+                    if (projectKickoffDetails) {
+                        projectKickoffDetailsEl.value = projectKickoffDetails;
+                    }
+                }
+            } catch (err) {
+                logError('populateKickoffDetailsInStep8', err);
+            }
+        }
+
+        function convertJsonToReadableText(jsonString) {
+            if (!jsonString) return '';
+            try {
+                const parsed = JSON.parse(jsonString);
+                if (Array.isArray(parsed)) {
+                    // For arrays (like machine basics/features tables)
+                    return parsed.map(item => {
+                        if (typeof item === 'object') {
+                            return Object.entries(item)
+                                .filter(([key, value]) => value !== null && value !== undefined && value !== '')
+                                .map(([key, value]) => `${key}: ${value}`)
+                                .join(', ');
+                        }
+                        return item;
+                    }).join('\n');
+                } else if (typeof parsed === 'object') {
+                    // For objects
+                    return Object.entries(parsed)
+                        .filter(([key, value]) => value !== null && value !== undefined && value !== '')
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join('\n');
+                }
+                return jsonString;
+            } catch {
+                // If not JSON, return as is
+                return jsonString;
+            }
+        }
+
+        function renderCpTrialTable() {
+            const tbody = document.getElementById('cp-trial-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            cpTrialData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><input type="text" value="${row.cpDetail || ''}" onchange="updateCpTrial(${index}, 'cpDetail', this.value)"></td>
+                    <td><input type="date" value="${row.ifatDoneOn || ''}" onchange="updateCpTrial(${index}, 'ifatDoneOn', this.value)"></td>
+                    <td><input type="date" value="${row.qcClearedOn || ''}" onchange="updateCpTrial(${index}, 'qcClearedOn', this.value)"></td>
+                    <td><input type="text" value="${row.remarks || ''}" onchange="updateCpTrial(${index}, 'remarks', this.value)"></td>
+                    <td><input type="date" value="${row.handedToAssemblyOn || ''}" onchange="updateCpTrial(${index}, 'handedToAssemblyOn', this.value)"></td>
+                    <td><input type="text" value="${row.receivedBy || ''}" onchange="updateCpTrial(${index}, 'receivedBy', this.value)"></td>
+                    <td><button type="button" onclick="removeCpTrialRow(${index})">Remove</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            renderCpProgressTable();
+        }
+
+        function renderCpProgressTable() {
+            const tbody = document.getElementById('cp-progress-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            cpTrialData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.cpDetail || ''}</td>
+                    <td>${row.ifatDoneOn || ''}</td>
+                    <td>${row.qcClearedOn || ''}</td>
+                    <td>${row.remarks || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateCpTrial(index, field, value) {
+            if (cpTrialData[index]) {
+                cpTrialData[index][field] = value;
+            }
+        }
+
+        function removeCpTrialRow(index) {
+            cpTrialData.splice(index, 1);
+            renderCpTrialTable();
+        }
+
+        function addAssembly() {
+            const input = document.getElementById('assembliesInput');
+            const value = input.value.trim();
+            if (value && !assemblies.includes(value)) {
+                assemblies.push(value);
+                renderAssemblies();
+                input.value = '';
+            }
+        }
+
+        function renderAssemblies() {
+            const list = document.getElementById('assemblies-list');
+            if (!list) return;
+            list.innerHTML = assemblies.map((a, idx) => `<span>${a} <button type="button" onclick="removeAssembly(${idx})">x</button></span>`).join(' ');
+            const field = document.querySelector('[name="assembliesReleasedBy"]');
+            if (field) {
+                field.value = JSON.stringify(assemblies);
+            }
+        }
+
+        function removeAssembly(idx) {
+            assemblies.splice(idx, 1);
+            renderAssemblies();
+        }
+
+        function addWorkman() {
+            const input = document.getElementById('workmenInput');
+            const value = input.value.trim();
+            if (value && !workmen.includes(value)) {
+                workmen.push(value);
+                renderWorkmen();
+                input.value = '';
+            }
+        }
+
+        function renderWorkmen() {
+            const list = document.getElementById('workmen-list');
+            if (!list) return;
+            list.innerHTML = workmen.map((w, idx) => `<span>${w} <button type="button" onclick="removeWorkman(${idx})">x</button></span>`).join(' ');
+            const field = document.querySelector('[name="workmen"]');
+            if (field) {
+                field.value = JSON.stringify(workmen);
+            }
+        }
+
+        function removeWorkman(idx) {
+            workmen.splice(idx, 1);
+            renderWorkmen();
+        }
+
+        const commercialClearanceField = document.getElementById('actualCommercialClearanceDate');
+        if (commercialClearanceField) {
+            commercialClearanceField.addEventListener('input', () => {
+                const step8El = document.getElementById('step8-commercialClearance');
+                if (step8El) {
+                    step8El.value = commercialClearanceField.value;
+                }
+            });
+        }
+
+        document.getElementById('machineProjectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            formData.set('cpTrialData', JSON.stringify(cpTrialData));
+            console.log('Submitting form with CCN:', formData.get('ccn'));
+            fetch('/api/machine-project/save', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log('Save successful:', data);
+                alert('Saved successfully');
+            })
+            .catch(err => {
+                logError('Form submission', err);
+                alert(`Save failed: ${err.message}`);
+            });
+        });
+
+        function getQueryParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        function initPage() {
+            showStep(1);
+            bindProgressStepClicks();
+            const ccn = getQueryParam('ccn');
+            if (ccn) {
+                console.log('Page initialized with CCN:', ccn);
+                fetchData();
+            } else {
+                console.warn('No CCN found in URL parameters');
+            }
+            // Add event listeners for Step 2 to Step 3 sync
+            addStep2ToStep3Listeners();
+            addStep4SyncListeners();
+            addStep9SyncListeners();
+        }
+
+        function bindProgressStepClicks() {
+            document.querySelectorAll('.progress-step').forEach((el, index) => {
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', () => showStep(index + 1));
+            });
+        }
+
+        function addStep4SyncListeners() {
+            try {
+                // Listen to Step 2 Sales Order Number changes
+                const salesOrderEl = document.getElementById('salesOrderNumber');
+                if (salesOrderEl) {
+                    salesOrderEl.addEventListener('change', () => {
+                        syncToStep4(null);
+                        syncStep9Fields();
+                    });
+                }
+                
+                // Listen to Step 2 / Step 4 fields used by Step 9
+                const step9SourceIds = [
+                    'po-reference-number',
+                    'po-date',
+                    'dnNumber',
+                    'salesOrderNumber',
+                    'actualPackingClearanceRecdDate',
+                    'mcnNumber',
+                    'mcnShortfallClosureDate'
+                ];
+                step9SourceIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.addEventListener('change', syncStep9Fields);
+                    }
+                });
+                
+                const actualPackagingReceiptDateEl = document.getElementById('actualPackagingReceiptDate');
+                if (actualPackagingReceiptDateEl) {
+                    const step8El = document.getElementById('step8-actualPackagingReceiptDate');
+                    if (step8El) {
+                        step8El.value = actualPackagingReceiptDateEl.value || step8El.value || '';
+                    }
+                    actualPackagingReceiptDateEl.addEventListener('change', () => {
+                        const step8ElUpdate = document.getElementById('step8-actualPackagingReceiptDate');
+                        if (step8ElUpdate) {
+                            step8ElUpdate.value = actualPackagingReceiptDateEl.value || '';
+                        }
+                    });
+                }
+                
+                // Listen to Step 8 Assembly date changes
+                const ifatEl = document.getElementById('actualIfatStdCpDate');
+                const cfatEl = document.getElementById('actualCfatDate');
+                if (ifatEl) {
+                    ifatEl.addEventListener('change', () => syncToStep4(null));
+                }
+                if (cfatEl) {
+                    cfatEl.addEventListener('change', () => syncToStep4(null));
+                }
+            } catch (err) {
+                logError('addStep4SyncListeners', err);
+            }
+        }
+
+        function addStep9SyncListeners() {
+            try {
+                const step9SourceIds = [
+                    'po-reference-number',
+                    'po-date',
+                    'dnNumber',
+                    'salesOrderNumber',
+                    'actualPackingClearanceRecdDate',
+                    'mcnNumber',
+                    'mcnShortfallClosureDate'
+                ];
+                step9SourceIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.addEventListener('change', syncStep9Fields);
+                    }
+                });
+            } catch (err) {
+                logError('addStep9SyncListeners', err);
+            }
+        }
+
+        function addStep2ToStep3Listeners() {
+            try {
+                const fields = [
+                    'actualMachineLayoutApprovalDate',
+                    'actualRoomLayoutApprovalDate',
+                    'actualCpLayoutApprovalDate',
+                    'actualOptionalCpLayoutApprovalDate',
+                    'actualOaGenerationDate'
+                ];
+                fields.forEach(fieldId => {
+                    const el = document.getElementById(fieldId);
+                    if (el) {
+                        el.addEventListener('change', syncStep2ToStep3);
+                    }
+                });
+
+                // Also sync CP layout fields to Step 6
+                const cpFields = [
+                    'actualCpLayoutApprovalDate',
+                    'actualOptionalCpLayoutApprovalDate',
+                    'actualCpOaGenerationDate'
+                ];
+                cpFields.forEach(fieldId => {
+                    const el = document.getElementById(fieldId);
+                    if (el) {
+                        el.addEventListener('change', syncStep2ToStep6);
+                    }
+                });
+            } catch (err) {
+                logError('addStep2ToStep3Listeners', err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initPage);
+
+        // Machine Percentage calculation
+        document.getElementById('taskCompleted').addEventListener('input', function() {
+            const taskCompleted = parseFloat(this.value);
+            const stdTask = parseFloat(document.getElementById('stdTaskOfMachine').value);
+            let percent = '';
+            if (!isNaN(taskCompleted) && !isNaN(stdTask) && stdTask > 0) {
+                percent = ((taskCompleted / stdTask) * 100).toFixed(2) + '%';
+            }
+            document.getElementById('machinePercentage').value = percent;
+        });
+
+        // Project Percentage update
+        function updateProjectPercentage() {
+            const liveStatus = document.getElementById('liveStatus').value;
+            let projectPercent = 0;
+            const statusToPercent = {
+                'NEW CCN FOR APPROVAL': 0,
+                'DESIGN': 4,
+                'IN MUMBAI': 8,
+                'RECEIVED FROM MUMBAI': 10,
+                'PPC': 15,
+                'WIP- KANBAN': 20,
+                'WIP -BASIC': 25,
+                'WIP- OPTIONALS': 27,
+                'HOLD - AUTOMATION PENDING': 30,
+                'HOLD': 15,
+                'STD CP TRIALS': 35,
+                'IFAT IN PROGRESS': 40,
+                'IFAT DONE': 45,
+                'POST IFAT - POINT CLOSURE': 47,
+                'READY': 50,
+                'AWAITED PRODUCT': 52,
+                'AWAITED PACKAGING': 52,
+                'AWAITED CP': 55,
+                'CUSTOMER CP TRIALS': 60,
+                'AWAITED CFAT': 65,
+                'CFAT IN PROGRESS': 70,
+                'CFAT DONE': 75,
+                'RE-CFAT': 60,
+                'POST CFAT - POINT CLOSURE': 80,
+                'COMPLIANCE - SENT TO CUSTOMER': 85,
+                'AWAITING PACKING CLEARLANCE': 90,
+                'FOR DISPATCH': 95,
+                'AWAITING COMMERCIAL CLEARLANCE': 100,
+                'CLOSE TOTAL': 100,
+                'STOCK MC - READY': 50
+            };
+            projectPercent = statusToPercent[liveStatus] !== undefined ? statusToPercent[liveStatus] : 0;
+            document.getElementById('projectPercentage').value = projectPercent.toFixed(2) + '%';
+        }
+
+        document.getElementById('liveStatus').addEventListener('change', updateProjectPercentage);
+
+        // Sync Machine Percentage and Project Live Status to Steps 5, 6, 7
+        function syncRepeatedFields() {
+            const machinePercentage = document.getElementById('machinePercentage').value;
+            const liveStatus = document.getElementById('liveStatus').value;
+            const actualCpManufacturingDate = document.getElementById('actualMachineCpManufacturingDate').value;
+
+            // Sync to Step 5
+            const step5MachinePercent = document.getElementById('step5-machinePercentage');
+            const step5ProjectLiveStatus = document.getElementById('step5-projectLiveStatus');
+            if (step5MachinePercent) step5MachinePercent.value = machinePercentage;
+            if (step5ProjectLiveStatus) step5ProjectLiveStatus.value = liveStatus;
+
+            // Sync to Step 6
+            const step6MachinePercent = document.getElementById('step6-machinePercentage');
+            const step6ProjectLiveStatus = document.getElementById('step6-projectLiveStatus');
+            if (step6MachinePercent) step6MachinePercent.value = machinePercentage;
+            if (step6ProjectLiveStatus) step6ProjectLiveStatus.value = liveStatus;
+
+            // Sync to Step 7
+            const step7MachinePercent = document.getElementById('step7-machinePercentage');
+            const step7ProjectLiveStatus = document.getElementById('step7-projectLiveStatus');
+            if (step7MachinePercent) step7MachinePercent.value = machinePercentage;
+            if (step7ProjectLiveStatus) step7ProjectLiveStatus.value = liveStatus;
+
+            // Sync to Step 8
+            const step8ActualCpManufacturingDate = document.getElementById('step8-actualCpManufacturingDate');
+            if (step8ActualCpManufacturingDate) step8ActualCpManufacturingDate.value = actualCpManufacturingDate;
+        }
+
+        // Listen to Machine Percentage changes
+        document.getElementById('machinePercentage').addEventListener('input', syncRepeatedFields);
+
+        // Listen to Live Status changes and sync both fields
+        document.getElementById('liveStatus').addEventListener('change', function() {
+            updateProjectPercentage();
+            syncRepeatedFields();
+        });
+
+        // Listen to Actual CP Manufacturing Date changes
+        document.getElementById('actualMachineCpManufacturingDate').addEventListener('change', syncRepeatedFields);
+
+        // Load header
+        fetch('/fragments/header.html').then(r => r.text()).then(html => {
+            document.getElementById('header-include').innerHTML = html;
+        }).catch(err => logError('Loading header', err));
+    </script>
+</body>
+</html>

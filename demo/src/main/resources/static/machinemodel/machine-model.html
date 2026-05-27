@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="machine-model.css" />
+    <title>Machine Model Form</title>
+  </head>
+  <body>
+    <div id="header-include"></div>
+    <section class="container machine-model-form-container">
+      <header>Machine Model Form</header>
+      <form action="#" class="form" id="machineModelForm">
+        <div class="input-box">
+          <label>Machine Name</label>
+          <input type="text" id="machineNameInput" placeholder="Enter Machine Name" autocomplete="off" required />
+          <div class="dropdown-container" style="position:relative;">
+            <select id="machineNameDropdown" class="dropdown" style="display:none;"></select>
+            <button type="button" id="addMachineNameBtn" style="display:none;margin-top:2px;">Add New</button>
+          </div>
+        </div>
+        <div class="input-box">
+          <label>Machine Model</label>
+          <input type="text" id="machineModelInput" placeholder="Enter Machine Model" autocomplete="off" required />
+          <div id="machineModelSuggestions" class="suggestion-box"></div>
+        </div>
+        <div class="input-box">
+          <label>Total Process Task</label>
+          <input type="number" id="totalProcessTask" placeholder="Enter Total Process Task" required />
+        </div>
+        <div class="input-box">
+          <label>Assembly Standard Time</label>
+          <input type="number" id="assyStandardTime" placeholder="Enter Assembly Standard Time" required />
+        </div>
+        <div class="input-box">
+          <label>New SLA</label>
+          <input type="number" id="newSLA" placeholder="Enter New SLA" required />
+        </div>
+        <div class="input-box">
+          <label>Standard SLA</label>
+          <input type="number" step="0.01"     id="standardSLA" placeholder="Enter Standard SLA" required />
+        </div>
+        <div class="input-box">
+          <label>Non Issuance</label>
+          <input type="number" id="nonIssuance" placeholder="Enter Non Issuance" required />
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+    </section>
+    <div id="footer-include"></div>
+    <script type="module">
+      const machineNameInput = document.getElementById('machineNameInput');
+      const machineNameDropdown = document.getElementById('machineNameDropdown');
+      const addMachineNameBtn = document.getElementById('addMachineNameBtn');
+      const machineModelInput = document.getElementById('machineModelInput');
+      const machineModelSuggestions = document.getElementById('machineModelSuggestions');
+
+      async function fetchSuggestions(field, value) {
+        const res = await fetch(`/api/machine-model/suggestions?field=${field}&q=${encodeURIComponent(value)}`);
+        if (res.ok) return await res.json();
+        return [];
+      }
+
+      function setupDropdown(inputId, dropdownId, field) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        let allOptions = [];
+
+        input.addEventListener('focus', async function () {
+          if (allOptions.length === 0) {
+            allOptions = await fetchSuggestions(field, '');
+          }
+          updateDropdown(input.value.trim().toUpperCase());
+        });
+
+        input.addEventListener('input', function () {
+          updateDropdown(input.value.trim().toUpperCase());
+        });
+
+        dropdown.addEventListener('change', function () {
+          input.value = dropdown.value;
+          dropdown.style.display = 'none';
+        });
+
+        function updateDropdown(value) {
+          const matches = allOptions.filter(opt => opt.toUpperCase().includes(value));
+          dropdown.innerHTML = matches.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+          dropdown.style.display = matches.length > 0 ? 'block' : 'none';
+        }
+
+        document.getElementById('machineModelForm').addEventListener('submit', async function (e) {
+          e.preventDefault();
+
+          const machineName = machineNameInput.value.trim().toUpperCase();
+          const machineModel = machineModelInput.value.trim().toUpperCase();
+          const data = {
+            machineName: machineName,
+            machineModel: machineModel,
+            totalProcessTask: parseFloat(document.getElementById('totalProcessTask').value),
+            assyStandardTime: parseFloat(document.getElementById('assyStandardTime').value),
+            newSLA: parseFloat(document.getElementById('newSLA').value),
+            standardSLA: parseFloat(document.getElementById('standardSLA').value),
+            nonIssuance: parseFloat(document.getElementById('nonIssuance').value)
+          };
+
+          try {
+            const existingModels = await fetchSuggestions('machineModel', machineModel);
+            if (existingModels.some(model => model.toUpperCase() === machineModel)) {
+              alert('This model number already exists in the database.');
+              return;
+            }
+
+            const response = await fetch('/api/machine-model', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+              alert('Form submitted successfully!');
+              document.getElementById('machineModelForm').reset();
+            } else {
+              alert('Error submitting form.');
+            }
+          } catch (err) {
+            alert('Error submitting form.');
+          }
+        });
+      }
+
+      machineModelInput.addEventListener('input', async function() {
+        const val = machineModelInput.value.trim();
+        if (!val) {
+          machineModelSuggestions.style.display = 'none';
+          machineModelSuggestions.innerHTML = '';
+          return;
+        }
+        const suggestions = await fetchSuggestions('machineModel', val);
+        machineModelSuggestions.innerHTML = `<ul>${suggestions.map(s => `<li>${s}</li>`).join('')}</ul>`;
+        machineModelSuggestions.style.display = suggestions.length > 0 ? 'block' : 'none';
+      });
+
+   
+    
+
+      setupDropdown('machineNameInput', 'machineNameDropdown', 'machineName');
+    </script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+      body {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: #35474d;
+      }
+      .container {
+        position: relative;
+        max-width: 700px;
+        width: 100%;
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        margin-top: 80px; /* space for header */
+        margin-bottom: 80px; /* space for footer */
+      }
+      .container header {
+        font-size: 1.5rem;
+        color: #333;
+        font-weight: 500;
+        text-align: center;
+      }
+      .container .form {
+        margin-top: 30px;
+      }
+      .form .input-box {
+        width: 100%;
+        margin-top: 20px;
+      }
+      .input-box label {
+        color: #333;
+        display: inline-block;
+        margin-bottom: 8px;
+        margin-right: 18px;
+      }
+      .form :where(.input-box input, .select-box) {
+        position: relative;
+        height: 50px;
+        width: 100%;
+        outline: none;
+        font-size: 1rem;
+        color: #707070;
+        margin-top: 8px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 0 15px;
+      }
+      .input-box input:focus {
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+      }
+      .form button {
+        height: 55px;
+        width: 100%;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 400;
+        margin-top: 30px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #35474d;
+      }
+      .form button:hover {
+        background: #35474d;
+      }
+      .dropdown-container .dropdown {
+        border: 1.5px solid #35474d;
+      }
+      .dropdown-container .dropdown:focus {
+        border: 2px solid #35474d;
+      }
+      .dropdown-container .dropdown option:hover,
+      .dropdown-container .dropdown option:checked,
+      .dropdown-container .dropdown option:focus {
+        background: #35474d;
+        color: #fff;
+      }
+      @media screen and (max-width: 500px) {
+        .form .column {
+          flex-wrap: wrap;
+        }
+        .form :where(.gender-option, .gender) {
+          row-gap: 15px;
+        }
+      }
+      @media (max-width: 900px) {
+        .container {
+          max-width: 98vw;
+          padding: 10px;
+          margin-top: 60px;
+          margin-bottom: 60px;
+        }
+        .input-box label {
+          font-size: 0.95rem;
+        }
+        .form :where(.input-box input, .select-box) {
+          font-size: 0.95rem;
+          height: 44px;
+          padding: 0 10px;
+        }
+        .dropdown-container .dropdown {
+          font-size: 0.95rem;
+        }
+      }
+      @media (max-width: 600px) {
+        .container {
+          max-width: 100vw;
+          padding: 2vw;
+          margin-top: 52px;
+          margin-bottom: 52px;
+        }
+        .input-box label {
+          font-size: 0.90rem;
+        }
+        .form :where(.input-box input, .select-box) {
+          font-size: 0.90rem;
+          height: 38px;
+          padding: 0 8px;
+        }
+        .dropdown-container .dropdown {
+          font-size: 0.90rem;
+        }
+      }
+      .dropdown-container {
+        position: relative;
+        width: 100%;
+      }
+      .dropdown-container .dropdown {
+        position: absolute;
+        left: 0;
+        top: 100%;
+        width: 100%;
+        z-index: 20;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 0.5em;
+        display: none;
+      }
+      .suggestion-box {
+        margin-top: 2px;
+        background: #f8f8f8;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        max-width: 300px;
+        font-size: 0.95em;
+        color: #888;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        display: none;
+        position: absolute;
+        z-index: 10;
+      }
+      .suggestion-box ul {
+        list-style: none;
+        margin: 0;
+        padding: 0.5em;
+      }
+      .suggestion-box li {
+        padding: 2px 0;
+        color: #888;
+      }
+    </style>
+    <script>
+      fetch('/fragments/header.html').then(r=>r.text()).then(html=>{
+        document.getElementById('header-include').innerHTML = html;
+      });
+      fetch('/fragments/footer.html').then(r=>r.text()).then(html=>{
+        document.getElementById('footer-include').innerHTML = html;
+      });
+    </script>
+  </body>
+</html>

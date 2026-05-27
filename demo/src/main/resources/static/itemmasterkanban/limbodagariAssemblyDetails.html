@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limbodagari Assembly Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto 80px auto; /* Add bottom margin for gap above footer */
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+         .container, .form-container, main {
+            margin-bottom: 80px !important; /* Ensure gap above footer for all forms */
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <div style="height:60px;"></div> <!-- Gap below header for all screens -->
+    <div class="container">
+        <h1>Limbodagari Assembly Details</h1>
+        <h2>Inward Stock Data</h2>
+        <table id="inwardStockTable">
+            <thead>
+                <tr>
+                    <th>Reference ID</th>
+                    <th>Assembly Code</th>
+                    <th>Receipt Number</th>
+                    <th>Receipt Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be dynamically populated -->
+            </tbody>
+        </table>
+
+        <h2>Stock Release to CCN Data</h2>
+<table id="releaseToCCNTable">
+    <thead>
+        <tr>
+            <th>Reference ID</th>
+            <th>Assembly Code</th>
+            <th>CCN</th>
+            <th>Release Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Data will be dynamically populated -->
+    </tbody>
+</table>
+    </div>
+
+    <div id="footer"></div>
+    <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+    const assemblyCode = localStorage.getItem('selectedAssemblyCode');
+    if (!assemblyCode) {
+        alert('No assembly code selected.');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/getAssemblyCodeDetailsLimbodagari?assemblyCode=${assemblyCode}`);
+        const data = await response.json();
+
+        // Populate Inward Stock Data
+        const inwardStockTable = document.getElementById('inwardStockTable').querySelector('tbody');
+        data.inwardStock.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.referenceId}</td>
+                <td>${item.assemblyCode}</td>
+                <td>${item.inwardReceiptNumber}</td>
+                <td>${item.receiptDate}</td>
+            `;
+            inwardStockTable.appendChild(row);
+        });
+
+      
+        // Populate Stock Release to CCN Data
+        const releaseToCCNTable = document.getElementById('releaseToCCNTable').querySelector('tbody');
+        data.releaseToCCNStock.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.referenceId}</td>
+                <td>${item.assemblyCode}</td>
+                <td>${item.ccn}</td>
+                <td>${item.releaseDate}</td>
+            `;
+            releaseToCCNTable.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error fetching assembly code details:', error);
+    }
+});
+
+fetch('/fragments/footer.html')
+  .then(response => response.text())
+  .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merged Kit Form</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: #35474d;
+            font-size: 16px;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo img {
+            height: 40px;
+        }
+
+        .search-bar {
+            flex: 1;
+            margin: 0 20px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin-top: 80px; /* Increased space for fixed header */
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 600px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px; /* Space below the form */
+        }
+/* Main Content Styles */
+.container {
+  flex-grow: 1; /* Allow the container to grow and fill space */
+  display: flex;
+  justify-content: center; /* Center the container horizontally */
+  align-items: flex-start; /* Align items to the start vertically */
+  padding: 50px 20px 20px; /* Add padding to avoid overlap with header and space between header and container */
+  margin-bottom: 80px !important; /* Ensure gap above footer for all forms */
+}
+     
+        .submit-button {
+            background-color: #35474d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background-color: #2c3e50;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .search-bar input {
+                width: 70%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 11px;
+            }
+            .form-wrapper {
+                padding: 6px;
+                max-width: 100vw;
+                box-shadow: none;
+            }
+            .container {
+                padding: 6px 1px 6px 1px !important;
+                margin-bottom: 40px !important;
+            }
+            .form-control, select, input, textarea {
+                font-size: 11px !important;
+                padding: 4px 6px !important;
+                height: 26px !important;
+            }
+            .submit-button, #addCcnButton, #addInwardByButton {
+                font-size: 11px !important;
+                padding: 6px 8px !important;
+            }
+            h3, label {
+                font-size: 0.85rem !important;
+            }
+            .gender label {
+                font-size: 0.8rem !important;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .form-wrapper {
+                padding: 2px;
+            }
+            .container {
+                padding: 1px !important;
+            }
+            .form-control, select, input, textarea {
+                font-size: 9px !important;
+                padding: 2px 4px !important;
+                height: 20px !important;
+            }
+            h3, label {
+                font-size: 0.7rem !important;
+            }
+        }
+
+        #suggestionBox, #ccnSuggestionBox, #inwardBySuggestionBox {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+            width: 100%;
+            border-radius: 5px; /* Rounded corners for suggestion box */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow for suggestion box */
+        }
+
+        #suggestionBox div, #ccnSuggestionBox div, #inwardBySuggestionBox div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #suggestionBox div:hover, #ccnSuggestionBox div:hover, #inwardBySuggestionBox div:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Add button styles */
+        #addCcnButton, #addInwardByButton {
+            background-color: #35474d;/* Set background color */
+            color: white; /* Set text color */
+            border: none; /* Remove border */
+            border-radius: 5px; /* Rounded corners */
+ padding: 10px 15px; /* Padding */
+            cursor: pointer; /* Pointer cursor */
+            display: inline-block; /* Inline block display */
+            margin-left: 10px; /* Space between input and button */
+            transition: background 0.3s; /* Transition effect */
+        }
+
+        #addCcnButton:hover, #addInwardByButton:hover {
+            background-color:  #35474d;/* Darker shade on hover */
+        }
+
+        @media screen and (max-width: 1200px) {
+            .container {
+                max-width: 600px;
+            }
+        }
+
+        @media screen and (max-width: 800px) {
+            .container {
+                max-width: 500px;
+            }
+        }
+
+        @media screen and (max-width: 500px) {
+            .container {
+                padding: 15px;
+            }
+        }
+
+        .gender {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        .gender-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .gender input[type="radio"] {
+            margin-right: 5px;
+        }
+        .gender label {
+            margin-right: 0;
+            flex: unset;
+            text-align: left;
+            white-space: nowrap;
+            gap: 0;
+        }
+    </style>
+</head>
+<body>
+ 
+    <div id="header"></div> <!-- Header will be loaded here -->
+
+<div class="container mt-5">
+    <div class="form-wrapper">
+        <form id="kitForm">
+            <h3>Kit Form </h3>
+
+        <div class="form-group">
+            <label for="referenceId">Reference ID:</label>
+            <input type="text" id="referenceId" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+            <label for="dateTime">Date and Time:</label>
+            <input type="text" id="dateTime" class="form-control" readonly>
+        </div>
+            <div class="form-group position-relative">
+                <label for="blcPoInput">BLC_PO</label>
+                <input type="text" id="blcPoInput" class="form-control" autocomplete="off">
+                <div id="suggestionBox"></div>
+            </div>
+            <div class="form-group">
+                <label for="blcPoDate">BLC_PO Date:</label>
+                <input type="date" id="blcPoDate" class="form-control">
+            </div>
+        <div class="form-group">
+            <label for="assemblyCode">Assembly Code:</label>
+            <select id="assemblyCode" class="form-control" onchange="fetchAssemblyDetails()">
+                <option value="">Select Assembly Code</option>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="description">Description:</label>
+            <input type="text" id="description" class="form-control" readonly>
+
+        </div>
+        <div class="form-group">
+            <label for="stage">Stage:</label>
+            <input type="text" id="stage" class="form-control" readonly>
+        </div>
+        <div class="form-group">
+            <label for="machineName">Machine Name:</label>
+            <input type="text" id="machineName" class="form-control" readonly>
+        </div>
+
+        <div class="form-group position-relative">
+            <label for="ccnInput">CCN:</label>
+            <input type="text" id="ccnInput" class="form-control" autocomplete="off" oninput="checkCcn()">
+            <div id="ccnSuggestionBox" class="suggestions-list"></div>
+            <button type="button" id="addCcnButton" style="display:none;" onclick="addCcnOption()">Add CCN</button>
+        </div>
+
+        <div class="form-group position-relative">
+            <label for="inwardByInput">Inward By:</label>
+            <input type="text" id="inwardByInput" class="form-control" autocomplete="off" oninput="checkInwardBy()">
+            <div id="inwardBySuggestionBox" class="suggestions-list"></div>
+            <button type="button" id="addInwardByButton" style="display:none;" onclick="addInwardByOption()">Add Inward By</button>
+        </div>
+
+        <div class="gender-box">
+            <label>Inward Status:</label>
+            <div class="gender">
+                <div class="gender-option">
+                    <input type="radio" id="inProcess" name="status" value="IN PROCESS">
+                    <label for="inProcess">IN PROCESS</label>
+                </div>
+                <div class="gender-option">
+                    <input type="radio" id="shortfall" name="status" value="SHORTFALL">
+                    <label for="shortfall">SHORTFALL</label>
+                </div>
+                <div class="gender-option">
+                    <input type="radio" id="complete" name="status" value="COMPLETE">
+                    <label for="complete">COMPLETED</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="inwardQty">Inward Quantity:</label>
+            <input type="number" id="inwardQty" class="form-control">
+        </div>
+
+      
+
+        <div class="form-group">
+            <div class="button-container">
+                <button type="submit" class="submit-button">Submit Form</button>
+            </div>
+        </div>    </form>
+</div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+ fetch('/fragments/header.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('header').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading header:', error));
+
+       
+    
+// Function to format date and time
+function formatDateTime(date) {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}, ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+}
+
+    // Generate Reference ID
+    async function generateReferenceId() {
+        try {
+            const response = await fetch('/api/kitform/generateReferenceId');
+            const data = await response.json();
+            document.getElementById('referenceId').value = data.referenceId;
+        } catch (error) {
+            console.error('Error generating reference ID:', error);
+        }
+    }
+
+
+   // Fetch CCN options
+async function fetchCcnOptions() {
+    const response = await fetch('/api/dropdowns/ccn/option');
+    return await response.json();
+}
+
+// Fetch Inward By options
+async function fetchInwardByOptions() {
+    const response = await fetch('/api/dropdowns/inward-by/option');
+    return await response.json();
+}
+
+// Check CCN input and provide suggestions
+async function checkCcn() {
+    const input = document.getElementById('ccnInput').value.trim();
+    const suggestionBox = document.getElementById('ccnSuggestionBox');
+    const addButton = document.getElementById('addCcnButton');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchCcnOptions(); // Fetch options
+
+    if (input.length > 0) {
+        const filteredOptions = options.filter(option => option.toLowerCase().includes(input.toLowerCase()));
+        if (filteredOptions.length > 0) {
+            suggestionBox.style.display = 'block';
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option; // Show suggestion
+                div.onclick = () => {
+                    document.getElementById('ccnInput').value = option; // Set input value to selected option
+                    suggestionBox.style.display = 'none'; // Hide suggestions
+                    addButton.style.display = 'none'; // Hide add button
+                };
+                suggestionBox.appendChild(div);
+            });
+            addButton.style.display = 'none'; // Hide add button if suggestions exist
+        } else {
+            suggestionBox.style.display = 'none'; // Hide if no suggestions
+            addButton.style.display = 'block'; // Show add button if no options match
+        }
+    } else {
+        suggestionBox.style.display = 'none'; // Hide if input is empty
+        addButton.style.display = 'none'; // Hide add button
+    }
+}
+
+// Check Inward By input and provide suggestions
+async function checkInwardBy() {
+    const input = document.getElementById('inwardByInput').value.trim();
+    const suggestionBox = document.getElementById('inwardBySuggestionBox');
+    const addButton = document.getElementById('addInwardByButton');
+    suggestionBox.innerHTML = ''; // Clear previous suggestions
+    const options = await fetchInwardByOptions(); // Fetch options
+
+    if (input.length > 0) {
+        const filteredOptions = options.filter(option => option.toLowerCase().includes(input.toLowerCase()));
+        if (filteredOptions.length > 0) {
+            suggestionBox.style.display = 'block';
+            filteredOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.textContent = option; // Show suggestion
+                div.onclick = () => {
+                    document.getElementById('inwardByInput').value = option; // Set input value to selected option
+                    suggestionBox.style.display = 'none'; // Hide suggestions
+                    addButton.style.display = 'none'; // Hide add button
+                };
+                suggestionBox.appendChild(div);
+            });
+            addButton.style.display = 'none'; // Hide add button if suggestions exist
+        } else {
+            suggestionBox.style.display = 'none'; // Hide if no suggestions
+            addButton.style.display = 'block'; // Show add button if no options match
+        }
+    } else {
+        suggestionBox.style.display = 'none'; // Hide if input is empty
+        addButton.style.display = 'none'; // Hide add button
+    }
+}
+
+// Add new CCN option
+async function addCcnOption() {
+    const newOption = document.getElementById('ccnInput').value.trim().toUpperCase(); // Convert to uppercase
+    if (newOption) {
+        const existingOptions = await fetchCcnOptions();
+        if (!existingOptions.map(option => option.toUpperCase()).includes(newOption)) {
+            await fetch('/api/dropdowns/ccn/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newOption }),
+            });
+            alert('CCN added successfully');
+            document.getElementById('ccnSuggestionBox').innerHTML = ''; // Clear suggestions
+            document.getElementById('addCcnButton').style.display = 'none'; // Hide add button
+        } else {
+            alert('This CCN already exists.');
+        }
+    }
+}
+
+// Add new Inward By option
+async function addInwardByOption() {
+    const newOption = document.getElementById('inwardByInput').value.trim().toUpperCase(); // Convert to uppercase
+    if (newOption) {
+        const existingOptions = await fetchInwardByOptions();
+        if (!existingOptions.map(option => option.toUpperCase()).includes(newOption)) {
+            await fetch('/api/dropdowns/inward-by/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newOption }),
+            });
+            alert('Inward By added successfully');
+            document.getElementById('inwardBySuggestionBox').innerHTML = ''; // Clear suggestions
+            document.getElementById('addInwardByButton').style.display = 'none'; // Hide add button
+        } else {
+            alert('This Inward By already exists.');
+        }
+    }
+}
+
+// Fetch options when the page loads
+window.onload = async function() {
+    await generateReferenceId();
+    await fetchCcnOptions();
+    await fetchInwardByOptions();
+    await populateAssemblyCodeDropdown(); // Ensure this function is called
+
+    // Get current date and time
+    const now = new Date();
+    document.getElementById('dateTime').value = formatDateTime(now);
+};
+
+    // Populate Assembly Code dropdown
+    async function populateAssemblyCodeDropdown() {
+        const response = await fetch("/kit-inward/assembly-codes");
+        const assemblyCodes = await response.json();
+        const dropdown = document.getElementById("assemblyCode");
+        assemblyCodes.forEach(code => {
+            const option = document.createElement("option");
+            option.value = code;
+            option.textContent = code;
+            dropdown.appendChild(option);
+        });
+    }
+
+   // Fetch and autofill Assembly Code details
+   async function fetchAssemblyDetails() {
+    const assemblyCode = document.getElementById("assemblyCode").value;
+    console.log("Selected Assembly Code:", assemblyCode); // Debugging line
+    if (assemblyCode) {
+        try {
+            const response = await fetch(`/api/kitform/fetch-details?assemblyCode=${assemblyCode}`);
+            console.log("Response Status:", response.status); // Debugging line
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Fetched Data:", data); // Debugging line
+                document.getElementById("stage").value = data.stage || "";
+                document.getElementById("machineName").value = data.machineName || "";
+                document.getElementById("description").value = data.description || ""; // Autofill description
+            } else {
+                console.log("No data found for the selected assembly code."); // Debugging line
+                document.getElementById ("stage").value = '';
+                document.getElementById("machineName").value = '';
+                document.getElementById("description").value = '';
+                alert('No details found for the selected assembly code.');
+            }
+        } catch (error) {
+            console.error('Error fetching assembly details:', error);
+        }
+    } else {
+        // Clear fields if no assembly code is selected
+        document.getElementById("stage").value = '';
+        document.getElementById("machineName").value = '';
+        document.getElementById("description").value = '';
+    }
+}
+$(document).ready(function () {
+    const suggestionBox = $("#suggestionBox");
+    const blcPoInput = $("#blcPoInput");
+    blcPoInput.on("input", function () {
+        document.getElementById('blcPoInput').addEventListener('input', function () {
+        this.value = this.value.toUpperCase();
+    });
+        const query = $(this).val().trim();
+        if (query.length > 0) {
+            $.ajax({
+                url: `/api/kitform/blcpo/suggestions`, // Ensure this URL is correct
+                type: "GET",
+                data: { query },
+                success: function (data) {
+                    if (data.length > 0) {
+                        let suggestions = data.map(item => `<div>${item}</div>`).join("");
+                        suggestionBox.html(suggestions).show();
+                    } else {
+                        suggestionBox.hide();
+                    }
+                },
+                error: function (err) {
+                    console.error("Error fetching suggestions: ", err);
+                }
+                
+            });
+        } else {
+            suggestionBox.hide();
+        }
+    });
+
+    $("#kitForm").on("submit", function (e) {
+    e.preventDefault(); // Prevent default form submission
+
+    const formData = {
+        referenceId: $("#referenceId").val(),
+        dateTime: $("#dateTime").val(),
+        blcPo: $("#blcPoInput").val(),
+        blcPoDate: $("#blcPoDate").val(),
+        ccn: $("#ccnInput").val(),
+        assemblyCode: $("#assemblyCode").val(),
+        stage: $("#stage").val(),
+        machineName: $("#machineName").val(),
+        status: $("input[name='status']:checked").val(), // Get the selected status
+        inwardBy: $("#inwardByInput").val(),
+        inwardQty: $("#inwardQty").val(),
+        description: $("#description").val(),
+    };
+
+
+    // Validation: Check for empty mandatory fields
+    const mandatoryFields = [
+        formData.blcPo,
+        formData.blcPoDate,
+        formData.ccn,
+        formData.assemblyCode,
+        formData.status,
+        formData.inwardQty,
+        formData.description
+    ];
+
+    const isValid = mandatoryFields.every(field => field.trim() !== "");
+
+    if (!isValid) {
+        alert("Please fill in all mandatory fields.");
+        return; // Stop form submission
+    }
+
+    $.ajax({
+        url: "/api/kitform/save",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(formData),
+        success: function () {
+            alert("Form submitted successfully!");
+            $("#kitForm")[0].reset();
+            generateReferenceId(); // Regenerate Reference ID
+        },
+        error: function (xhr) {
+            alert("Error submitting form: " + xhr.responseText);
+        }
+    });
+});
+        // Initialize form
+       
+// Set current date and time on page load
+window.onload = () => {
+    generateReferenceId();
+    fetchCcnOptions();
+    fetchInwardByOptions();
+    populateAssemblyCodeDropdown();
+
+    // Get current date and time
+    const now = new Date();
+    document.getElementById('dateTime').value = formatDateTime(now);
+};
+    });
+</script>
+    <div id="footer"></div>
+    <script>
+    fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!---Coding By CodingLab | www.codinglabweb.com--->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!--<title>Registration Form in HTML CSS</title>-->
+    <!---Custom CSS File--->
+    <link rel="stylesheet" href="updatekit.css" />
+    <style>
+      .container {
+        margin-bottom: 80px !important; /* Ensure gap above footer for all forms */
+      }
+    </style>
+  </head>
+  <body>
+    <section class="container">
+      <header>Update Sub-Assembly Kit</header>
+    
+      <form action="#" class="form">
+
+        <div class="input-box">
+          <label>Time Stamp</label>
+          <input type="Date" placeholder="" required />
+       
+        </div>
+     
+
+        <div class="input-box">
+          <label>BLC PO</label>
+          <input type="text" placeholder="Enter Blc PO" required />
+        </div>
+       
+    
+
+        <div class="input-box">
+            <label> Refrence</label>
+            <input type="text" placeholder="Enter Refrence" required />
+          </div>
+        
+        
+          <div class="input-box">
+            <label> BLC PO Date</label>
+            <input type="date" placeholder="Enter BLC PO Date" required />
+          </div>
+        </div>
+        
+          <div class="input-box">
+            <label>CCN</label>
+            <input type="text" placeholder="Enter CCN" required />
+          </div>
+
+          
+          <div class="input-box">
+            <label>Enter Machine Name</label>
+            <input type="text" placeholder="Enter Machine Name" required />
+            <select id="machineNameDropdown" class="dropdown"></select>
+          </div>
+
+          <div class="input-box">
+            <label>Assembly Code</label>
+            <input type="text" placeholder="Enter Assembly Code" required />
+          </div>
+
+          <div class="gender-box">
+            <h3>Stage</h3>
+            <div class="gender-option">
+              <div class="gender">
+                <input type="radio" id="check-stage-I" name="order type" checked />
+                <label for="check-stage-I">Stage-I</label>
+              </div>
+              <div class="gender">
+                <input type="radio" id="check-stage-II" name="order type" checked />
+                <label for="check-stage-I">Stage-I</label>
+              </div>
+              <div class="gender">
+                <input type="radio" id="check-stage-III" name="order type" checked />
+                <label for="check-stage-I">Stage-I</label>
+              </div>
+            </div>
+          </div>
+
+        
+          <div class="input-box">
+            <label>Inward QTY</label>
+            <input type="text" placeholder="Enter Inward QTY" required />
+        
+          </div>
+          
+          <div class="input-box">
+            <label>Inward By</label>
+            <input type="text" placeholder="Enter Person Name" required />
+        
+          </div>
+          <div class="gender-box">
+            <h3> Inward Status</h3>
+            <div class="gender-option">
+              <div class="gender">
+                <input type="radio" id="In-Process" name="order type" checked />
+                <label for="check-In-Process">In-Process</label>
+              </div>
+              <div class="gender">
+                <input type="radio" id="ShortFall" name="order type" checked />
+                <label for="check-ShortFall">ShortFall</label>
+              </div>
+              <div class="gender">
+                <input type="radio" id="Completed" name="order type" checked />
+                <label for="check-Completed">Completed</label>
+              </div>
+            </div>
+          </div>
+
+
+<div class="input-box">
+    <label for="project_kickoff_details">Discription:</label>
+    <textarea id="Discription" name="Discription"></textarea><br>
+        
+          </div>
+
+        
+        
+       
+          <button type="button" class="btn save" onclick="saveForm()">Save</button>
+          <button type="button" class="btn discard" onclick="discardForm()">Discard</button>
+      </form>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Status Overview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* General Reset and Base Styles */
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background:  #35474d;
+        }
+        .container {
+            margin-left: 260px;
+            padding: 30px 20px 20px 20px;
+            transition: margin 0.3s;
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 200px;
+            height: 100vh;
+            background: #232946;
+            color: #fff;
+            padding: 30px 20px 30px 20px;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            z-index: 100;
+            transition: left 0.3s, width 0.3s;
+            overflow: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #eebbc3 #232946;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #eebbc3;
+            border-radius: 4px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #232946;
+        }
+        .sidebar h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+        .sidebar .card {
+            margin-bottom: 28px;
+        }
+        .sidebar .card:first-child {
+            margin-top: 32px;
+        }
+        .sidebar button {
+            width: 100%;
+            padding: 8px 0;
+            background: #eebbc3;
+            color: #232946;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .sidebar button:hover {
+            background: #f6c7be;
+        }
+        /* Responsive Navbar for Small Screens */
+        .navbar-toggle {
+            display: none;
+            position: fixed;
+            left: 10px;
+            top: 15px;
+            z-index: 200;
+            background: #232946;
+            color: #fff;
+            border: none;
+            font-size: 1.7rem;
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+        #header {
+            margin-bottom: 16px;
+        }
+        .navbar-toggle {
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+        @media (max-width: 900px) {
+            .container {
+                margin-left: 0;
+                padding: 10px;
+            }
+            .sidebar {
+                left: -260px;
+                width: 220px;
+                height: 100vh;
+                padding: 20px 10px;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.08);
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .navbar-toggle {
+                display: block;
+                margin-top: 25px;
+                margin-bottom: 25px;
+                font-size: 1.2rem;
+                padding: 2px 6px;
+                height: 32px;
+                width: 38px;
+            }
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 5px;
+            }
+            .sidebar {
+                width: 120px;
+                padding: 10px 4px;
+            }
+            .navbar-toggle {
+                margin-top: 35px;
+                margin-bottom: 35px;
+                font-size: 1rem;
+                padding: 1px 4px;
+                height: 28px;
+                width: 32px;
+            }
+            .sidebar h3 {
+                font-size: 1rem;
+                margin-bottom: 30px;
+            }
+            .sidebar .card:first-child {
+                margin-top: 48px;
+            }
+        }
+        /* Table Styles */
+        .table-wrapper {
+            overflow: auto;
+            max-height: 500px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background: #fff;
+            margin-top: 30px;
+        }
+        table.clean-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+            min-width: 900px;
+            background: #fff;
+        }
+        table.clean-table th, table.clean-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 15px;
+            background: #fff;
+        }
+        table.clean-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        table.clean-table tr:nth-child(even) td {
+            background: #fafafa;
+        }
+        table.clean-table tr:hover td {
+            background: #eebbc3;
+            color: #232946;
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div>
+    <button class="navbar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <div class="sidebar" id="sidebar">
+        <h3>Live Status</h3>
+        <div class="card">
+            <button onclick="renderTableByStatus('inhand')">IN HAND <span id="count-inhand"></span></button>
+        </div>
+        <div class="card">
+            <button onclick="renderTableByStatus('wip')">WIP <span id="count-wip"></span></button>
+        </div>
+        <div class="card">
+            <button onclick="renderTableByStatus('self_inspection')">SELF INSPECTION <span id="count-self_inspection"></span></button>
+        </div>
+        <div class="card">
+            <button onclick="renderTableByStatus('hold_wrongPart')">HOLD-WRONG PART <span id="count-hold_wrongPart"></span></button>
+        </div>
+        <div class="card">
+            <button onclick="renderTableByStatus('hold_shortfall')">HOLD-SHORTFALL <span id="count-hold_shortfall"></span></button>
+        </div>
+        <div class="card">
+            <button onclick="renderTableByStatus('hold_qualityIssue')">HOLD-QUALITY ISSUE <span id="count-hold_qualityIssue"></span></button>
+        </div>
+        <div class="card">
+            <button onclick="renderTableByStatus('hold-closure')">CLOSE <span id="count-hold-closure"></span></button>
+        </div>
+        <div class="card">
+            <button onclick="renderTableByStatus('readyForDispatch')">READY FOR DISPATCH <span id="count-readyForDispatch"></span></button>
+        </div>
+    </div>
+    <div class="container">
+        <h2 id="currentStatus">Work In Progress Status</h2>
+        <div class="table-wrapper">
+            <table class="clean-table">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>BLC PO</th>
+                        <th>BLC PO Date</th>
+                        <th>Machine Name</th>
+                        <th>Assembly Code</th>
+                        <th>Description</th>
+                        <th>Kit Acknowledge By</th>
+                        <th>Kit Acknowledge Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableContainer">
+                    <!-- Table rows will be dynamically populated here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="footer"></div>
+    <script>
+    // Load header and footer
+    fetch('/fragments/header.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('header').innerHTML = data;
+        })
+        .catch(error => console.error('Error loading header:', error));
+
+    let currentData = [];
+    const statuses = ['inhand', 'wip', 'self_inspection', 'hold_wrongPart','hold_shortfall','hold_qualityIssue', 'hold-closure', 'readyForDispatch'];
+
+    // Fetch all data for live status
+    function fetchLiveData() {
+        fetch('/api/form/all') // Fetch all records
+            .then(response => response.json())
+            .then(data => {
+                currentData = data;
+                renderTableByStatus('wip'); // Display "Work In Progress" by default
+                updateStatusCounts(); // Update counts after fetching data
+            });
+    }
+
+    // Render table for a specific status
+    function renderTableByStatus(status) {
+        const tableContainer = document.getElementById('tableContainer');
+        const tableHeader = document.getElementById('currentStatus');
+        tableContainer.innerHTML = '';
+        tableHeader.innerText = `${status.charAt(0).toUpperCase() + status.slice(1)} Status`;
+        const filteredData = currentData.filter(record => record.liveStatus === status);
+        if (filteredData.length === 0) {
+            tableContainer.innerHTML = `<tr><td colspan='9' style='text-align:center;'>No records found for ${status.charAt(0).toUpperCase() + status.slice(1)}.</td></tr>`;
+            return;
+        }
+        filteredData.forEach(record => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${record.reference}</td>
+                <td>${record.blcPo || ''}</td>
+                <td>${record.blcPoDate || ''}</td>
+                <td>${record.machineName || ''}</td>
+                <td>${record.assemblyCode || ''}</td>
+                <td>${record.description || ''}</td>
+                <td>${record.kitAcknowledgeBy || ''}</td>
+                <td>${record.kitAcknowledgeDate || ''}</td>
+                <td><button onclick="openUpdateModal(${record.id})">Update</button></td>
+            `;
+            tableContainer.appendChild(row);
+        });
+    }
+
+    function updateStatusCounts() {
+        const counts = {};
+        statuses.forEach(status => {
+            counts[status] = currentData.filter(record => record.liveStatus === status).length;
+        });
+        for (const status of statuses) {
+            const countElement = document.getElementById(`count-${status}`);
+            if (countElement) {
+                countElement.innerText = `(${counts[status]})`;
+            }
+        }
+    }
+
+    function openUpdateModal(id) {
+        const record = currentData.find(item => item.id === id);
+        const queryParams = new URLSearchParams({
+            id: record.id,
+            referenceId: record.reference,
+            currentDateTime: record.currentDateTime,
+            dateTime: record.kitFormDate,
+            blcPo: record.blcPo,
+            blcPoDate: record.blcPoDate,
+            ccn: record.ccn,
+            assemblyCode: record.assemblyCode,
+            machineName: record.machineName,
+            stage: record.stage,
+            inwardBy: record.inwardBy,
+            inwardQty: record.inwardQty,
+            description: record.description,
+            kitRecordDate: record.kitRecordDate,
+            kitAcknowledgeBy: record.kitAcknowledgeBy,
+            kitAcknowledgeDate: record.kitAcknowledgeDate,
+            assyStartDate: record.assyStartDate,
+            bhomikaEngineer: record.bhomikaEngineer,
+            liveStatus: record.liveStatus,
+            assyEndDate: record.assyEndDate,
+            blcStatus: record.blcStatus,
+            invoiceNumber: record.invoiceNumber,
+            invoiceDate: record.invoiceDate,
+            holdRemarks: record.holdRemarks,
+            holdDate: record.holdDate,
+            closeDate: record.closeDate,
+            closeRemarks: record.closeRemarks
+        }).toString();
+        window.location.href = `updateliveform.html?${queryParams}`;
+    }
+
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('open');
+    }
+
+    // Initial fetch for live status data
+    fetchLiveData();
+
+    fetch('/fragments/footer.html')
+      .then(response => response.text())
+      .then(data => { document.getElementById('footer').innerHTML = data; });
+    </script>
+</body>
+</html>

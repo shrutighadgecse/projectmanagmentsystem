@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly WIP Corner Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .wip-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .wip-header {
+            background: linear-gradient(135deg, #00AEEF 0%, #0096d6 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-bottom: 4px solid #0097d9;
+        }
+
+        .wip-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .wip-header p {
+            font-size: 14px;
+            margin-top: 8px;
+            opacity: 0.95;
+        }
+
+        .wip-content {
+            padding: 25px;
+        }
+
+        .wip-filters {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-group label {
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f9f9f9;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #00AEEF;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(0, 174, 239, 0.1);
+        }
+
+        .filter-group button {
+            padding: 8px 16px;
+            background-color: #00AEEF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+
+        .filter-group button:hover {
+            background-color: #0097d9;
+        }
+
+        .filter-group button:active {
+            transform: scale(0.98);
+        }
+
+        /* Table Styling */
+        .wip-table-wrapper {
+            overflow-x: auto;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .wip-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .wip-table thead {
+            background-color: #00AEEF;
+            color: white;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .wip-table thead th {
+            padding: 16px 12px;
+            border: 1px solid #0097d9;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            vertical-align: middle;
+            text-transform: uppercase;
+        }
+
+        .wip-table thead th:first-child {
+            text-align: left;
+        }
+
+        .wip-table tbody tr {
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.2s ease;
+        }
+
+        /* Zebra Striping */
+        .wip-table tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        .wip-table tbody tr:nth-child(even) {
+            background-color: white;
+        }
+
+        .wip-table tbody tr:hover {
+            background-color: #f0f7ff;
+        }
+
+        .wip-table tbody td {
+            padding: 14px 12px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .wip-table tbody td:first-child {
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Grand Total Row */
+        .wip-table tbody tr.grand-total {
+            background-color: #C0C0C0;
+            font-weight: bold;
+            color: #333;
+            border-top: 3px solid #999;
+            border-bottom: 3px solid #999;
+        }
+
+        .wip-table tbody tr.grand-total td {
+            padding: 16px 12px;
+            border: 1px solid #999;
+        }
+
+        .wip-table tbody tr.grand-total:hover {
+            background-color: #b8b8b8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .wip-container {
+                margin: 0 -20px;
+                border-radius: 0;
+            }
+
+            .wip-header {
+                padding: 15px;
+            }
+
+            .wip-header h1 {
+                font-size: 20px;
+            }
+
+            .wip-content {
+                padding: 15px;
+            }
+
+            .wip-filters {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .filter-group {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .filter-group input,
+            .filter-group select,
+            .filter-group button {
+                width: 100%;
+            }
+
+            .wip-table thead th {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+
+            .wip-table tbody td {
+                padding: 10px 8px;
+                font-size: 12px;
+            }
+
+            .wip-table tbody tr.grand-total td {
+                padding: 12px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wip-header h1 {
+                font-size: 18px;
+            }
+
+            .wip-header p {
+                font-size: 12px;
+            }
+
+            .wip-table {
+                font-size: 11px;
+            }
+
+            .wip-table thead th {
+                padding: 8px 6px;
+                font-size: 10px;
+            }
+
+            .wip-table tbody td {
+                padding: 8px 6px;
+                font-size: 11px;
+            }
+        }
+
+        /* Loading and Empty States */
+        .wip-loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .wip-loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #00AEEF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .wip-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 16px;
+        }
+
+        .wip-error {
+            padding: 20px;
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c62828;
+        }
+
+        /* Numeric columns styling */
+        .numeric {
+            font-weight: 600;
+            color: #00AEEF;
+            font-family: 'Courier New', monospace;
+        }
+
+        .numeric.negative {
+            color: #d32f2f;
+        }
+
+        .numeric.positive {
+            color: #388e3c;
+        }
+
+        /* Info footer */
+        .wip-info-footer {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: #f0f7ff;
+            border-left: 4px solid #00AEEF;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .wip-info-footer strong {
+            color: #00AEEF;
+        }
+    </style>
+</head>
+<body>
+    <div class="wip-container">
+        <!-- Header Section -->
+        <div class="wip-header">
+            <h1>Assembly WIP Corner</h1>
+            <p>Work-In-Progress Dashboard - Machine-wise Analysis</p>
+        </div>
+
+        <!-- Content Section -->
+        <div class="wip-content">
+            <!-- Filter Section -->
+            <div class="wip-filters">
+                <div class="filter-group">
+                    <label for="filterYear">Filter by Year:</label>
+                    <input 
+                        type="number" 
+                        id="filterYear" 
+                        placeholder="Enter Year" 
+                        th:value="${#calendars.year(#calendars.createNow())}"
+                        min="2020"
+                        max="2099"
+                    />
+                </div>
+                <div class="filter-group">
+                    <button onclick="loadWipData()" title="Reload data for selected year">Refresh Data</button>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingContainer" class="wip-loading" style="display: none;">
+                <p>Loading WIP data...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyContainer" class="wip-empty" style="display: none;">
+                <p>📊 No data available for the selected filter.</p>
+                <small>Try adjusting the year filter or contact support.</small>
+            </div>
+
+            <!-- Error Message (if any) -->
+            <div id="errorContainer" class="wip-error" style="display: none;"></div>
+
+            <!-- Table Section -->
+            <div class="wip-table-wrapper" id="tableWrapper" style="display: none;">
+                <table class="wip-table">
+                    <thead>
+                        <tr>
+                            <th>Machine</th>
+                            <th>C/F</th>
+                            <th>Machine in Build</th>
+                            <th>Dispatch</th>
+                            <th>Balance WIP<br>(As of Today)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wipTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Info Footer -->
+            <div class="wip-info-footer">
+                <strong>Legend:</strong> 
+                C/F = Carry Forward (Assy Start Date &lt; Filter Year) | 
+                Machine in Build = Assy Start Date ≥ Filter Year | 
+                Dispatch = Invoice Date ≥ Filter Year | 
+                Balance WIP = C/F + Machine in Build - Dispatch
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load WIP data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWipData();
+        });
+
+        function loadWipData() {
+            const filterYear = document.getElementById('filterYear').value || new Date().getFullYear();
+            const loadingContainer = document.getElementById('loadingContainer');
+            const tableWrapper = document.getElementById('tableWrapper');
+            const emptyContainer = document.getElementById('emptyContainer');
+            const errorContainer = document.getElementById('errorContainer');
+
+            // Show loading state
+            loadingContainer.style.display = 'block';
+            tableWrapper.style.display = 'none';
+            emptyContainer.style.display = 'none';
+            errorContainer.style.display = 'none';
+
+            // Fetch data from API
+            fetch(`/api/machineccnproject/wip-dashboard?filterYear=${encodeURIComponent(filterYear)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    loadingContainer.style.display = 'none';
+
+                    if (data.success && data.machines && data.machines.length > 0) {
+                        populateTable(data.machines);
+                        tableWrapper.style.display = 'block';
+                    } else {
+                        emptyContainer.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    loadingContainer.style.display = 'none';
+                    errorContainer.style.display = 'block';
+                    errorContainer.innerHTML = `<strong>⚠ Error:</strong> ${escapeHtml(error.message)}. Please try again.`;
+                    console.error('Error loading WIP data:', error);
+                });
+        }
+
+        function normalizeMachineName(name) {
+            if (name == null) return '';
+            return String(name).trim().toUpperCase();
+        }
+
+        function populateTable(machines) {
+            const tbody = document.getElementById('wipTableBody');
+            tbody.innerHTML = '';
+
+            let totalCarryForward = 0;
+            let totalMachineInBuild = 0;
+            let totalDispatch = 0;
+            let totalBalanceWip = 0;
+
+            const merged = {};
+            machines.forEach(machine => {
+                const normalizedMachine = normalizeMachineName(machine.machine) || 'N/A';
+                if (!merged[normalizedMachine]) {
+                    merged[normalizedMachine] = {
+                        machine: normalizedMachine,
+                        carryForward: 0,
+                        machineInBuild: 0,
+                        dispatch: 0,
+                        balanceWip: 0
+                    };
+                }
+                const cf = machine.carryForward || 0;
+                const mib = machine.machineInBuild || 0;
+                const dispatch = machine.dispatch || 0;
+                const balanceWip = machine.balanceWip != null
+                    ? machine.balanceWip
+                    : (cf + mib - dispatch);
+
+                merged[normalizedMachine].carryForward += cf;
+                merged[normalizedMachine].machineInBuild += mib;
+                merged[normalizedMachine].dispatch += dispatch;
+                merged[normalizedMachine].balanceWip += balanceWip;
+            });
+
+            Object.values(merged).sort((a, b) => a.machine.localeCompare(b.machine)).forEach(machine => {
+                const row = document.createElement('tr');
+                const cf = machine.carryForward;
+                const mib = machine.machineInBuild;
+                const dispatch = machine.dispatch;
+                const balanceWip = machine.balanceWip;
+
+                row.innerHTML = `
+                    <td>${escapeHtml(machine.machine)}</td>
+                    <td class="numeric">${cf}</td>
+                    <td class="numeric">${mib}</td>
+                    <td class="numeric">${dispatch}</td>
+                    <td class="numeric ${balanceWip > 0 ? 'positive' : balanceWip < 0 ? 'negative' : ''}">${balanceWip}</td>
+                `;
+                tbody.appendChild(row);
+
+                // Calculate totals
+                totalCarryForward += cf;
+                totalMachineInBuild += mib;
+                totalDispatch += dispatch;
+                totalBalanceWip += balanceWip;
+            });
+
+            // Add Grand Total row
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'grand-total';
+            totalRow.innerHTML = `
+                <td>Grand Total</td>
+                <td>${totalCarryForward}</td>
+                <td>${totalMachineInBuild}</td>
+                <td>${totalDispatch}</td>
+                <td>${totalBalanceWip}</td>
+            `;
+            tbody.appendChild(totalRow);
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Allow Enter key to trigger search
+        document.getElementById('filterYear').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                loadWipData();
+            }
+        });
+    </script>
+</body>
+</html>

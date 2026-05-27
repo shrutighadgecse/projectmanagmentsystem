@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>IMAPG Dashboard</title>
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Cache-Control" content="post-check=0, pre-check=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="/home/homee.css">
+    <link href='https://unpkg.com/boxicons@latest/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/js/chart.js"></script>
+   <style>
+        /* DASHBOARD LAYOUT GRID */
+.dashboard-grid-container {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 2fr 1.2fr; 
+    grid-template-rows: auto auto;
+    gap: 12px;
+    padding: 10px;
+    background: #f4f7f9;
+}
+
+.commercial-corner { 
+    grid-column: 4 / 5; 
+    grid-row: 1 / 2; 
+}
+
+.manpower-box { 
+    grid-column: 4 / 5; 
+    grid-row: 2 / 3; 
+    display: flex;
+    align-items: stretch;
+}
+
+.manpower-card {
+    width: 100%;
+    min-width: 160px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-left: 0; 
+}
+
+.mfn-chart-box { 
+    grid-column: 2 / 3; 
+    grid-row: 2 / 3; 
+}
+
+.dsp-chart-box { 
+    grid-column: 3 / 4; 
+    grid-row: 2 / 3; 
+}
+
+canvas {
+    width: 100% !important;
+    height: auto !important;
+}
+        .grid-item {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blue-header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+        th { background: #e9ecef; }
+        .grand-total { font-weight: bold; background: #f8f9fa; }
+
+        .sync-height {
+            height: 160px; 
+        }
+.grid-item.chart-item {
+    width: 100%;
+}
+
+canvas {
+    width: 100% !important;
+    height: 140px !important;
+}
+        .chart-container {
+            padding: 10px;
+            flex-grow: 1;
+            position: relative;
+        }
+        .chart-title-label {
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            padding: 5px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+
+.manpower-card {
+    width: 100%;
+    max-width: 220px;
+    margin-left: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    height: 140px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+        .manpower-card h3 { font-size: 11px; font-weight: 700; margin: 0; }
+        .manpower-stats {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-grow: 1;
+        }
+        .manpower-stats .count { font-size: 22px; font-weight: 900; }
+        .progress-bar-vertical {
+            width: 15px; height: 70px; background: #e0e0e0;
+            border: 1px solid #000; position: relative; overflow: hidden;
+        }
+        .progress-fill { background: red; width: 100%; position: absolute; bottom: 0; }
+
+        .wip-corner { grid-column: 1 / 2; grid-row: 1 / 3; }
+        .main-chart-area { grid-column: 2 / 4; grid-row: 1 / 2; min-height: 250px; }
+        .commercial-corner { grid-column: 4 / 5; grid-row: 1 / 2; }
+        
+        .mfn-chart-box { grid-column: 2 / 3; grid-row: 2 / 3; }
+        .dsp-chart-box { grid-column: 3 / 4; grid-row: 2 / 3; }
+        .manpower-box { grid-column: 4 / 5; grid-row: 2 / 3; }
+
+        /* ── Balance WIP link style ── */
+        .wip-link {
+            color: #0d6efd;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .wip-link:hover {
+            text-decoration: underline;
+            color: #0a58ca;
+        }
+        /* Balance WIP cell — slight amber tint to stand out */
+        .balance-wip-cell {
+            background-color: #fffbea;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar-modern">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <img src="/images/IMA.JPG" alt="Logo" class="brand-logo">
+            </div>
+
+            <div class="menu-toggle" id="menuToggle">
+                <i class='bx bx-menu'></i>
+            </div>
+
+            <div class="navbar-links" id="navLinks">
+                <ul class="nav-menu">
+                    <li><a href="#">HOME</a></li>
+                    <li class="nav-item-dropdown">
+                        <a href="#">Sales <i class='bx bxs-chevron-down'></i></a>
+                        <ul class="nav-submenu">
+                          <li><a href="/po.html">PO Form</a></li>
+              <li><a href="/po-list.html">Kick-Off Form</a></li>
+              <li><a href="/po-data-output-table.html">PO Record Table</a></li>
+              <li><a href="/po-update.html">PO Update Form</a></li>
+              <li><a href="/po-swap.html">CCN Interchange Form</a></li>
+             <li><a href="/kickoff-output-table.html">Kickoff Record Table</a></li>
+                           <li><a href="/kickoff form/kickoff-update.html">Kick-Off Update Form</a></li>
+              <li><a href="/machineccnproject.html">Machine CCN Project</a></li>
+              <li><a href="/kickoff-machine-dashboard.html">Kickoff / Machine Dashboard</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item-dropdown">
+                        <a href="#">Assembly <i class='bx bxs-chevron-down'></i></a>
+                        <ul class="nav-submenu">
+                            <li><a href="/employeform/employeeform.html">Employee Form</a></li>
+              <li><a href="/machinemodel/machine-model.html">Machine Model Form</a></li>
+              <li><a href="/machine.html">Update Machine CCN</a></li>
+              <li><a href="/machine/machine-status-summary.html">Machine Live Status </a></li>
+              <li><a href="/machine/machine-list.html">Machine  Customized & Stock Table</a></li>
+              <li><a href="/machine/cardss.html">CCN Live & Close Cards</a></li>
+                        </ul>
+                    </li>
+
+                          <li class="nav-item-dropdown">
+                        <a href="#">Kila-Maidan <i class='bx bxs-chevron-down'></i></a>
+                        <ul class="nav-submenu">
+              <li><a href="/kitinwardform/kitinward.html">Sub-Assembly Kit Inward Form</a></li>
+      <li><a href="/kitformoutputstatus/kitformoutput.html">Sub-Assembly Kit Status</a></li>
+      <li><a href="/kitlivestatus/stocktransferkila.html">Stock Transfer Record Bhoomika </a></li>
+      <li><a href="/kitlivestatus/scanner.html">Inward Stock Form KM</a></li>
+      <li><a href="/kitlivestatus/stockTransferLimbodagari.html">Stock Transit Form KM</a></li>
+      <li><a href="/itemmasterkanban/outputTable.html">Kila Maidan Stock Status</a></li>
+                        </ul>
+                    </li>
+
+                                          <li class="nav-item-dropdown">
+                        <a href="#">Bhoomika <i class='bx bxs-chevron-down'></i></a>
+                        <ul class="nav-submenu">
+                 <li><a href="/bhomika-employe/bemploye.html">Bhoomika Employee Form</a></li>
+                  <li><a href=/kitlivestatus/kitlivestatus.html>Bhoomika Kit Forwaded Status</a></li>
+                  <li><a href="/kitlivestatus/bhoomikaoutputtable.html">Bhomika Live Status</a></li>
+                  <li><a href="/kitlivestatus/qrcode.html">Bhoomika Close Status Cards</a></li>
+                        </ul>
+                    </li>
+
+                                          <li class="nav-item-dropdown">
+                        <a href="#">Limbodagari <i class='bx bxs-chevron-down'></i></a>
+                         <ul class="nav-submenu">
+                  <li><a href="/itemmasterkanban/masteekanbann.html">Kanban Item Master Form</a></li>
+                  <li><a href="/kitlivestatus/limbodagariScannerForm.html">Inward Stock LM</a></li>
+                  <li><a href="/itemmasterkanban/releaseform.html">Release TO CCN</a></li>
+                  <li><a href="/itemmasterkanban/outputTableLimbodagari.html">Limbodagari Output Table</a></li>
+                  <li><a href="/itemmasterkanban/outputtablekanban.html">Kanban Inventory Dashboard</a></li>
+                        </ul>
+                    </li>
+
+                      <li class="nav-item-dropdown">
+                        <a href="#"> IFAT<i class='bx bxs-chevron-down'></i></a>
+                        <ul class="nav-submenu">
+   <li><a href="/kitlivestatus/stocktransfer.html">IFAT Completed Machines</a></li>
+                  <li><a href="/kanbanform/kanbanform.html">IFAT Done M/C w/o Final Material Date</a></li>
+                        </ul>
+                    </li>
+
+                                          <li class="nav-item-dropdown">
+                        <a href="#">CFAT <i class='bx bxs-chevron-down'></i></a>
+                        <ul class="nav-submenu">
+                  <li><a href="/itemmasterkanban/outputTableLimbodagari.html">CFAT Completed Machines</a></li>
+                  <li><a href="/kitlivestatus/stockTransferLimbodagari.html">Live CCN w/o Planned CFAT Dates</a></li>
+                  <li><a href="/kitlivestatus/limbodagariScannerForm.html">Handed To Dispatched With No Dates</a></li>
+                        </ul>
+                    </li>
+                                          <li class="nav-item-dropdown">
+                        <a href="#">Others  <i class='bx bxs-chevron-down'></i></a>
+                        <ul class="nav-submenu">
+             <li><a href="/machinemodel/machine-model.html">Trial INVOCING (In Last 15 Days)</a></li>
+                  <li><a href="/machine/machine-status-summary.html">Topmost Priority Machines</a></li>
+                  <li><a href="/machine/machine-list.html">Today's Work On Machines</a></li>
+                  <li><a href="/machine/cardss.html">100% Self Pulling Materials From Stores</a></li>
+                  <li><a href="/machine/plan-comparison.html">Assembly Staff</a></li>
+                  <li><a href="/po-report.html">PO Data</a></li>
+                  <li><a href="/kickoff-report.html">Dispatched Machines Details</a></li>
+                  <li><a href="/kickoff form/kickoff-update.html">Shop Floor-Customized Machines</a></li>
+                  <li><a href="/assembly-wip-dashboard.html">Shop Floor-Stock Machines</a></li>
+                  <li><a href="/machine-output.html">Machine Under Procurement</a></li>
+                  <li><a href="#">Live CCN Assy Start Date</a></li>
+                  <li><a href="#">PPC Materials Delay Live Customized Machines-2</a></li>
+                  <li><a href="#">Resources Sharing Form</a></li>
+                  <li><a href="/registration/registration.html">Registration Page</a></li>
+                  <li><a href="/employeform/employeeform.html">Employee Form</a></li>
+                      <li><a href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+
+    <li class="nav-item-dropdown">
+                        <a href="#">Projects <i class='bx bxs-chevron-down'></i></a>
+                        <ul class="nav-submenu">
+                  <li><a href="/kickoff-machine-dashboard.html">Projects</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="navbar-end">
+                <div class="search-box">
+                    <input type="text" placeholder="Search...">
+                    <i class='bx bx-search'></i>
+                </div>
+                <div class="avatar" id="avatarMenu">
+                    <span class="avatar-text" th:text="${#strings.substring(session.user.employeename, 0, 1)} + ${#strings.substring(session.user.employeename.split(' ').length > 1 ? session.user.employeename.split(' ')[1] : session.user.employeename, 0, 1)}">AK</span>
+                    <div class="avatar-dropdown" id="avatarDropdown" role="menu" style="display: none;">
+                        <div class="dropdown-item-group">
+                            <a href="#" class="dropdown-item" role="menuitem">
+                                <i class='bx bx-user'></i> My Profile
+                            </a>
+                            <button class="btn-reset dropdown-item" role="menuitem" onclick="alert('My Settings')">
+                                <i class='bx bx-cog'></i> My Settings
+                            </button>
+                            <button class="btn-reset dropdown-item" role="menuitem" onclick="alert('Session Defaults')">
+                                <i class='bx bx-time'></i> Session Defaults
+                            </button>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item-group">
+                            <button class="btn-reset dropdown-item" role="menuitem" onclick="location.reload()">
+                                <i class='bx bx-refresh'></i> Reload
+                            </button>
+                            <button class="btn-reset dropdown-item" role="menuitem" onclick="alert('View Website')">
+                                <i class='bx bx-globe'></i> View Website
+                            </button>
+                            <a href="#" class="dropdown-item" role="menuitem">
+                                <i class='bx bx-home'></i> Apps
+                            </a>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item-group">
+                            <button class="btn-reset dropdown-item" role="menuitem" onclick="alert('Toggle Full Width')">
+                                <i class='bx bx-maximize'></i> Toggle Full Width
+                            </button>
+                            <button class="btn-reset dropdown-item" role="menuitem" onclick="alert('Toggle Theme')">
+                                <i class='bx bx-moon'></i> Toggle Theme
+                            </button>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item-group">
+                            <a href="/logout" class="dropdown-item dropdown-logout" role="menuitem">
+                                <i class='bx bx-log-out'></i> Log out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HEADER STATUS SUMMARY BAR -->
+    <section class="header-status-container" aria-label="Dashboard status summary">
+        <div class="header-status-bar">
+            <div class="status-box status-box--label status-box--orange">Live Stock Machines</div>
+            <div class="status-box status-box--value status-box--orange-dark" id="live_stock_count_label"></div>
+            <div class="status-box status-box--label status-box--filter">
+                <label for="yearFilterMaster">Year</label>
+                <select id="yearFilterMaster" aria-label="Select dashboard year">
+                    <option value="ALL">ALL</option>
+                </select>
+            </div>
+            <div class="status-box status-box--label status-box--blue">Expected Orders</div>
+            <div class="status-box status-box--value status-box--blue-dark" id="expected_orders_label"></div>
+            <div class="status-box status-box--label status-box--green-light">Live Customized Machines</div>
+            <div class="status-box status-box--value status-box--green-dark" id="live_customized_count_label"></div>
+            <div class="status-box status-box--value status-box--green-dark" id="total_po_value_label"></div>
+            <div class="status-box status-box--label status-box--teal-light">IFAT Done</div>
+            <div class="status-box status-box--value status-box--teal-dark" id="ifat_done_count_label">5</div>
+            <div class="status-box status-box--label status-box--chartreuse-light">CFAT Done</div>
+            <div class="status-box status-box--value status-box--chartreuse-dark" id="cfat_done_count_label">1</div>
+            <div class="status-box status-box--label status-box--purple-light">Awaiting Customer Clearance</div>
+            <div class="status-box status-box--value status-box--purple-dark" id="awaiting_clearance_count_label">1</div>
+            <div class="status-box status-box--label status-box--green-light">Avg Build Time</div>
+            <div class="status-box status-box--value status-box--green-dark" id="avg_build_time_label">35 Days</div>
+        </div>
+    </section>
+
+    <!-- DASHBOARD GRID -->
+  <main class="main-content">
+    <div class="dashboard-grid-container">
+        
+        <!-- LEFT: Assembly WIP Corner Table -->
+        <div class="grid-item wip-corner">
+            <h3 class="table-title blue-header">Assembly WIP Corner</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Machine</th>
+                            <th>C/F</th>
+                            <th>Machine in Build</th>
+                            <th>Dispatch</th>
+                            <th>Balance WIP (As of Today)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="wipTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MIDDLE TOP: Large Chart Area -->
+        <div class="grid-item main-chart-area">
+            <div class="chart-placeholder">Chart Area</div>
+        </div>
+
+        <!-- RIGHT: Commercial Corner Table -->
+        <div class="grid-item commercial-corner">
+            <h3 class="table-title blue-header">Commercial Corner</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Dispatch Plan</th>
+                            <th>Dynamic Dispatch</th>
+                            <th>Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commercialCornerBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BOTTOM LEFT: Manufacturing Bar Chart -->
+        <div class="grid-item chart-item">
+            <h3 class="chart-title-label">Manufacturing</h3>
+            <canvas id="manufacturingBarChart"></canvas>
+        </div>
+
+        <!-- BOTTOM MIDDLE: Dispatches Bar Chart -->
+        <div class="grid-item chart-item">
+            <h3 class="chart-title-label">Dispatches</h3>
+            <canvas id="dispatchesBarChart"></canvas>
+        </div>
+
+        <!-- BOTTOM RIGHT: Manpower Card -->
+        <div class="grid-item manpower-card">
+            <h3>Today's Manpower</h3>
+            <div class="manpower-stats">
+                <span class="count">16/20</span>
+                <div class="progress-bar-vertical">
+                    <div class="progress-fill" style="height: 80%;"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+    <!-- FOOTER -->
+    <footer class="footer-modern">
+        <div class="footer-container">
+            <p class="footer-left" th:text="'Department: ' + ${session.user.department}">Department</p>
+            <p>&copy; 2025 IMAPG. All Rights Reserved.</p>
+            <span class="footer-right" th:text="'Login: ' + ${session.user.employeename}">Welcome, User</span>
+        </div>
+    </footer>
+
+    <script src="/home/homee.js"></script>
+
+    <!-- MACHINE COUNTS FETCH SCRIPT -->
+    <script>
+    (function() {
+      const API_YEARS     = '/api/machineccnproject/years';
+      const API_DASHBOARD = '/api/machineccnproject/dashboard';
+      const STORAGE_KEY   = 'dashboardSelectedYear';
+      let selectedCommercialYear = new Date().getFullYear();
+
+      function getSavedYear()        { return localStorage.getItem(STORAGE_KEY) || 'ALL'; }
+      function saveSelectedYear(y)   { localStorage.setItem(STORAGE_KEY, y); }
+
+      function createOption(value, label) {
+        const o = document.createElement('option');
+        o.value = value; o.textContent = label; return o;
+      }
+
+      async function loadYearDropdown() {
+        const select = document.getElementById('yearFilterMaster');
+        if (!select) return;
+        try {
+          const res = await fetch(API_YEARS);
+          if (!res.ok) throw new Error('Unable to fetch years');
+          const years = await res.json();
+          select.innerHTML = '';
+          select.appendChild(createOption('ALL', 'ALL'));
+          if (Array.isArray(years)) {
+            years.forEach(y => { if (y != null) select.appendChild(createOption(String(y), String(y))); });
+          }
+          const saved = getSavedYear();
+          if ([...select.options].some(o => o.value === saved)) select.value = saved;
+          else if (select.options.length > 1) { select.value = String(select.options[1].value); saveSelectedYear(select.value); }
+          else select.value = 'ALL';
+        } catch (e) { console.error('Error loading year dropdown:', e); }
+      }
+
+      async function loadDashboardData(year) {
+        const select = document.getElementById('yearFilterMaster');
+        if (!year) year = select ? select.value : 'ALL';
+        try {
+          const res = await fetch(`${API_DASHBOARD}?year=${encodeURIComponent(year)}`);
+          if (!res.ok) throw new Error('Dashboard API request failed');
+          updateDashboardUI(await res.json());
+        } catch (e) { console.error('Error loading dashboard data:', e); }
+      }
+
+      function updateDashboardUI(data) {
+        if (!data) return;
+        [
+          { id: 'live_stock_count_label',       property: 'liveStockCount' },
+          { id: 'live_customized_count_label',   property: 'liveCustomizedCount' },
+          { id: 'expected_orders_label',         property: 'expectedOrdersCount' },
+          { id: 'ifat_done_count_label',         property: 'ifatDoneCount' },
+          { id: 'cfat_done_count_label',         property: 'cfatDoneCount' },
+          { id: 'awaiting_clearance_count_label',property: 'awaitingClearanceCount' }
+        ].forEach(({ id, property }) => {
+          const el = document.getElementById(id);
+          if (el && data[property] !== undefined) el.textContent = data[property];
+        });
+        const poEl = document.getElementById('total_po_value_label');
+        if (poEl) poEl.textContent = (data.totalPoValueLacs || '0.00') + ' Lakhs';
+        if (data.filterYear) {
+          const s = document.getElementById('yearFilterMaster');
+          if (s) s.value = data.filterYear;
+        }
+        if (data.avgBuildTimeDays != null) {
+          const el = document.getElementById('avg_build_time_label');
+          if (el) el.textContent = `${data.avgBuildTimeDays} Days`;
+        }
+      }
+
+      async function loadManufacturingData(year) {
+        try {
+          const r = await fetch(`/api/machineccnproject/manufacturing-data?year=${year}`);
+          manufacturingChart.data.datasets[0].data = await r.json();
+          manufacturingChart.update();
+        } catch (e) { console.error('Error loading manufacturing data:', e); }
+      }
+
+      async function loadDispatchData(year) {
+        try {
+          const r = await fetch(`/api/machineccnproject/dispatch-data?year=${year}`);
+          dispatchChart.data.datasets[0].data = await r.json();
+          dispatchChart.update();
+        } catch (e) { console.error('Error loading dispatch data:', e); }
+      }
+
+      async function loadCommercialDispatchCounts(year) {
+        selectedCommercialYear = year;
+        try {
+          const r = await fetch(`/api/machineccnproject/commercial-dispatch-counts?year=${year}`);
+          if (!r.ok) throw new Error('Unable to fetch commercial dispatch counts');
+          updateCommercialCorner(await r.json());
+        } catch (e) { console.error('Error loading commercial dispatch counts:', e); }
+      }
+
+      async function loadAssemblyWipData(year) {
+        try {
+          const url = year && year !== 'ALL'
+              ? `/api/machineccnproject/wip-dashboard?filterYear=${year}`
+              : '/api/machineccnproject/wip-dashboard';
+          const r = await fetch(url);
+          if (!r.ok) throw new Error('Unable to fetch Assembly WIP data');
+          const result = await r.json();
+          if (result.success && Array.isArray(result.machines)) updateWipTable(result.machines, year);
+          else console.warn('Unexpected WIP response format:', result);
+        } catch (e) { console.error('Error loading Assembly WIP data:', e); }
+      }
+
+      function normalizeMachineName(name) {
+        if (name == null) return '';
+        return String(name).trim().toUpperCase();
+      }
+
+      // ── updateWipTable — Balance WIP column now has hyperlink ──────────
+      function updateWipTable(wipData, selectedYear) {
+        const tbody = document.getElementById('wipTableBody');
+        if (!tbody || !Array.isArray(wipData)) return;
+
+        const merged = {};
+        wipData.forEach(row => {
+          const machine = normalizeMachineName(row.machine) || 'N/A';
+          if (!merged[machine]) {
+            merged[machine] = {
+              machine,
+              carryForward: 0,
+              machineInBuild: 0,
+              dispatch: 0,
+              balanceWip: 0
+            };
+          }
+          merged[machine].carryForward += row.carryForward || 0;
+          merged[machine].machineInBuild += row.machineInBuild || 0;
+          merged[machine].dispatch += row.dispatch || 0;
+          merged[machine].balanceWip += row.balanceWip != null
+              ? row.balanceWip
+              : ((row.carryForward || 0) + (row.machineInBuild || 0) - (row.dispatch || 0));
+        });
+
+        let totalCF = 0, totalMIB = 0, totalDispatch = 0, totalBalance = 0;
+        tbody.innerHTML = '';
+
+        const rows = Object.values(merged).sort((a, b) => a.machine.localeCompare(b.machine));
+
+        // Resolve numeric year for URLs
+        const numericYear = (!selectedYear || selectedYear === 'ALL')
+            ? new Date().getFullYear()
+            : parseInt(selectedYear);
+
+        rows.forEach(row => {
+          const cf = row.carryForward;
+          const mib = row.machineInBuild;
+          const dispatch = row.dispatch;
+          const balanceWip = row.balanceWip;
+
+          totalCF += cf;
+          totalMIB += mib;
+          totalDispatch += dispatch;
+          totalBalance += balanceWip;
+
+          tbody.insertAdjacentHTML('beforeend', `
+            <tr>
+              <td>${row.machine}</td>
+              <td>
+                <a class="wip-link" href="javascript:void(0)"
+                   onclick="openWipDetails('cf')">${cf}</a>
+              </td>
+              <td>
+                <a class="wip-link" href="javascript:void(0)"
+                   onclick="openWipDetails('machine-in-build')">${mib}</a>
+              </td>
+              <td>
+                <a class="wip-link" href="javascript:void(0)"
+                   onclick="openWipDetails('dispatch')">${dispatch}</a>
+              </td>
+              <td class="balance-wip-cell">
+                <a class="wip-link" href="javascript:void(0)"
+                   onclick="openWipDetails('balance')">${balanceWip}</a>
+              </td>
+            </tr>
+          `);
+        });
+
+        // Grand Total row — Balance WIP total also clickable
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr class="grand-total">
+            <td>Grand Total</td>
+            <td>${totalCF}</td>
+            <td>${totalMIB}</td>
+            <td>${totalDispatch}</td>
+            <td class="balance-wip-cell">
+              <a class="wip-link" href="javascript:void(0)"
+                 onclick="openWipDetails('balance')">${totalBalance}</a>
+            </td>
+          </tr>
+        `);
+      }
+
+      // ── Navigation helpers ──────────────────────────────────────────────
+      function openWipDetails(type) {
+        const select = document.getElementById('yearFilterMaster');
+        const year   = select ? select.value : new Date().getFullYear();
+        const resolvedYear = (!year || year === 'ALL') ? new Date().getFullYear() : year;
+        window.location.href = `/wip-details?type=${encodeURIComponent(type)}&year=${encodeURIComponent(resolvedYear)}`;
+      }
+      window.openWipDetails = openWipDetails;
+
+      function openCommercialDispatchDetails(type, month) {
+        const resolvedYear = (!selectedCommercialYear || selectedCommercialYear === 'ALL')
+            ? new Date().getFullYear() : selectedCommercialYear;
+        let url = `/commercial-dispatch-details?year=${encodeURIComponent(resolvedYear)}&type=${encodeURIComponent(type)}`;
+        if (month != null) url += `&month=${encodeURIComponent(month)}`;
+        window.location.href = url;
+      }
+      window.openCommercialDispatchDetails = openCommercialDispatchDetails;
+
+      function updateCommercialCorner(counts) {
+        const tbody = document.getElementById('commercialCornerBody');
+        if (!tbody || !counts) return;
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const dispatchPlan   = Array.isArray(counts.dispatchPlan)   ? counts.dispatchPlan   : [];
+        const dynamicDispatch= Array.isArray(counts.dynamicDispatch) ? counts.dynamicDispatch: [];
+        const actual         = Array.isArray(counts.actual)         ? counts.actual         : [];
+        let tP=0, tD=0, tA=0;
+        tbody.innerHTML = '';
+        months.forEach((month, i) => {
+          const p = dispatchPlan[i]||0, d = dynamicDispatch[i]||0, a = actual[i]||0;
+          tP+=p; tD+=d; tA+=a;
+          const mi = i+1;
+          tbody.insertAdjacentHTML('beforeend', `
+            <tr>
+              <td>${month}</td>
+              <td><a href="javascript:void(0)" class="details-link" onclick="openCommercialDispatchDetails('plan',${mi})">${p}</a></td>
+              <td><a href="javascript:void(0)" class="details-link" onclick="openCommercialDispatchDetails('dynamic',${mi})">${d}</a></td>
+              <td><a href="javascript:void(0)" class="details-link" onclick="openCommercialDispatchDetails('actual',${mi})">${a}</a></td>
+            </tr>
+          `);
+        });
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr class="grand-total">
+            <td>Grand Total</td>
+            <td>${tP}</td><td>${tD}</td><td>${tA}</td>
+          </tr>
+        `);
+      }
+
+      async function initializeDashboard() {
+        const select = document.getElementById('yearFilterMaster');
+        const activeYear = getSavedYear();
+        await loadYearDropdown();
+        if (select) {
+          select.value = activeYear;
+          select.addEventListener('change', async function() {
+            const year = this.value;
+            saveSelectedYear(year);
+            await loadDashboardData(year);
+            await loadAssemblyWipData(year);
+            const numericYear = (!year || year === 'ALL') ? new Date().getFullYear() : parseInt(year);
+            selectedCommercialYear = numericYear;
+            await loadManufacturingData(numericYear);
+            await loadDispatchData(numericYear);
+            await loadCommercialDispatchCounts(numericYear);
+          });
+        }
+        await loadDashboardData(activeYear);
+        await loadAssemblyWipData(activeYear);
+        const numericYear = (!activeYear || activeYear === 'ALL') ? new Date().getFullYear() : parseInt(activeYear);
+        selectedCommercialYear = numericYear;
+        await loadManufacturingData(numericYear);
+        await loadDispatchData(numericYear);
+        await loadCommercialDispatchCounts(numericYear);
+      }
+
+      // Manufacturing Bar Chart
+      const manufacturingChart = new Chart(document.getElementById('manufacturingBarChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          datasets: [{ label: 'Manufacturing', data: [], backgroundColor: '#ffc107' }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { barPercentage: 0.8, categoryPercentage: 0.8 },
+            y: { beginAtZero: true, ticks: { stepSize: 3 } }
+          },
+          onClick: function(event) {
+            const points = this.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+            const year = getSavedYear() === 'ALL' ? new Date().getFullYear() : parseInt(getSavedYear());
+            if (!points || points.length === 0) { window.location.href = `/manufacturing-details?year=${year}`; return; }
+            window.location.href = `/manufacturing-details?year=${year}&month=${points[0].index + 1}`;
+          }
+        }
+      });
+
+      // Dispatches Bar Chart
+      const dispatchChart = new Chart(document.getElementById('dispatchesBarChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+          datasets: [{ label: 'Dispatches', data: [], backgroundColor: '#a5d6a7' }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { barPercentage: 0.8, categoryPercentage: 0.8 },
+            y: { beginAtZero: true, ticks: { stepSize: 3 } }
+          },
+          onClick: function(event) {
+            const points = this.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+            const year = getSavedYear() === 'ALL' ? new Date().getFullYear() : parseInt(getSavedYear());
+            if (!points || points.length === 0) { window.location.href = `/dispatch-details?year=${year}`; return; }
+            window.location.href = `/dispatch-details?year=${year}&month=${points[0].index + 1}`;
+          }
+        }
+      });
+
+      window.addEventListener('DOMContentLoaded', initializeDashboard);
+    })();
+    </script>
+</body>
+</html>

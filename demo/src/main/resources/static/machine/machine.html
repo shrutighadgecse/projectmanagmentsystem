@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Page Form</title>
+    <link rel="stylesheet" href="../machine/machine.css">
+</head>
+<body>
+    <div class="container">
+        <header style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 24px;">
+                <div>
+                    <label style="font-size:0.75em; color:#1976d2; font-weight:400; margin-bottom:2px;"></label>
+                    <span id="timestamp" name="timestamp" style="font-size:0.75em; color:#333; margin-left:4px;"></span>
+                </div>
+                <span class="title">Machine Form</span>
+            </div>
+        </header>
+        <div class="progress-container" style="margin-bottom: 20px;">
+            <div class="progress-bar">
+                <div class="step active" onclick="showPage('page1')">Purchase Order</div>
+                <div class="step" onclick="showPage('page2')">Project Kick-Off</div>
+                <div class="step" onclick="showPage('page3')">Assembly Operations</div>
+                <div class="step" onclick="showPage('page4')">Assy Actuals</div>
+                <div class="step" onclick="showPage('page5')">Review</div>
+                <div class="step" onclick="showPage('page6')">Dispatch Details</div>
+            </div>
+            <div class="progress-line"></div>
+        </div>
+        <div class="machine-header-card">
+            <div>
+                <label>CCN</label>
+                <div><input type="text" name="ccn" readonly></div>
+            </div>
+            <div>
+                <label>Machine Name</label>
+                <div><input type="text" name="machineName" readonly></div>
+            </div>
+            <div>
+                <label>Model</label>
+                <div><input type="text" name="model" readonly></div>
+            </div>
+            <div>
+                <label>Customer Name</label>
+                <div><input type="text" name="customerName" readonly></div>
+            </div>
+        </div>
+        <div class="form-container">
+            <div class="form-grid" style="margin-bottom: 20px; grid-template-columns: repeat(4, 1fr); display:none;">
+                <div class="form-group" style="min-width:0;">
+                    <label style="font-size:0.95em;">CCN:</label>
+                    <input type="text" name="ccn" style="font-size:0.95em; padding:6px;" />
+                </div>
+                <div class="form-group" style="min-width:0;">
+                    <label style="font-size:0.95em;">Machine Name:</label>
+                    <input type="text" name="machineName" style="font-size:0.95em; padding:6px;" />
+                </div>
+                <div class="form-group" style="min-width:0;">
+                    <label style="font-size:0.95em;">Model:</label>
+                    <input type="text" name="model" style="font-size:0.95em; padding:6px;" />
+                </div>
+                <div class="form-group" style="min-width:0;">
+                    <label style="font-size:0.95em;">Customer Name:</label>
+                    <input type="text" name="customerName" style="font-size:0.95em; padding:6px;" />
+                </div>
+            </div>
+            <!-- Page 1 -->
+            <div id="page1" class="page">
+                <h2>Purchase Order</h2>
+                <form class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group"><label>Record No:</label><input type="text" name="recordNo"></div>
+                    <div class="form-group"><label>PO Ref No:</label><input type="text" name="poRefNo"></div>
+                    <div class="form-group"><label>PO Date:</label><input type="date" name="poDate"></div>
+                    <div class="form-group"><label>PO Delivery Date:</label><input type="date" name="poDeliveryDate"></div>
+                    <div class="form-group"><label>PO Value-Lacs:</label><input type="number" name="poValueLacs" ></div>
+                    <div class="form-group"><label>Sales Person:</label><input type="text" name="salesPerson"></div>
+                    <div class="form-group"><label>Order Type:</label><input type="text" name="orderType"></div>
+                    <div class="form-group"><label>Address:</label><input type="text" name="address"></div>
+                </form>
+            </div>
+            <!-- Page 2 -->
+            <div id="page2" class="page" style="display:none;">
+                <h2>The Project Kick-Off Review</h2>
+                <form class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group"><label>Venue</label><input type="text" name="venue" required /></div>
+                    <div class="form-group"><label>Unit</label><input type="text" name="unit" /></div>
+                    <div class="form-group"><label>KOM No.</label><input type="text" name="komNo" placeholder="IMA-PG Indore/2024/022" required /></div>
+                    <div class="form-group"><label>Members Present</label><input type="text" name="membersPresent" /></div>
+                    <div class="form-group"><label>Machine CP Qty:</label><input type="number" name="machineCpQty" ></div>
+                    <div class="form-group"><label>Machine Optional CP Qty:</label><input type="number" name="machineOptionalCpQty"></div>
+                    <!-- Modified: add id to this input for stable selection -->
+                    <div class="form-group"><label>Machine Family:</label><input type="text" id="machineFamily" name="machineFamily" ></div>
+                    <div class="form-group"><label for="po_receipt_date">PO Receipt Date:</label><input type="date" id="po_receipt_date" name="po_receipt_date"></div>
+                    <div class="form-group"><label for="oa_generation_date">OA Generation Date:</label><input type="date" id="oa_generation_date" name="oa_generation_date"></div>
+                    <div class="form-group"><label for="kom_date">KOM Date:</label><input type="date" id="kom_date" name="kom_date"></div>
+                    <div class="form-group"><label for="advance_payment_receipt_date">Advance Payment Receipt Date:</label><input type="date" id="advance_payment_receipt_date" name="advance_payment_receipt_date"></div>
+                    <div class="form-group"><label for="balance_payment_receipt_date">Balance Payment Receipt Date:</label><input type="date" id="balance_payment_receipt_date" name="balance_payment_receipt_date"></div>
+                    <div class="form-group"><label for="cp_layout_approvals">CP Layout Approvals:</label><input type="date" id="cp_layout_approvals" name="cp_layout_approvals"></div>
+                    <div class="form-group"><label for="machine_layout_approvals">Machine Layout Approvals:</label><input type="date" id="machine_layout_approvals" name="machine_layout_approvals"></div>
+                    <div class="form-group"><label for="room_layout_approvals">Room Layout Approvals:</label><input type="date" id="room_layout_approvals" name="room_layout_approvals"></div>
+                    <div class="form-group"><label for="loa_basic">LOA Basic:</label><input type="date" id="loa_basic" name="loa_basic"></div>
+                     <div class="form-group"><label for="loa_optional">LOA Optional:</label><input type="date" id="loa_optional" name="loa_optional"></div>
+                    <div class="form-group"><label for="dq_release">DQ Release:</label><input type="date" id="dq_release" name="dq_release"></div>
+                    <div class="form-group"><label for="ppc_basic_date">PPC Basic Date (As per Kickoff):</label><input type="date" id="ppc_basic_date" name="ppc_basic_date"></div>
+                    <div class="form-group"><label for="ppc_optional_date">PPC Optional Date (As per Kickoff):</label><input type="date" id="ppc_optional_date" name="ppc_optional_date"></div>
+                    <div class="form-group"><label for="cp_design_release_date">CP Design Release Date:</label><input type="date" id="cp_design_release_date" name="cp_design_release_date"></div>
+                    <div class="form-group"><label for="machine_manufacturing_basic">Machine Manufacturing Basic:</label><input type="date" id="machine_manufacturing_basic" name="machine_manufacturing_basic"></div>
+                    <div class="form-group"><label for="machine_manufacturing_customisation">Machine Manufacturing Customisation:</label><input type="date" id="machine_manufacturing_customisation" name="machine_manufacturing_customisation"></div>
+                    <div class="form-group"><label for="cp_manufacturing_date">CP Manufacturing Date:</label><input type="date" id="cp_manufacturing_date" name="cp_manufacturing_date"></div>
+                    <div class="form-group"><label for="pmr_genration_submission_date">PMR Generation & Submission to Customer Date:</label><input type="date" id="pmr_genration_submission_date" name="pmr_genration_submission_date"></div>
+                    <div class="form-group"><label for="products_receipt_date">Product Receipt Date:</label><input type="date" id="products_receipt_date" name="products_receipt_date"></div>
+                    <div class="form-group"><label for="packaging_receipt_date">Packaging Receipt Date:</label><input type="date" id="packaging_receipt_date" name="packaging_receipt_date"></div>
+                    <div class="form-group"><label for="ifat_protocol_release">IFAT Protocols Release:</label><input type="date" id="ifat_protocol_release" name="ifat_protocol_release"></div>
+                    <div class="form-group"><label for="ifat_std_cp">IFAT With Std CP (As per Kickoff):</label><input type="date" id="ifat_std_cp" name="ifat_std_cp"></div>
+                    <div class="form-group"><label for="ifat_customer_cp">IFAT With Customer CP (As per Kickoff):</label><input type="date" id="ifat_customer_cp" name="ifat_customer_cp"></div>
+                    <div class="form-group"><label for="cfat">CFAT (As per Kickoff):</label><input type="date" id="cfat" name="cfat"></div>
+                    <div class="form-group"><label for="compliance">Compliance:</label><input type="date" id="compliance" name="compliance"></div>
+                    <div class="form-group"><label for="dispatch_clearance">Dispatch Clearance:</label><input type="date" id="dispatch_clearance" name="dispatch_clearance"></div>
+                    <div class="form-group"><label for="planned_dispatch_date">Planned Dispatch Date (As per Kickoff):</label><input type="date" id="planned_dispatch_date" name="planned_dispatch_date"></div>
+                    
+                    
+                    <div class="form-group" style="grid-column: 1 / span 4;">
+                        <label for="machine_basics">Machine Basics:</label>
+                        <textarea id="machine_basics" name="machineBasics" style="width:99%; min-width:400px; height:60px;"></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / span 4;">
+                        <label for="machine_features">Machine Features:</label>
+                        <textarea id="machine_features" name="machineFeatures" style="width:99%; min-width:400px; height:60px;"></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / span 4;">
+                        <label for="additional_options">Additional Options:</label>
+                        <textarea id="additional_options" name="additionalOptions" style="width:99%; min-width:400px; height:60px;"></textarea>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / span 4;">
+                        <label for="project_kickoff_details">Project Kick-off Details:</label>
+                        <textarea id="project_kickoff_details" name="projectKickoffDetails"></textarea>
+                    </div>
+                </form>
+            </div>
+            <!-- Page 3 -->
+            <div id="page3" class="page" style="display:none;">
+                <h2>Assembly Operations</h2>
+                <form class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group"><label>CCN Status:</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="radio" name="ccnStatus" id="live" value="Live" checked><label for="live">Live</label>
+                            <input type="radio" name="ccnStatus" id="closed" value="Closed"><label for="closed">Closed</label>
+                        </div>
+                    </div>
+                    <div class="form-group"><label for="machine-category">Machine Category:</label>
+                        <input type="text" id="machine-category" name="machineCategory" />
+                    </div>
+                    <div class="form-group"><label>Workmen:</label><input type="text" name="workmen"></div>
+                    <div class="form-group"><label>Std Task Of Machine:</label><input type="text" name="stdTaskOfMachine"></div>
+                    <div class="form-group"><label>Task Completed:</label><input type="number" name="taskCompleted" ></div>
+                    <div class="form-group"><label>Machine Percentage:</label><input type="text" name="machinePercentage" readonly ></div>
+                    <div class="form-group"><label for="live-status">Live Status:</label>
+                        <select id="live-status" name="liveStatus" >
+                            <option value="NEW CCN FOR APPROVAL">NEW CCN FOR APPROVAL</option>
+                            <option value="DESIGN">DESIGN</option>
+                            <option value="IN MUMBAI">IN MUMBAI</option>
+                            <option value="RECEIVED FROM MUMBAI">RECEIVED FROM MUMBAI</option>
+                            <option value="PPC" selected>PPC</option>
+                            <option value="WIP- KANBAN">WIP- KANBAN</option>
+                            <option value="WIP -BASIC">WIP -BASIC</option>
+                            <option value="WIP- OPTIONALS">WIP- OPTIONALS</option>
+                            <option value="HOLD - AUTOMATION PENDING">HOLD - AUTOMATION PENDING</option>
+                            <option value="HOLD">HOLD</option>
+                            <option value="STD CP TRIALS">STD CP TRIALS</option>
+                            <option value="IFAT IN PROGRESS">IFAT IN PROGRESS</option>
+                            <option value="IFAT DONE">IFAT DONE</option>
+                            <option value="POST IFAT - POINT CLOSURE">POST IFAT - POINT CLOSURE</option>
+                            <option value="READY">READY</option>
+                            <option value="AWAITED PRODUCT">AWAITED PRODUCT</option>
+                            <option value="AWAITED PACKAGING">AWAITED PACKAGING</option>
+                            <option value="AWAITED CP">AWAITED CP</option>
+                            <option value="CUSTOMER CP TRIALS">CUSTOMER CP TRIALS</option>
+                            <option value="AWAITED CFAT">AWAITED CFAT</option>
+                            <option value="CFAT IN PROGRESS">CFAT IN PROGRESS</option>
+                            <option value="CFAT DONE">CFAT DONE</option>
+                            <option value="RE-CFAT ">RE-CFAT</option>
+                            <option value="POST CFAT - POINT CLOSURE">POST CFAT - POINT CLOSURE</option>
+                             <option value="COMPLIANCE - SENT TO CUSTOMER">COMPLIANCE - SENT TO CUSTOMER</option>
+                            <option value="AWAITING PACKING CLEARLANCE">AWAITING PACKING CLEARLANCE</option>
+                            <option value="FOR DISPATCH">FOR DISPATCH</option>
+                            <option value="AWAITING COMMERCIAL CLEARLANCE">AWAITING COMMERCIAL CLEARLANCE</option>
+                            <option value="STOCK MC - READY">STOCK MC - READY</option>
+
+
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Project Percentage:</label>
+                        <input type="text" name="projectPercentage" id="projectPercentage" readonly >
+                    </div>
+                    <div class="form-group"><label>Last Updated Data As On:</label><input type="date" name="lastUpdatedData"></div>
+                    <!-- Move these 4 fields up in a single row -->
+                 
+                 
+                    <div class="form-group"><label>100% Self Pulling Material From Store:</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="radio" name="selfPullingMaterial" id="self_yes" value="Yes"><label for="self_yes">Yes</label>
+                            <input type="radio" name="selfPullingMaterial" id="self_no" value="No"><label for="self_no">No</label>
+                        </div>
+                    </div>
+                    <div class="form-group"><label for="cpInterchangesDropdown">CP Interchanged:</label>
+                        <select id="cpInterchangesDropdown" name="cpInterchanged" >
+                            <option value="no">No</option>
+                            <option value="yes">Yes</option>
+                        </select>
+                    </div>
+
+                    <!-- NEW: CP Trial On Machine dropdown (Yes/No) -->
+                    <div class="form-group">
+                        <label for="cp-trial-on-machine">CP Trial On Machine:</label>
+                        <select id="cp-trial-on-machine" name="cpTrialOnMachine" >
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+
+                    <!-- NEW: CP Trial remark - hidden by default; will be shown when dropdown is Yes -->
+                    <div id="cp-trial-remark-row" class="form-group" style="grid-column: 1 / span 4; display:none;">
+                        <label for="cp-trial-on-machine-remark">CP Trial On Machine Remark:</label>
+                        <textarea id="cp-trial-on-machine-remark" name="cpTrialOnMachineRemark" ></textarea>
+                    </div>
+                  
+                  
+                    <!-- Move all textareas below and increase their width -->
+                    <div class="form-group" style="grid-column: 1 / span 4;"><label>Pending/ Follow Up(MECH):</label><textarea name="shortDetailMech" style="width:99%; min-width:800px; height:60px;"></textarea></div>
+                    <div class="form-group" style="grid-column: 1 / span 4;"><label>Pending/ Follow Up (ELECTRICAL):</label><textarea name="shortDetailElectrical" style="width:99%; min-width:800px; height:60px;"></textarea></div>
+                    <div class="form-group" style="grid-column: 1 / span 4;"><label>Pending/ Follow Up (CP):</label><textarea name="shortDetailCp" style="width:99%; min-width:800px; height:60px;"></textarea></div>
+                    <div class="form-group" style="grid-column: 1 / span 4;"><label>Progress Status:</label><textarea name="remarks" style="width:99%; min-width:800px; height:60px;"></textarea></div>
+                    <div class="form-group" style="grid-column: 1 / span 4;"><label>Delay Analysis:</label><textarea name="delayAnalysis" style="width:99%; min-width:800px; height:60px;"></textarea></div>
+                    <!-- Move upload field to just above the buttons -->
+                    <div class="form-group" style="grid-column: 1 / span 4;"><label for="image">Upload Machine Latest Image:</label>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / span 4;">
+                        <button type="button" class="btn save" onclick="savePage('page3')">Save</button>
+                        <button type="button" class="btn discard" onclick="discardChanges()">Discard</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Page 4 -->
+            <div id="page4" class="page" style="display:none;">
+                <h2>Assy Actuals</h2>
+                <form class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group"><label>Actual Material Receipt Date:</label><input type="date" name="actualMaterialReceiptDate"></div>
+                    <div class="form-group"><label>Actual / Dynamic Manf Plan:</label><input type="date" name="actualDynamicManufacturingPlan"></div>
+                    <div class="form-group"><label>Actual / Dynamic Dispatch Plan:</label><input type="date" name="actualDynamicDispatchPlan"></div>
+                    <div class="form-group"><label>Actual Assy Start Date:</label><input type="date" name="actualAssyStartDate"></div>
+                    <div class="form-group"><label>Actual IFAT Date:</label><input type="date" name="actualIfatDate"></div>
+                    <div class="form-group"><label>Actual CP Date:</label><input type="date" name="actualCpDate"></div>
+                    <div class="form-group"><label>Actual CFAT Date:</label><input type="date" name="actualCfatDate"></div>
+                    <div class="form-group"><label>Compliance Closure Date:</label><input type="date" name="complianceClosureDate"></div>
+                    <div class="form-group"><label>MECH Non Issuance:</label><input type="text" name="mechNonIssuance"></div>
+                    <div class="form-group"><label>ELECT Non Issuance:</label><input type="number" name="electNonIssuance" style="height:38px; min-width:0; width:100%; max-width:250px; font-size:1em; padding:8px;"></div>
+                    <div class="form-group"><label>Handed To Dispatch Dept:</label><input type="date" name="handedToDispatchDept"></div>
+                    <div class="form-group" style="grid-column: 1 / span 4;">
+                        <button type="button" class="btn save" onclick="savePage('page4')">Save</button>
+                        <button type="button" class="btn discard" onclick="discardChanges()">Discard</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Page 5 -->
+            <div id="page5" class="page" style="display:none;">
+                <h2>Review</h2>
+                <form class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group" style="grid-column: 1 / span 4;"><label>Weekly Review:</label><textarea name="weeklyReview"></textarea></div>
+                    <div class="form-group"><label>Re-Scheduled IFAT Date(As per Weekly meeting):</label><input type="date" name="rescheduledIfatDate"></div>
+                    <div class="form-group"><label>Re-Scheduled CFAT Date (As per Weekly meeting):</label><input type="date" name="rescheduledCfatDate"></div>
+                    <div class="form-group" style="grid-column: 1 / span 4;">
+                        <button type="button" class="btn save" onclick="savePage('page5')">Save</button>
+                        <button type="button" class="btn discard" onclick="discardChanges()">Discard</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Page 6 -->
+            <div id="page6" class="page" style="display:none;">
+                <h2>Dispatch Details</h2>
+                <form class="form-grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="form-group"><label>Dispatched Month:</label><input type="text" name="dispatched_month"></div>
+                    <div class="form-group"><label>Invoice Date:</label><input type="date" name="invoiceDate"></div>
+                    <div class="form-group" style="grid-column: 1 / span 4;">
+                        <button type="button" class="btn save" onclick="savePage('page6')">Save</button>
+                        <button type="button" class="btn discard" onclick="discardChanges()">Discard</button>
+                    </div>
+                </form>
+            </div>
+           
+              </form>
+            </div>
+        </div>
+    </div>
+    <!-- Modal: Add after form area, before scripts -->
+    <style>
+    /* modal simple styles */
+    #save-success-modal { display:none; position:fixed; left:0; top:0; right:0; bottom:0; background: rgba(0,0,0,0.4); align-items:center; justify-content:center; z-index:9999; }
+    #save-success-modal .modal-card { background:#fff; padding:20px; border-radius:8px; width:90%; max-width:520px; box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+    #save-success-modal .modal-actions { display:flex; gap:12px; justify-content:flex-end; margin-top:18px; }
+    .btn.primary { background:#1976d2; color:#fff; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; }
+    .btn.secondary { background:#f5f5f5; color:#333; border:1px solid #ddd; padding:8px 14px; border-radius:4px; cursor:pointer; }
+    </style>
+
+    <div id="save-success-modal" role="dialog" aria-modal="true" aria-labelledby="saveSuccessTitle">
+      <div class="modal-card">
+        <h3 id="saveSuccessTitle">Saved successfully</h3>
+        <p id="saveSuccessText">The form was saved successfully.</p>
+        <div class="modal-actions">
+          <button id="generateReportBtn" class="btn primary">Generate Report</button>
+          <button id="closeModalBtn" class="btn secondary">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="machine.js"></script>
+    <script>
+    // On page load, fetch data by CCN and fill form fields.
+    document.addEventListener('DOMContentLoaded', async function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ccn = urlParams.get('ccn');
+
+    
+      try {
+        const anyChecked = document.querySelector('input[name="selfPullingMaterial"]:checked');
+        if (!anyChecked) {
+          const noRadio = document.querySelector('input[name="selfPullingMaterial"][value="No"]');
+          if (noRadio) noRadio.checked = true;
+        }
+      } catch (e) { /* ignore */ }
+
+      // --- NEW: ensure CP Trial dropdown defaults to "No" immediately on load if nothing selected ---
+      try {
+        const cpTrialSelect = document.querySelector('select[name="cpTrialOnMachine"]');
+        if (cpTrialSelect && !cpTrialSelect.value) cpTrialSelect.value = 'No';
+      } catch (e) { /* ignore */ }
+
+      // If no CCN present we still continue (but DO NOT use localStorage; leave timestamp blank)
+      try {
+        if (!ccn) {
+          // No CCN: do not generate or persist any timestamp on client
+          const el = document.getElementById('timestamp');
+          if (el) el.textContent = ''; // show blank until server provides a timestamp
+          return;
+        }
+      } catch (e) { /* ignore */ }
+      if (!ccn) return;
+      try {
+        const res = await fetch(`/api/machine/by-ccn?ccn=${encodeURIComponent(ccn)}`);
+        if (res.ok) {
+          const data = await res.json();
+          // Helper to set value if exists
+          function setValue(selector, value) {
+            if (value !== undefined && value !== null) {
+              const el = document.querySelector(selector);
+              if (el) el.value = value;
+            }
+          }
+
+          // Timestamp handling: use only server-provided timestamp (if present)
+          try {
+            const el = document.getElementById('timestamp');
+            // If server returned a saved machine with a timestamp, use it.
+            if (data && data.machine && data.machine.timestamp) {
+              if (el) el.textContent = data.machine.timestamp;
+            } else if (data && data.machine && !data.machine.timestamp) {
+              // Saved machine exists but no timestamp (edge): leave blank so server controls it.
+              if (el) el.textContent = '';
+            } else {
+              // No machine in DB for this CCN -> generate a one-time timestamp for initial creation.
+              const now = new Date();
+              const yyyy = now.getFullYear();
+              const mm = String(now.getMonth() + 1).padStart(2, '0');
+              const dd = String(now.getDate()).padStart(2, '0');
+              const hh = String(now.getHours()).padStart(2, '0');
+              const min = String(now.getMinutes()).padStart(2, '0');
+              const ss = String(now.getSeconds()).padStart(2, '0');
+              const generated = `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+              if (el) el.textContent = generated;
+            }
+          } catch (e) { /* ignore timestamp display errors */ }
+
+          function setAllValues(selector, value) {
+            if (value !== undefined && value !== null) {
+              document.querySelectorAll(selector).forEach(i => i.value = value);
+            }
+          }
+          // Prefer machine for overlapping fields, else kickoff, else PO
+          const machine = data.machine || {};
+          const kickoff = data.kickoff || {};
+          const po = data.po || {};
+          // Header fields
+          setAllValues('input[name="ccn"]', machine.ccn || kickoff.ccn || po.ccn || '');
+          setAllValues('input[name="machineName"]', machine.machineName || kickoff.machineName ||  '');
+          setAllValues('input[name="model"]', machine.model || kickoff.machineModel || po.modelName || '');
+          setAllValues('input[name="customerName"]', machine.customerName || kickoff.customerName || po.customerName || '');
+          // Page 1 fields
+          setValue('input[name="recordNo"]', machine.recordNo || po.recordNo || '');
+          setValue('input[name="poRefNo"]', machine.poRefNo || po.poReferenceNumber || '');
+          setValue('input[name="poDate"]', machine.poDate || po.poDate || '');
+          setValue('input[name="poDeliveryDate"]', machine.poDeliveryDate || kickoff.poDeliveryDate || po.poDeliveryDate || '');
+          setValue('input[name="poValueLacs"]', machine.poValueLacs || po.poValueLacs || '');
+          setValue('input[name="salesPerson"]', machine.salesPerson || po.salesPerson || '');
+          setValue('input[name="orderType"]', machine.orderType || kickoff.orderType || po.orderType || '');
+          // prefer machine.address, then kickoff.address, then concatenated PO address (returned as data.poAddress)
+          setValue('input[name="address"]', machine.address || kickoff.address || data.poAddress || po.addressLine1 || '');
+          // Page 2 fields
+          setValue('input[name="venue"]', machine.venue || kickoff.venue || '');
+          setValue('input[name="unit"]', machine.unit || kickoff.unit || '');
+          setValue('input[name="komNo"]', machine.komNo || kickoff.komNo || '');
+          setValue('input[name="membersPresent"]', machine.membersPresent || kickoff.membersPresent || '');
+          setValue('input[name="machineCpQty"]', machine.machineCpQty || kickoff.machineCpQty || '');
+          setValue('input[name="machineOptionalCpQty"]', machine.machineOptionalCpQty || kickoff.machineOptionalCpQty || '');
+          setValue('input[name="machineFamily"]', machine.machineFamily || kickoff.machineFamily || '');
+          setValue('input[name="po_receipt_date"]', machine.poReceiptDate || kickoff.po_receipt_date || '');
+          setValue('input[name="oa_generation_date"]', machine.oaGenerationDate || kickoff.oa_generation_date || '');
+          setValue('input[name="kom_date"]', machine.komDate || kickoff.kom_date || '');
+          setValue('input[name="advance_payment_receipt_date"]', machine.advancePaymentReceiptDate || kickoff.advance_payment_receipt_date || '');
+          setValue('input[name="balance_payment_receipt_date"]', machine.balancePaymentReceiptDate || kickoff.balance_payment_receipt_date || '');
+          setValue('input[name="cp_layout_approvals"]', machine.cpLayoutApprovals || kickoff.cp_layout_approvals || '');
+          setValue('input[name="machine_layout_approvals"]', machine.machineLayoutApprovals || kickoff.machine_layout_approvals || '');
+          setValue('input[name="room_layout_approvals"]', machine.roomLayoutApprovals || kickoff.room_layout_approvals || '');
+          setValue('input[name="loa_basic"]', machine.loaBasic || kickoff.loa_basic || '');
+          setValue('input[name="loa_optional"]', machine.loaOptional || kickoff.loa_optional || '');
+          setValue('input[name="dq_release"]', machine.dqRelease || kickoff.dq_release || '');
+          setValue('input[name="ppc_basic_date"]', machine.ppcBasicDate || kickoff.ppc_basic_date || '');
+          setValue('input[name="ppc_optional_date"]', machine.ppcOptionalDate || kickoff.ppc_optional_date || '');
+          setValue('input[name="cp_design_release_date"]', machine.cpDesignReleaseDate || kickoff.cp_design_release_date || '');
+          setValue('input[name="machine_manufacturing_basic"]', machine.machineManufacturingBasic || kickoff.machine_manufacturing_basic || '');
+          setValue('input[name="machine_manufacturing_customisation"]', machine.machineManufacturingCustomisation || kickoff.machine_manufacturing_customisation || '');
+          setValue('input[name="cp_manufacturing_date"]', machine.cpManufacturingDate || kickoff.cp_manufacturing_date || '');
+          setValue('input[name="pmr_genration_submission_date"]', machine.pmrGenrationSubmissionDate || kickoff.pmr_genration_submission_date || '');
+          setValue('input[name="products_receipt_date"]', machine.productsReceiptDate || kickoff.products_receipt_date || '');
+          setValue('input[name="packaging_receipt_date"]', machine.packagingReceiptDate || kickoff.packaging_receipt_date || '');
+          setValue('input[name="ifat_protocol_release"]', machine.ifatProtocolRelease || kickoff.ifat_protocol_release || '');
+          setValue('input[name="ifat_std_cp"]', machine.ifatStdCp || kickoff.ifat_std_cp || '');
+          setValue('input[name="ifat_customer_cp"]', machine.ifatCustomerCp || kickoff.ifat_customer_cp || '');
+          setValue('input[name="cfat"]', machine.cfat || kickoff.cfat || '');
+          setValue('input[name="compliance"]', machine.compliance || kickoff.compliance || '');
+          setValue('input[name="dispatch_clearance"]', machine.dispatchClearance || kickoff.dispatch_clearance || '');
+          setValue('input[name="planned_dispatch_date"]', machine.plannedDispatchDate || kickoff.planned_dispatch_date || '');
+          // Machine Category (now text input)
+          setValue('input[name="machineCategory"]', machine.machineCategory || kickoff.machineCategory || po.machineCategory || '');
+          // New fields: Machine Basics, Machine Features, Additional Options
+          setValue('textarea[name="machineBasics"]', machine.machineBasics || kickoff.machineBasics || '');
+          setValue('textarea[name="machineFeatures"]', machine.machineFeatures || kickoff.machineFeatures || '');
+          setValue('textarea[name="additionalOptions"]', machine.additionalOptions || kickoff.additionalOptions || '');
+          setValue('textarea[name="projectKickoffDetails"]', machine.projectKickoffDetails || kickoff.projectKickoffDetails || '');
+
+          // If server returned machine.timestamp ensure header shows it (already handled above)
+          try {
+            if (data.machine && data.machine.timestamp) {
+              const el = document.getElementById('timestamp');
+              if (el) el.textContent = data.machine.timestamp;
+            }
+          } catch (e) {}
+
+          // Page 3 fields
+          setValue('input[name="workmen"]', machine.workmen || '');
+          setValue('input[name="stdTaskOfMachine"]', machine.stdTaskOfMachine || '');
+          setValue('input[name="taskCompleted"]', machine.taskCompleted || '');
+          setValue('input[name="machinePercentage"]', machine.machinePercentage || '');
+          setValue('input[name="projectPercentage"]', machine.projectPercentage || '');
+          setValue('input[name="lastUpdatedData"]', machine.lastUpdatedData || '');
+          // --- REPLACED: explicit radio handling for selfPullingMaterial (previously used setValue and failed) ---
+          (function(){
+            // prefer machine, then kickoff, otherwise default to "No"
+            const spmVal = (machine.selfPullingMaterial || kickoff.selfPullingMaterial || '').toString().trim();
+            if (spmVal) {
+              const radios = document.querySelectorAll('input[name="selfPullingMaterial"]');
+              radios.forEach(r => { r.checked = (r.value.toLowerCase() === spmVal.toLowerCase()); });
+            } else {
+              const noRadio = document.querySelector('input[name="selfPullingMaterial"][value="No"]');
+              if (noRadio) noRadio.checked = true;
+            }
+          })();
+          setValue('select[name="cpInterchanged"]', machine.cpInterchanged || '');
+          // NEW: cpTrialOnMachine + remark - ensure select set and remark shown if machine saved it as "Yes"
+          setValue('select[name="cpTrialOnMachine"]', machine.cpTrialOnMachine || kickoff.cpTrialOnMachine || 'No');
+          setValue('textarea[name="cpTrialOnMachineRemark"]', machine.cpTrialOnMachineRemark || kickoff.cpTrialOnMachineRemark || '');
+          try {
+            const cpTrialSelect = document.querySelector('select[name="cpTrialOnMachine"]');
+            const cpTrialRemarkRow = document.getElementById('cp-trial-remark-row');
+            if (cpTrialSelect) {
+              // if server says 'Yes' keep remark visible
+              const val = (machine.cpTrialOnMachine || kickoff.cpTrialOnMachine || '').toString().trim();
+              if (val && val.toLowerCase() === 'yes') {
+                if (cpTrialRemarkRow) cpTrialRemarkRow.style.display = 'block';
+              } else {
+                // otherwise keep as configured (default handled elsewhere)
+                if (cpTrialRemarkRow && (!cpTrialSelect.value || cpTrialSelect.value.toLowerCase() !== 'yes')) cpTrialRemarkRow.style.display = 'none';
+              }
+             // Trigger change so any listeners (including the show/hide handler) run when value was set programmatically
+             try { cpTrialSelect.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) { /* ignore */ }
+            }
+          } catch (e) {}
+          setValue('textarea[name="shortDetailMech"]', machine.shortDetailMech || '');
+          setValue('textarea[name="shortDetailElectrical"]', machine.shortDetailElectrical || '');
+          setValue('textarea[name="shortDetailCp"]', machine.shortDetailCp || '');
+          setValue('textarea[name="remarks"]', machine.remarks || '');
+          setValue('textarea[name="delayAnalysis"]', machine.delayAnalysis || '');
+          // Live Status
+          // Default to PPC if the server did not provide a liveStatus value (first-time page load with no existing data)
+          setValue('select[name="liveStatus"]', machine.liveStatus || 'PPC');
+          // ccnStatus (radio)
+          if (machine.ccnStatus) {
+            const radios = document.querySelectorAll('input[name="ccnStatus"]');
+            radios.forEach(r => { if (r.value.toLowerCase() === machine.ccnStatus.toLowerCase()) r.checked = true; });
+          } else if (kickoff.ccnStatus) {
+            const radios = document.querySelectorAll('input[name="ccnStatus"]');
+            radios.forEach(r => { if (r.value.toLowerCase() === kickoff.ccnStatus.toLowerCase()) r.checked = true; });
+          }
+          // Actual Assy Start Date fetch and display
+          setValue('input[name="actualAssyStartDate"]', machine.actualAssyStartDate || kickoff.actualAssyStartDate || po.actualAssyStartDate || '');
+          // After setting model field, fetch totalProcessTask for that model
+          const model = document.querySelector('input[name="model"]').value;
+          if (model) {
+            try {
+              const resp = await fetch(`/api/machine-model/total-process-task?model=${encodeURIComponent(model)}`);
+              if (resp.ok) {
+                const totalProcessTask = await resp.json();
+                setValue('input[name="stdTaskOfMachine"]', totalProcessTask || '');
+              }
+            } catch (e) {}
+          }
+
+          // Page 4 fields
+          
+          setValue('input[name="actualMaterialReceiptDate"]', machine.actualMaterialReceiptDate || '');
+          setValue('input[name="actualDynamicManufacturingPlan"]', machine.actualDynamicManufacturingPlan || '');
+          setValue('input[name="actualDynamicDispatchPlan"]', machine.actualDynamicDispatchPlan || '');
+          setValue('input[name="actualAssyStartDate"]', machine.actualAssyStartDate || '');
+          setValue('input[name="actualIfatDate"]', machine.actualIfatDate || '');
+          setValue('input[name="actualCpDate"]', machine.actualCpDate || '');
+          setValue('input[name="actualCfatDate"]', machine.actualCfatDate || '');
+          setValue('input[name="complianceClosureDate"]', machine.complianceClosureDate || '');
+          setValue('input[name="mechNonIssuance"]', machine.mechNonIssuance || '');
+          setValue('input[name="electNonIssuance"]', machine.electNonIssuance || '');
+          setValue('input[name="handedToDispatchDept"]', machine.handedToDispatchDept || '');
+
+          // Page 5 fields
+          setValue('textarea[name="weeklyReview"]', machine.weeklyReview || '');
+          setValue('input[name="rescheduledIfatDate"]', machine.rescheduledIfatDate || '');
+          setValue('input[name="rescheduledCfatDate"]', machine.rescheduledCfatDate || '');
+
+          // Page 6 fields
+          setValue('input[name="dispatched_month"]', machine.dispatched_month || '');
+          setValue('input[name="invoiceDate"]', machine.invoiceDate || '');
+          // Disable fields on page1 and page2 after fetching data
+          document.querySelectorAll('#page1 input, #page1 textarea, #page1 select').forEach(el => el.disabled = true);
+          document.querySelectorAll('#page2 input, #page2 textarea, #page2 select').forEach(el => el.disabled = true);
+         }
+       } catch (e) {
+        
+       }
+     });
+
+    // Machine Percentage calculation logic
+    document.querySelector('input[name="taskCompleted"]').addEventListener('input', function() {
+      var taskCompleted = parseFloat(this.value);
+      var stdTask = parseFloat(document.querySelector('input[name="stdTaskOfMachine"]').value);
+      var percent = '';
+      if (!isNaN(taskCompleted) && !isNaN(stdTask) && stdTask > 0) {
+        percent = ((taskCompleted / stdTask) * 100).toFixed(2);
+      }
+      document.querySelector('input[name="machinePercentage"]').value = percent;
+    });
+function getFormData() {
+  const data = {};
+  // Collect all input, textarea, and select values from the entire page
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    if (el.type === 'radio') {
+      if (el.checked) data[el.name] = el.value;
+    } else if (el.type === 'checkbox') {
+      data[el.name] = el.checked;
+    } else if (el.type === 'file') {
+      // handle file separately if needed
+    } else {
+      data[el.name] = el.value;
+    }
+  });
+  // Add timestamp from span
+  data['timestamp'] = document.getElementById('timestamp').textContent;
+  // Add projectPercentage from input (if not already set)
+  const projectPercentageInput = document.querySelector('input[name="projectPercentage"]');
+  if (projectPercentageInput) {
+    data['projectPercentage'] = projectPercentageInput.value;
+  }
+  return data;
+}
+    // Normalize keys: convert snake_case keys to camelCase so backend (Jackson -> Machine) maps properly
+    function toCamelCase(s) {
+      return s.replace(/_([a-z])/g, function (g) { return g[1].toUpperCase(); });
+    }
+
+    function getFormData() {
+      const raw = {};
+      // Collect all input, textarea, and select values from the entire page
+      document.querySelectorAll('input, textarea, select').forEach(el => {
+        if (!el.name) return; // skip unnamed
+        if (el.type === 'radio') {
+          if (el.checked) raw[el.name] = el.value;
+        } else if (el.type === 'checkbox') {
+          raw[el.name] = el.checked;
+        } else if (el.type === 'file') {
+          // ignore files for now (handled separately if needed)
+        } else {
+          raw[el.name] = el.value;
+        }
+      });
+
+      // Add timestamp from span (this will be server-provided if present)
+      raw['timestamp'] = document.getElementById('timestamp') ? document.getElementById('timestamp').textContent : '';
+      // Add projectPercentage from input (if not already set)
+      const projectPercentageInput2 = document.querySelector('input[name="projectPercentage"]');
+      if (projectPercentageInput2) {
+        raw['projectPercentage'] = projectPercentageInput2.value;
+      }
+
+      // Convert snake_case keys to camelCase so Jackson maps to Machine POJO
+      const normalized = {};
+      Object.keys(raw).forEach(k => {
+        const camel = toCamelCase(k);
+        // If the key was already camelCase, toCamelCase will not change it
+        normalized[camel] = raw[k];
+      });
+
+      return normalized;
+    }
+
+    async function savePage(pageId) {
+      const data = getFormData();
+
+      // Ensure machineFamily is explicitly included (robustness in case of DOM/name issues)
+      const mf = (document.querySelector('input[name="machineFamily"]') || document.getElementById('machineFamily'));
+      if (mf) data.machineFamily = mf.value;
+
+      // Compute fallback redirect URL (same logic as previous behavior) but do not auto-redirect here
+      const urlParams = new URLSearchParams(window.location.search);
+      let from = urlParams.get('from');
+      if (!from) {
+        const ref = (document.referrer || '').toLowerCase();
+        if (ref.includes('machines-by-status')) from = 'machines-by-status';
+        else if (ref.includes('kickoff-list')) from = 'kickoff-list';
+      }
+
+      let fallbackUrl = '/kickoff-list.html';
+      if (from === 'machines-by-status') {
+        const dest = new URLSearchParams();
+        const status = urlParams.get('status'); if (status) dest.set('status', status);
+        const unit = urlParams.get('unit'); if (unit) dest.set('unit', unit);
+        const month = urlParams.get('month'); if (month) dest.set('month', month);
+        const year = urlParams.get('year'); if (year) dest.set('year', year);
+        const q = dest.toString();
+        fallbackUrl = `/machine/machines-by-status.html${q ? ('?' + q) : ''}`;
+      } else if (from === 'kickoff-list') {
+        fallbackUrl = '/kickoff-list.html';
+      } else {
+        // Default / legacy behavior: if invoiceDate + ccn exists, prepare report link; otherwise kickoff list
+        const invoiceDate = (data.invoiceDate || '').toString().trim();
+        const ccnVal = (data.ccn || '').toString().trim();
+        if (invoiceDate && ccnVal) {
+          // fallback will open report page when "Close" is pressed, but prefer to let user choose from modal.
+          fallbackUrl = `/machine/machine-report.html?ccn=${encodeURIComponent(ccnVal)}`;
+        } else {
+          fallbackUrl = '/kickoff-list.html';
+        }
+      }
+
+      try {
+        const res = await fetch('/api/machine/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (res.ok) {
+          // Instead of immediately redirecting, show modal with Generate Report option.
+          const ccnForReport = (data.ccn || '').toString().trim();
+          const modal = document.getElementById('save-success-modal');
+          const generateBtn = document.getElementById('generateReportBtn');
+          const closeBtn = document.getElementById('closeModalBtn');
+          const msg = document.getElementById('saveSuccessText');
+          if (msg) {
+            if (ccnForReport) msg.textContent = `The form for CCN ${ccnForReport} was saved successfully. You can generate a report for this CCN.`;
+            else msg.textContent = 'The form was saved successfully.';
+          }
+          // Generate report opens new tab/window with report page
+          if (generateBtn) {
+            generateBtn.onclick = function() {
+              if (ccnForReport) {
+                window.open(`/machine/machine-report.html?ccn=${encodeURIComponent(ccnForReport)}`, '_blank');
+              } else {
+                // if no CCN, open report page without ccn (report page will show an error/notice)
+                window.open(`/machine/machine-report.html`, '_blank');
+              }
+              // keep modal open so user can close or generate again; optionally close it:
+              if (modal) modal.style.display = 'none';
+            };
+          }
+          // Close navigates to fallbackUrl (preserves previous flows)
+          if (closeBtn) {
+            closeBtn.onclick = function() {
+              if (modal) modal.style.display = 'none';
+              window.location.href = fallbackUrl;
+            };
+          }
+          if (modal) modal.style.display = 'flex';
+          return;
+        } else {
+          alert('Save failed!');
+        }
+      } catch (err) {
+        alert('Save failed!');
+      }
+    }
+
+    // --- NEW: show/hide CP Trial remark when dropdown changes ---
+    (function(){
+      const cpTrialSelect = document.getElementById('cp-trial-on-machine');
+      const cpTrialRemarkRow = document.getElementById('cp-trial-remark-row');
+      if (!cpTrialSelect || !cpTrialRemarkRow) return;
+      // set initial visibility based on current value
+      cpTrialRemarkRow.style.display = (cpTrialSelect.value && cpTrialSelect.value.toLowerCase() === 'yes') ? 'block' : 'none';
+      cpTrialSelect.addEventListener('change', function() {
+        if (this.value && this.value.toLowerCase() === 'yes') {
+          cpTrialRemarkRow.style.display = 'block';
+        } else {
+          cpTrialRemarkRow.style.display = 'none';
+        }
+      });
+    })();
+
+    // NEW: auto-set Actual Assy Start Date to today when Live Status is a WIP state
+    function autoSetActualAssyDateIfWip() {
+      try {
+        const live = document.querySelector('select[name="liveStatus"]');
+        const actual = document.querySelector('input[name="actualAssyStartDate"]');
+        if (!live || !actual) return;
+        const val = (live.value || '').toLowerCase();
+        if (val.includes('wip')) {
+          if (!actual.value || actual.value.trim() === '') {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            actual.value = `${yyyy}-${mm}-${dd}`;
+          }
+        }
+      } catch (e) { /* ignore errors */ }
+    }
+
+    // attach to live-status change (preserve existing updateProjectPercentage behavior)
+    (function() {
+      const liveStatusSelect = document.querySelector('select[name="liveStatus"]');
+      if (liveStatusSelect) {
+        // ensure both project percentage and auto-date run on change
+        liveStatusSelect.addEventListener('change', function() {
+          try { updateProjectPercentage(); } catch (e) {}
+          try { autoSetActualAssyDateIfWip(); } catch (e) {}
+        });
+      }
+    })();
+
+    // ensure auto-set runs after initial data load / project percentage initial calculation
+    document.addEventListener('DOMContentLoaded', async function() {
+      // ...existing code...
+      try {
+        setTimeout(function() {
+          try { updateProjectPercentage(); } catch (e) {}
+          try { autoSetActualAssyDateIfWip(); } catch (e) {}
+        }, 150); // slight delay to allow fetched values to populate
+      } catch (e) { /* ignore */ }
+    });
+
+    // Ensure showPage exists to toggle pages and update active tab styling
+    function showPage(pageId) {
+      // hide all pages
+      document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+      // show requested page
+      const page = document.getElementById(pageId);
+      if (page) page.style.display = 'block';
+      // update step active state
+      document.querySelectorAll('.step').forEach(step => {
+        step.classList.toggle('active', step.getAttribute('onclick') && step.getAttribute('onclick').includes(pageId));
+      });
+      // update progress line
+      const steps = document.querySelectorAll('.step');
+      const activeIndex = Array.from(steps).findIndex(step => step.classList.contains('active'));
+      const progress = ((activeIndex + 1) / steps.length) * 100;
+      document.querySelector('.progress-line').style.setProperty('--progress', progress + '%');
+      // scroll active step into view (for small screens)
+      const active = document.querySelector('.step.active');
+      if (active && active.scrollIntoView) active.scrollIntoView({inline:'center', behavior:'smooth'});
+    }
+
+    // Initialize tabs on load (select page from URL if provided)
+    window.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const page = urlParams.get('page') || 'page1';
+      showPage(page);
+      // attach click handlers to steps to ensure active state when steps are not using inline onclick
+      document.querySelectorAll('.step').forEach(step => {
+        step.addEventListener('click', function(e) {
+          // derive target page from onclick attr if present
+          const onclick = step.getAttribute('onclick') || '';
+          const match = onclick.match(/showPage\('([^']+)'\)/);
+          if (match) showPage(match[1]);
+        });
+      });
+    });
+
+    function updateProjectPercentage() {
+      const liveStatus = document.querySelector('select[name="liveStatus"]').value;
+      let projectPercent = 0;
+
+      // Map live status stages to percentage ranges
+      const statusToPercent = {
+        'NEW CCN FOR APPROVAL': 0,
+        'DESIGN': 4,
+        'IN MUMBAI': 8,
+        'RECEIVED FROM MUMBAI': 10,
+        'PPC': 15,
+        'WIP- KANBAN': 20,
+        'WIP -BASIC': 25,
+        'WIP- OPTIONALS': 27,
+        'HOLD - AUTOMATION PENDING': 30,
+        'HOLD': 15,
+        'STD CP TRIALS': 35,
+        'IFAT IN PROGRESS': 40,
+        'IFAT DONE': 45,
+        'POST IFAT - POINT CLOSURE': 47,
+        'READY': 50,
+        'AWAITED PRODUCT': 52,
+        'AWAITED PACKAGING': 52,
+        'AWAITED CP': 55,
+        
+        'CUSTOMER CP TRIALS': 60,
+        'AWAITED CFAT': 65,
+        'CFAT IN PROGRESS': 70,
+        'CFAT DONE': 75,
+        'RE-CFAT': 60,
+        'POST CFAT - POINT CLOSURE': 80,
+        'COMPLIANCE - SENT TO CUSTOMER':85,
+        'AWAITING PACKING CLEARLANCE': 90,
+        'FOR DISPATCH': 95,
+        'AWAITING COMMERCIAL CLEARLANCE':100,
+        'CLOSE TOTAL': 100,
+        'STOCK MC - READY': 50
+      };
+
+      // Get percentage directly from the selected live status
+      projectPercent = statusToPercent[liveStatus] !== undefined ? statusToPercent[liveStatus] : 0;
+
+      // Set to input
+      const projectPercentageInput = document.querySelector('input[name="projectPercentage"]');
+      if (projectPercentageInput) {
+        projectPercentageInput.value = projectPercent.toFixed(2);
+      }
+    }
+
+    // NEW: Add change listener to live status dropdown
+    (function() {
+      const liveStatusSelect = document.querySelector('select[name="liveStatus"]');
+      if (liveStatusSelect) {
+        liveStatusSelect.addEventListener('change', updateProjectPercentage);
+      }
+    })();
+
+    // On page load, after all data is fetched, calculate initial project percentage
+    document.addEventListener('DOMContentLoaded', async function() {
+      // ...existing code...
+      // At the end of DOMContentLoaded, call updateProjectPercentage to set initial value
+      try {
+        setTimeout(updateProjectPercentage, 100); // delay slightly to ensure values are loaded
+      } catch (e) { /* ignore */ }
+    });
+
+    // NEW: Prevent marking CCN as Closed unless all required Assy/Dispatch fields + invoiceDate are provided
+    (function() {
+      try {
+        // list of required field selectors
+        const requiredSelectors = [
+          'input[name="actualMaterialReceiptDate"]',
+          'input[name="actualDynamicManufacturingPlan"]',
+          'input[name="actualDynamicDispatchPlan"]',
+          'input[name="actualAssyStartDate"]',
+          'input[name="actualIfatDate"]',
+          'input[name="actualCpDate"]',
+          'input[name="actualCfatDate"]',
+          'input[name="complianceClosureDate"]',
+          'input[name="mechNonIssuance"]',
+          'input[name="electNonIssuance"]',
+          'input[name="handedToDispatchDept"]',
+          'input[name="invoiceDate"]' // invoice also required
+        ];
+
+        function allMandatoryFieldsFilled() {
+          try {
+            for (let sel of requiredSelectors) {
+              const el = document.querySelector(sel);
+              if (!el) return false;
+              const v = (el.value || '').toString().trim();
+              if (v === '') return false;
+            }
+            return true;
+          } catch (e) { return false; }
+        }
+
+        // track previous selection
+        let prevCcnStatus = (document.querySelector('input[name="ccnStatus"]:checked') || {}).value || 'Live';
+
+        function revertToPrevious() {
+          document.querySelectorAll('input[name="ccnStatus"]').forEach(r => {
+            r.checked = (r.value.toLowerCase() === (prevCcnStatus || '').toLowerCase());
+          });
+        }
+
+        function setCcnStatusTo(value) {
+          document.querySelectorAll('input[name="ccnStatus"]').forEach(r => {
+            if (r.value.toLowerCase() === value.toLowerCase()) r.checked = true;
+            else r.checked = false;
+          });
+          prevCcnStatus = value;
+        }
+
+        const invoiceInput = document.querySelector('input[name="invoiceDate"]');
+
+        document.querySelectorAll('input[name="ccnStatus"]').forEach(radio => {
+          radio.addEventListener('change', function(e) {
+            const newVal = (this.value || '').toLowerCase();
+            if (newVal === 'close' || newVal === 'closed') {
+              if (!allMandatoryFieldsFilled()) {
+                alert('Cannot mark CCN Closed. Please fill all Assy/Dispatch fields and Invoice Date first.');
+                setTimeout(revertToPrevious, 0);
+                return;
+              }
+            }
+            // update previous only when change allowed
+            prevCcnStatus = this.value;
+          });
+        });
+
+        // Auto-close when invoiceDate is set AND all required fields are filled.
+        if (invoiceInput) {
+          invoiceInput.addEventListener('input', function() {
+            const val = (this.value || '').trim();
+            if (val) {
+              if (allMandatoryFieldsFilled()) {
+                setCcnStatusTo('Closed');
+              } else {
+                // if invoice entered but other required fields missing, do not close; inform user
+                alert('Invoice entered but some required Assy/Dispatch fields are still empty. Fill them to auto-close CCN.');
+                // keep previous or set Live
+                if (!prevCcnStatus || /^closed?$/i.test(prevCcnStatus)) setCcnStatusTo('Live');
+                else setCcnStatusTo(prevCcnStatus);
+              }
+            } else {
+              // invoice cleared -> revert to previous (if not closed) or Live
+              if (prevCcnStatus && !/^closed?$/i.test(prevCcnStatus)) setCcnStatusTo(prevCcnStatus);
+              else setCcnStatusTo('Live');
+            }
+          });
+        }
+
+      } catch (e) { /* ignore */ }
+    })();
+
+    // Before sending to server, ensure we don't submit a Close without all mandatory fields (extra safety)
+    (function(){
+      const origSave = window.savePage;
+      if (typeof origSave === 'function') {
+        window.savePage = async function(pageId) {
+          try {
+            // check if CCN would be closed
+            const checked = document.querySelector('input[name="ccnStatus"]:checked');
+            const ccnStatusVal = checked ? checked.value.toLowerCase() : '';
+            if ((ccnStatusVal === 'close' || ccnStatusVal === 'closed')) {
+              // verify all required selectors are filled (same list as above)
+              const requiredSelectors = [
+                'input[name="actualMaterialReceiptDate"]',
+                'input[name="actualDynamicManufacturingPlan"]',
+                'input[name="actualDynamicDispatchPlan"]',
+                'input[name="actualAssyStartDate"]',
+                'input[name="actualIfatDate"]',
+                'input[name="actualCpDate"]',
+                'input[name="actualCfatDate"]',
+                'input[name="complianceClosureDate"]',
+                'input[name="mechNonIssuance"]',
+                'input[name="electNonIssuance"]',
+                'input[name="handedToDispatchDept"]',
+                'input[name="invoiceDate"]'
+              ];
+              for (let sel of requiredSelectors) {
+                const el = document.querySelector(sel);
+                if (!el || !(el.value || '').toString().trim()) {
+                  alert('Cannot save: all Assy/Dispatch fields and Invoice Date must be filled before closing CCN.');
+                  return;
+                }
+              }
+            }
+          } catch (e) { /* ignore */ }
+          return origSave(pageId);
+        };
+      }
+    })();
+    </script>
+</body>
+</html>

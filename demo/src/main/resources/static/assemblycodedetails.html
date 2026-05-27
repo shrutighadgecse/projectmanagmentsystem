@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Code Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Assembly Code Details</h1>
+        <h2>Inward Stock Data</h2>
+        <table id="scannerDataTable">
+            <thead>
+                <tr>
+                    <th>Reference ID</th>
+                    <th>Assembly Code</th>
+                    <th>KM Location</th>
+                    <th>GRN Number</th>
+                    <th>GRN Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated dynamically -->
+            </tbody>
+        </table>
+
+        <h2>Stock Transit Data</h2>
+        <table id="stockTransitTable">
+            <thead>
+                <tr>
+                    <th>Reference ID</th>
+                    <th>Assembly Code</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated dynamically -->
+            </tbody>
+        </table>
+
+        <h2>Stock Release Data</h2>
+        <table id="stockReleaseTable">
+            <thead>
+                <tr>
+                    <th>Reference ID</th>
+                    <th>Assembly Code</th>
+                    <th>Release Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const assemblyCodeDetails = JSON.parse(localStorage.getItem('assemblyCodeDetails'));
+
+            if (assemblyCodeDetails) {
+                const scannerDataTable = document.getElementById('scannerDataTable').querySelector('tbody');
+                const stockTransitTable = document.getElementById('stockTransitTable').querySelector('tbody');
+                const stockReleaseTable = document.getElementById('stockReleaseTable').querySelector('tbody');
+
+                // Populate Scanner Form Data
+                assemblyCodeDetails.scannerData.forEach(data => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.referenceId}</td>
+                        <td>${data.assemblyCode}</td>
+                        <td>${data.kmLocation}</td>
+                        <td>${data.grnNumber}</td>
+                        <td>${data.grnDate}</td>
+                    `;
+                    scannerDataTable.appendChild(row);
+                });
+
+                // Populate Stock Transit Data
+                assemblyCodeDetails.stockTransitData.forEach(data => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.referenceId}</td>
+                        <td>${data.assemblyCode}</td>
+                        <td>${data.date}</td>
+                    `;
+                    stockTransitTable.appendChild(row);
+                });
+
+                // Populate Stock Release Data
+                assemblyCodeDetails.stockReleaseData.forEach(data => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.referenceId}</td>
+                        <td>${data.assemblyCode}</td>
+                        <td>${data.releaseDate}</td>
+                    `;
+                    stockReleaseTable.appendChild(row);
+                });
+            } else {
+                alert('No data found for the selected assembly code.');
+            }
+        });
+        
+    </script>
+</body>
+</html>
